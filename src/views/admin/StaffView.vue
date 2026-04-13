@@ -1,0 +1,463 @@
+<template>
+  <div class="space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Staff Management</h1>
+        <p class="text-slate-500 dark:text-slate-400">Manage employees, documents and assignments</p>
+      </div>
+      <button @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg shadow-blue-500/30 transition-all font-semibold">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        Add Staff Member
+      </button>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div class="relative w-full md:w-96">
+        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </span>
+        <input v-model="search" @input="fetchStaff(1)" type="text" placeholder="Search by name, QID, profession..." 
+               class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none dark:text-white">
+      </div>
+      <div class="flex items-center gap-2">
+        <select v-model="perPage" @change="fetchStaff(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none dark:text-white">
+          <option :value="10">10 per page</option>
+          <option :value="25">25 per page</option>
+          <option :value="50">50 per page</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div v-if="loading" class="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+        <div class="w-12 h-12 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
+        <p class="mt-4 text-slate-500 font-medium">Loading staff records...</p>
+    </div>
+
+    <DataTable v-else
+      :columns="columns" 
+      :data="staffMembers" 
+      :pagination="pagination"
+      :sort-by="sortBy"
+      :sort-dir="sortDir"
+      @sort="handleSort"
+      @page-change="fetchStaff">
+      
+      <template #name="{ row }">
+        <div class="flex flex-col">
+          <span class="font-semibold text-slate-900 dark:text-white">{{ row.name }}</span>
+          <span class="text-xs text-slate-500">{{ row.mobile }}</span>
+        </div>
+      </template>
+
+      <template #qid_expiry="{ value }">
+        <span :class="expiryClass(value)">{{ formatDate(value) }}</span>
+      </template>
+
+      <template #passport_expiry="{ value }">
+        <span :class="expiryClass(value)">{{ formatDate(value) }}</span>
+      </template>
+
+      <template #status="{ value }">
+        <span :class="[
+          'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
+          value === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'
+        ]">
+          {{ value }}
+        </span>
+      </template>
+
+      <template #actions="{ row }">
+        <div class="flex items-center gap-3">
+          <button @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-indigo-500 transition-colors" title="View Details">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Staff">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button @click="confirmDelete(row)" class="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Delete Staff">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+        </div>
+      </template>
+    </DataTable>
+
+    <!-- Upsert/View Modal -->
+    <Modal :show="showModal" :title="viewMode ? 'Staff Details' : (editMode ? 'Edit Staff Member' : 'Add Staff Member')" @close="showModal = false" maxWidth="5xl">
+      <form @submit.prevent="saveStaff" class="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <!-- Basic Info -->
+        <div class="space-y-6">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <h4 class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Personal & Prof. Info</h4>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Full Name</label>
+              <input v-model="form.name" type="text" :disabled="viewMode" 
+                :class="[errors.name ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Employee Name">
+              <p v-if="errors.name" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.name }}</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nationality</label>
+                <select v-model="form.nationality" :disabled="viewMode"
+                  :class="[errors.nationality ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed appearance-none">
+                  <option value="">Select Country</option>
+                  <option v-for="c in nationalities" :key="c" :value="c">{{ c }}</option>
+                </select>
+                <p v-if="errors.nationality" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.nationality }}</p>
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Profession</label>
+                <input v-model="form.profession" type="text" :disabled="viewMode" 
+                  :class="[errors.profession ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Job Title">
+                <p v-if="errors.profession" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.profession }}</p>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mobile Number</label>
+              <input v-model="form.mobile" type="text" :disabled="viewMode" 
+                :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="+974 ...">
+              <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.mobile }}</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Date of Birth</label>
+                <input v-model="form.date_of_birth" type="date" :disabled="viewMode" 
+                  :class="[errors.date_of_birth ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
+                <p v-if="errors.date_of_birth" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.date_of_birth }}</p>
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Joining Date</label>
+                <input v-model="form.joining_date" type="date" :disabled="viewMode" 
+                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Identity Details -->
+        <div class="space-y-6">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <h4 class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Identity & Documents</h4>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Passport Number</label>
+                <input v-model="form.passport_number" type="text" :disabled="viewMode" 
+                  :class="[errors.passport_number ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
+                <p v-if="errors.passport_number" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.passport_number }}</p>
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Passport Expiry</label>
+                <input v-model="form.passport_expiry" type="date" :disabled="viewMode" 
+                  :class="[errors.passport_expiry ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
+                <p v-if="errors.passport_expiry" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.passport_expiry }}</p>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Qatar ID (QID) Number</label>
+              <input v-model="form.qid_number" type="text" :disabled="viewMode" 
+                :class="[errors.qid_number ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="11-digit QID">
+              <p v-if="errors.qid_number" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.qid_number }}</p>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">QID Expiry Date</label>
+              <input v-model="form.qid_expiry" type="date" :disabled="viewMode" 
+                :class="[errors.qid_expiry ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
+              <p v-if="errors.qid_expiry" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.qid_expiry }}</p>
+            </div>
+            
+            <div class="space-y-4 pt-2">
+              <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">QID Documents</label>
+                <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'qid_files')" multiple accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition-all cursor-pointer">
+                <div v-else class="flex flex-wrap gap-2 pt-1">
+                  <a v-for="file in form.qid_documents" :key="file.id" :href="file.url" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold text-blue-600 hover:bg-blue-50 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    {{ file.name }}
+                  </a>
+                  <span v-if="!form.qid_documents?.length" class="text-xs text-slate-400 italic">No documents attached</span>
+                </div>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Passport Documents</label>
+                <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'passport_files')" multiple accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 transition-all cursor-pointer">
+                <div v-else class="flex flex-wrap gap-2 pt-1">
+                  <a v-for="file in form.passport_documents" :key="file.id" :href="file.url" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold text-indigo-600 hover:bg-indigo-50 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    {{ file.name }}
+                  </a>
+                  <span v-if="!form.passport_documents?.length" class="text-xs text-slate-400 italic">No documents attached</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+      <template #footer>
+        <button @click="showModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">
+          {{ viewMode ? 'Close' : 'Cancel' }}
+        </button>
+        <button v-if="!viewMode" @click="saveStaff" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
+          <svg v-if="saving" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          {{ saving ? 'Saving Changes...' : 'Save Member Details' }}
+        </button>
+      </template>
+    </Modal>
+
+    <!-- Confirm Delete Modal -->
+    <ConfirmModal 
+      :show="showConfirmModal" 
+      title="Delete Staff Member"
+      :message="`Are you sure you want to delete ${itemToDelete?.name}?`"
+      :loading="deleting"
+      @confirm="deleteStaff"
+      @cancel="showConfirmModal = false"
+    />
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import DataTable from '@/components/shared/DataTable.vue';
+import Modal from '@/components/shared/Modal.vue';
+import ConfirmModal from '@/components/shared/ConfirmModal.vue';
+import { staffService } from '@/services/api';
+import { useNotificationStore } from '@/stores/notification';
+
+const notificationStore = useNotificationStore();
+
+const staffMembers = ref([]);
+const loading = ref(true);
+const saving = ref(false);
+const search = ref('');
+const sortBy = ref('created_at');
+const sortDir = ref('desc');
+const perPage = ref(10);
+const pagination = ref({});
+
+const showModal = ref(false);
+const showConfirmModal = ref(false);
+const itemToDelete = ref(null);
+const deleting = ref(false);
+const editMode = ref(false);
+const viewMode = ref(false);
+const errors = ref({});
+
+const nationalities = [
+  'Qatar', 'India', 'Nepal', 'Philippines', 'Bangladesh', 'Pakistan', 'Sri Lanka', 
+  'Egypt', 'Jordan', 'Lebanon', 'Syria', 'Sudan', 'Kenya', 'Ethiopia', 'Uganda',
+  'United Kingdom', 'United States', 'Canada', 'Australia', 'Other'
+];
+
+const form = ref({
+  id: null,
+  name: '',
+  nationality: '',
+  profession: '',
+  mobile: '',
+  date_of_birth: '',
+  passport_number: '',
+  passport_expiry: '',
+  qid_number: '',
+  qid_expiry: '',
+  joining_date: '',
+  status: 'active',
+  qid_files: [],
+  passport_files: []
+});
+
+const columns = [
+  { key: 'name', label: 'Name & Contact', sortable: true },
+  { key: 'profession', label: 'Profession', sortable: true },
+  { key: 'nationality', label: 'Nationality', sortable: true },
+  { key: 'qid_number', label: 'QID Number', sortable: false },
+  { key: 'qid_expiry', label: 'QID Expiry', sortable: true },
+  { key: 'passport_expiry', label: 'Passport Expiry', sortable: true },
+  { key: 'status', label: 'Status', sortable: false },
+  { key: 'actions', label: 'Actions', sortable: false }
+];
+
+const fetchStaff = async (page = 1) => {
+  loading.value = true;
+  try {
+    const res = await staffService.getAll({
+      page,
+      search: search.value,
+      sort_by: sortBy.value,
+      sort_direction: sortDir.value,
+      per_page: perPage.value
+    });
+    staffMembers.value = res.data.data;
+    pagination.value = res.data.meta;
+  } catch (err) {
+    console.error('Failed to fetch staff', err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleSort = (key) => {
+  if (sortBy.value === key) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortBy.value = key;
+    sortDir.value = 'asc';
+  }
+  fetchStaff(1);
+};
+
+const handleFileChange = (e, field) => {
+  form.value[field] = Array.from(e.target.files);
+};
+
+const validate = () => {
+    errors.value = {};
+    if (!form.value.name) errors.value.name = 'Full name is required';
+    if (!form.value.nationality) errors.value.nationality = 'Please select nationality';
+    if (!form.value.profession) errors.value.profession = 'Profession is required';
+    
+    if (!form.value.mobile) {
+        errors.value.mobile = 'Mobile number is required';
+    } else if (!/^\+?[0-9]{8,15}$/.test(form.value.mobile)) {
+        errors.value.mobile = 'Invalid format (e.g. +97412345678)';
+    }
+
+    if (!form.value.date_of_birth) {
+        errors.value.date_of_birth = 'Birth date is required';
+    }
+
+    if (!form.value.passport_number) errors.value.passport_number = 'Passport is required';
+    if (!form.value.passport_expiry) errors.value.passport_expiry = 'Expiry date required';
+    
+    if (!form.value.qid_number) {
+        errors.value.qid_number = 'QID number is required';
+    } else if (!/^[0-9]{11}$/.test(form.value.qid_number)) {
+        errors.value.qid_number = 'QID must be exactly 11 digits';
+    }
+    
+    if (!form.value.qid_expiry) errors.value.qid_expiry = 'QID expiry is required';
+
+    return Object.keys(errors.value).length === 0;
+};
+
+const openModal = (staff = null, isView = false) => {
+  errors.value = {};
+  viewMode.value = isView;
+  if (staff) {
+    editMode.value = !isView;
+    form.value = { 
+        ...staff, 
+        qid_files: [], 
+        passport_files: [] 
+    };
+  } else {
+    editMode.value = false;
+    form.value = {
+      id: null, name: '', nationality: '', profession: '', mobile: '',
+      date_of_birth: '', passport_number: '', passport_expiry: '',
+      qid_number: '', qid_expiry: '', joining_date: '', status: 'active',
+      qid_files: [], passport_files: []
+    };
+  }
+  showModal.value = true;
+};
+
+const saveStaff = async () => {
+    if (!validate()) return;
+    
+    saving.value = true;
+    const formData = new FormData();
+    
+    // Append fields
+    Object.keys(form.value).forEach(key => {
+        if (['qid_files', 'passport_files'].includes(key)) {
+            form.value[key].forEach(file => formData.append(`${key}[]`, file));
+        } else if (form.value[key] !== null) {
+            formData.append(key, form.value[key]);
+        }
+    });
+
+    try {
+        if (editMode.value) {
+            await staffService.update(form.value.id, formData);
+            notificationStore.addNotification('Staff member updated successfully');
+        } else {
+            await staffService.create(formData);
+            notificationStore.addNotification('Staff member added successfully');
+        }
+        showModal.value = false;
+        fetchStaff(pagination.value.current_page || 1);
+    } catch (err) {
+        alert(err.response?.data?.message || 'Validation error. Please check all fields.');
+    } finally {
+        saving.value = false;
+    }
+};
+
+const confirmDelete = (staff) => {
+  itemToDelete.value = staff;
+  showConfirmModal.value = true;
+};
+
+const deleteStaff = async () => {
+  if (!itemToDelete.value) return;
+  
+  deleting.value = true;
+  try {
+    await staffService.delete(itemToDelete.value.id);
+    notificationStore.addNotification('Staff member deleted successfully');
+    showConfirmModal.value = false;
+    itemToDelete.value = null;
+    fetchStaff(pagination.value.current_page || 1);
+  } catch (err) {
+    alert('Failed to delete staff member');
+  } finally {
+    deleting.value = false;
+  }
+};
+
+// Utilities
+const formatDate = (date) => {
+  if (!date) return '-';
+  return new Date(date).toLocaleDateString();
+};
+
+const expiryClass = (date) => {
+    if (!date) return '';
+    const expiry = new Date(date);
+    const now = new Date();
+    const diff = (expiry - now) / (1000 * 60 * 60 * 24);
+    
+    if (diff < 0) return 'text-red-600 font-bold';
+    if (diff < 30) return 'text-orange-500 font-semibold';
+    return 'text-slate-600';
+};
+
+onMounted(() => fetchStaff());
+</script>
