@@ -44,11 +44,7 @@ const router = createRouter({
           name: 'admin-contracts',
           component: () => import('../views/admin/ContractsView.vue')
         },
-        {
-          path: 'invoices',
-          name: 'admin-invoices',
-          component: () => import('../views/admin/InvoicesView.vue')
-        },
+
         {
           path: 'expenses',
           name: 'admin-expenses',
