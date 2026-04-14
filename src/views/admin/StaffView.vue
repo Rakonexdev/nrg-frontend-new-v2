@@ -20,6 +20,14 @@
         <input v-model="search" @input="fetchStaff(1)" type="text" placeholder="Search by name, QID, profession..." 
                class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none dark:text-white">
       </div>
+
+      <div v-if="filter" class="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg animate-in fade-in slide-in-from-left-4">
+        <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider text-nowrap">Filtered: {{ filter.replace('_', ' ') }}</span>
+        <button @click="filter = ''; fetchStaff(1)" class="p-0.5 hover:bg-amber-100 dark:hover:bg-amber-800 rounded transition-colors text-amber-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </button>
+      </div>
+
       <div class="flex items-center gap-2">
         <select v-model="perPage" @change="fetchStaff(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none dark:text-white">
           <option :value="10">10 per page</option>
@@ -244,6 +252,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
@@ -260,6 +269,8 @@ const sortBy = ref('created_at');
 const sortDir = ref('desc');
 const perPage = ref(10);
 const pagination = ref({});
+const filter = ref('');
+const route = useRoute();
 
 const showModal = ref(false);
 const showConfirmModal = ref(false);
@@ -311,7 +322,8 @@ const fetchStaff = async (page = 1) => {
       search: search.value,
       sort_by: sortBy.value,
       sort_direction: sortDir.value,
-      per_page: perPage.value
+      per_page: perPage.value,
+      filter: filter.value
     });
     staffMembers.value = res.data.data;
     pagination.value = res.data.meta;
@@ -459,5 +471,10 @@ const expiryClass = (date) => {
     return 'text-slate-600';
 };
 
-onMounted(() => fetchStaff());
+onMounted(() => {
+  if (route.query.filter) {
+    filter.value = route.query.filter;
+  }
+  fetchStaff();
+});
 </script>

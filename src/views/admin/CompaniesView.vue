@@ -20,6 +20,14 @@
         <input v-model="search" @input="fetchCompanies(1)" type="text" placeholder="Search companies, contact person..." 
                class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white">
       </div>
+
+      <div v-if="statusFilter" class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 rounded-lg animate-in fade-in slide-in-from-left-4">
+        <span class="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider text-nowrap">Status: {{ statusFilter === 'active' ? 'Active Only' : 'Inactive Only' }}</span>
+        <button @click="statusFilter = ''; fetchCompanies(1)" class="p-0.5 hover:bg-blue-100 dark:hover:bg-blue-800 rounded transition-colors text-blue-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </button>
+      </div>
+
       <div class="flex items-center gap-2">
         <select v-model="perPage" @change="fetchCompanies(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none dark:text-white">
           <option :value="10">10 per page</option>
@@ -107,6 +115,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
@@ -123,6 +132,8 @@ const sortBy = ref('name');
 const sortDir = ref('asc');
 const perPage = ref(10);
 const pagination = ref({});
+const statusFilter = ref('');
+const route = useRoute();
 
 const showModal = ref(false);
 const showConfirmModal = ref(false);
@@ -153,7 +164,8 @@ const fetchCompanies = async (page = 1) => {
       search: search.value,
       sort_by: sortBy.value,
       sort_direction: sortDir.value,
-      per_page: perPage.value
+      per_page: perPage.value,
+      is_active: statusFilter.value === 'active' ? 1 : (statusFilter.value === 'inactive' ? 0 : undefined)
     });
     companies.value = res.data.data;
     pagination.value = res.data.meta;
@@ -226,5 +238,10 @@ const deleteCompany = async () => {
   }
 };
 
-onMounted(() => fetchCompanies());
+onMounted(() => {
+  if (route.query.status) {
+    statusFilter.value = route.query.status;
+  }
+  fetchCompanies();
+});
 </script>

@@ -17,32 +17,44 @@
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <KpiCard 
-        title="Total Staff" 
-        :value="stats.total_staff" 
-        :icon="icons.users" 
-        color-class="bg-blue-600" 
-        :trend="12"
-      />
-      <KpiCard 
-        title="Active Companies" 
-        :value="stats.active_companies" 
-        :icon="icons.briefcase" 
-        color-class="bg-indigo-600" 
-        :trend="5"
-      />
-      <KpiCard 
-        title="Expiring QIDs" 
-        :value="stats.expiring_qid" 
-        :icon="icons.alert" 
-        color-class="bg-amber-500" 
-      />
-      <KpiCard 
-        title="Expired Passports" 
-        :value="stats.expired_passport" 
-        :icon="icons.document" 
-        color-class="bg-rose-500" 
-      />
+      <router-link to="/admin/staff" class="block group">
+        <KpiCard 
+          title="Total Staff" 
+          :value="stats.total_staff" 
+          :icon="icons.users" 
+          color-class="bg-blue-600" 
+          :trend="12"
+          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+        />
+      </router-link>
+      <router-link to="/admin/companies?status=active" class="block group">
+        <KpiCard 
+          title="Active Companies" 
+          :value="stats.active_companies" 
+          :icon="icons.briefcase" 
+          color-class="bg-indigo-600" 
+          :trend="5"
+          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+        />
+      </router-link>
+      <router-link to="/admin/staff?filter=expiring_qid" class="block group">
+        <KpiCard 
+          title="Expiring QIDs" 
+          :value="stats.expiring_qid" 
+          :icon="icons.alert" 
+          color-class="bg-amber-500" 
+          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+        />
+      </router-link>
+      <router-link to="/admin/staff?filter=expired_passport" class="block group">
+        <KpiCard 
+          title="Expired Passports" 
+          :value="stats.expired_passport" 
+          :icon="icons.document" 
+          color-class="bg-rose-500" 
+          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+        />
+      </router-link>
     </div>
 
     <!-- Charts Section -->
