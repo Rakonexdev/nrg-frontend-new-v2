@@ -54,4 +54,27 @@ export const companyService = {
     delete: (id) => api.delete(`/companies/${id}`)
 };
 
+export const contractService = {
+    getAll: (params) => api.get('/contracts', { params }),
+    getById: (id) => api.get(`/contracts/${id}`),
+    create: (data) => api.post('/contracts', data),
+    update: (id, data) => api.put(`/contracts/${id}`, data),
+    delete: (id) => api.delete(`/contracts/${id}`)
+};
+
+export const expenseService = {
+    getAll: (params) => api.get('/expenses', { params }),
+    getById: (id) => api.get(`/expenses/${id}`),
+    create: (data) => api.post('/expenses', data),
+    update: (id, data) => api.put(`/expenses/${id}`, data),
+    delete: (id) => api.delete(`/expenses/${id}`)
+};
+
+export const expenseCategoryService = {
+    getAll: () => api.get('/expense-categories'),
+    create: (data) => api.post('/expense-categories', data),
+    update: (id, data) => api.put(`/expense-categories/${id}`, data),
+    delete: (id) => api.delete(`/expense-categories/${id}`)
+};
+
 export default api;
