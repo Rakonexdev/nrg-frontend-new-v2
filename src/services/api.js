@@ -59,7 +59,10 @@ export const contractService = {
     getById: (id) => api.get(`/contracts/${id}`),
     create: (data) => api.post('/contracts', data),
     update: (id, data) => api.put(`/contracts/${id}`, data),
-    delete: (id) => api.delete(`/contracts/${id}`)
+    delete: (id) => api.delete(`/contracts/${id}`),
+    getPayments: (id) => api.get(`/contracts/${id}/payments`),
+    addPayment: (id, data) => api.post(`/contracts/${id}/payments`, data),
+    deletePayment: (contractId, paymentId) => api.delete(`/contracts/${contractId}/payments/${paymentId}`)
 };
 
 export const expenseService = {
