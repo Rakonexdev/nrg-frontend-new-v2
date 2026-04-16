@@ -12,7 +12,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
             <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
             <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Contract Value</p>
@@ -32,6 +32,16 @@
             <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
             <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Pending Amount</p>
             <h3 class="text-2xl font-black text-rose-500 tracking-tight">QAR {{ formatCurrency(totalPendingValue) }}</h3>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-orange-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Expenses</p>
+            <h3 class="text-2xl font-black text-orange-500 tracking-tight">QAR {{ formatCurrency(totalExpensesValue) }}</h3>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-teal-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Profit</p>
+            <h3 class="text-2xl font-black text-teal-600 dark:text-teal-400 tracking-tight">QAR {{ formatCurrency(totalProfitValue) }}</h3>
         </div>
     </div>
 
@@ -107,6 +117,14 @@
 
             <template #pending_amount="{ value }">
                 <span class="font-black text-rose-500">{{ formatCurrency(value) }}</span>
+            </template>
+
+            <template #expense_total="{ value }">
+                <span class="font-black text-orange-500">{{ formatCurrency(value) }}</span>
+            </template>
+
+            <template #profit_amount="{ value }">
+                <span class="font-black text-teal-600 dark:text-teal-400">{{ formatCurrency(value) }}</span>
             </template>
 
             <template #payment_status="{ value }">
@@ -221,6 +239,17 @@
             </div>
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Linked Expenses</p>
+                <p class="text-lg font-black text-orange-500">QAR {{ formatCurrency(form.expense_total || 0) }}</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Profit</p>
+                <p class="text-lg font-black text-teal-600 dark:text-teal-400">QAR {{ formatCurrency(form.profit_amount || 0) }}</p>
+            </div>
+        </div>
+
         <div v-if="false" class="space-y-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -299,6 +328,17 @@
           <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pending Amount</p>
             <p class="text-lg font-black text-rose-500">QAR {{ formatCurrency(paymentContract.pending_amount || 0) }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Linked Expenses</p>
+            <p class="text-lg font-black text-orange-500">QAR {{ formatCurrency(paymentContract.expense_total || 0) }}</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Profit</p>
+            <p class="text-lg font-black text-teal-600 dark:text-teal-400">QAR {{ formatCurrency(paymentContract.profit_amount || 0) }}</p>
           </div>
         </div>
 
@@ -492,12 +532,16 @@ const columns = [
   { key: 'contract_value', label: 'Value (QAR)', sortable: true },
   { key: 'paid_amount', label: 'Paid (QAR)', sortable: true },
   { key: 'pending_amount', label: 'Pending (QAR)', sortable: true },
+  { key: 'expense_total', label: 'Expenses (QAR)', sortable: false },
+  { key: 'profit_amount', label: 'Profit (QAR)', sortable: false },
   { key: 'payment_status', label: 'Payment Status', sortable: true },
   { key: 'actions', label: 'Actions', sortable: false }
 ];
 
 const totalValue = computed(() => contracts.value.reduce((sum, c) => sum + parseFloat(c.contract_value || 0), 0));
 const totalPendingValue = computed(() => contracts.value.reduce((sum, c) => sum + parseFloat(c.pending_amount || 0), 0));
+const totalExpensesValue = computed(() => contracts.value.reduce((sum, c) => sum + parseFloat(c.expense_total || 0), 0));
+const totalProfitValue = computed(() => contracts.value.reduce((sum, c) => sum + parseFloat(c.profit_amount || 0), 0));
 
 const fetchContracts = async (page = 1) => {
   loading.value = true;

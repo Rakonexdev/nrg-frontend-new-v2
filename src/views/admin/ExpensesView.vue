@@ -94,6 +94,17 @@
         </div>
       </template>
 
+      <template #contract="{ row }">
+        <div class="flex flex-col">
+          <span class="text-sm font-bold text-slate-800 dark:text-white">{{ row.contract ? `${row.contract.staff?.name || 'Staff'} Contract` : 'Unlinked' }}</span>
+          <span v-if="row.contract" class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">{{ row.contract.start_date }} to {{ row.contract.end_date }}</span>
+        </div>
+      </template>
+
+      <template #company="{ row }">
+        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ row.company?.name || '-' }}</span>
+      </template>
+
       <template #amount="{ value }">
         <span class="font-black text-rose-600 dark:text-rose-400">QAR {{ parseFloat(value).toFixed(2) }}</span>
       </template>
@@ -138,6 +149,16 @@
             <select v-model="form.subcategory_id" class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!availableSubCategories.length">
               <option value="">{{ availableSubCategories.length ? 'Select Sub-Category' : 'No Sub-categories' }}</option>
               <option v-for="sub in availableSubCategories" :key="sub.id" :value="sub.id">{{ sub.name }}</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Linked Contract</label>
+            <select v-model="form.contract_id" class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium">
+              <option value="">No linked contract</option>
+              <option v-for="contract in contracts" :key="contract.id" :value="contract.id">
+                {{ contract.staff?.name || 'Staff' }} - {{ contract.company?.name || 'Company' }}
+              </option>
             </select>
           </div>
 
@@ -191,7 +212,7 @@ import { useRouter } from 'vue-router';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
-import { expenseService, expenseCategoryService } from '@/services/api';
+import { expenseService, expenseCategoryService, contractService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 
 const router = useRouter();
@@ -199,6 +220,7 @@ const notificationStore = useNotificationStore();
 
 const expenses = ref([]);
 const categories = ref([]);
+const contracts = ref([]);
 const loading = ref(true);
 const saving = ref(false);
 const search = ref('');
@@ -219,6 +241,7 @@ const form = ref({
   expense_date: new Date().toISOString().split('T')[0],
   category_id: '',
   subcategory_id: '',
+  contract_id: '',
   amount: '',
   payment_method: 'Cash',
   vendor_name: '',
@@ -227,6 +250,8 @@ const form = ref({
 
 const columns = [
   { key: 'expense_date', label: 'Date', sortable: true },
+  { key: 'contract', label: 'Contract', sortable: false },
+  { key: 'company', label: 'Company', sortable: false },
   { key: 'category', label: 'Category', sortable: false },
   { key: 'vendor_name', label: 'Vendor', sortable: true },
   { key: 'amount', label: 'Amount', sortable: true },
@@ -279,6 +304,15 @@ const fetchCategories = async () => {
     }
 };
 
+const fetchContracts = async () => {
+    try {
+        const res = await contractService.getAll({ per_page: 1000 });
+        contracts.value = res.data.data || [];
+    } catch (err) {
+        console.error('Failed to fetch contracts', err);
+    }
+};
+
 const resetFilters = () => {
     search.value = '';
     categoryFilter.value = '';
@@ -304,6 +338,7 @@ const openManageCategories = () => {
 
 const openModal = async (expense = null) => {
   await fetchCategories();
+  await fetchContracts();
   if (expense) {
     editMode.value = true;
     form.value = { 
@@ -321,6 +356,7 @@ const openModal = async (expense = null) => {
         expense_date: new Date().toISOString().split('T')[0],
         category_id: '',
         subcategory_id: '',
+        contract_id: '',
         amount: '',
         payment_method: 'Cash',
         vendor_name: '',
@@ -337,6 +373,7 @@ const saveExpense = async () => {
     const payload = { ...form.value };
     // Convert empty strings to null for backend validation
     if (!payload.subcategory_id) payload.subcategory_id = null;
+    if (!payload.contract_id) payload.contract_id = null;
     if (payload.amount) payload.amount = Number(payload.amount);
     
     if (editMode.value) {
@@ -402,6 +439,7 @@ const deleteExpense = async () => {
 onMounted(() => {
     fetchExpenses();
     fetchCategories();
+    fetchContracts();
 });
 </script>
 

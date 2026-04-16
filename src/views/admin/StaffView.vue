@@ -184,20 +184,21 @@
               </div>
             </div>
 
-            <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Qatar ID (QID) Number</label>
-              <input v-model="form.qid_number" type="text" :disabled="viewMode" 
-                :class="[errors.qid_number ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="11-digit QID">
-              <p v-if="errors.qid_number" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.qid_number }}</p>
-            </div>
-
-            <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">QID Expiry Date</label>
-              <input v-model="form.qid_expiry" type="date" :disabled="viewMode" 
-                :class="[errors.qid_expiry ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
-              <p v-if="errors.qid_expiry" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.qid_expiry }}</p>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Qatar ID (QID) Number</label>
+                <input v-model="form.qid_number" type="text" :disabled="viewMode" maxlength="11"
+                  :class="[errors.qid_number ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="11-digit QID">
+                <p v-if="errors.qid_number" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.qid_number }}</p>
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">QID Expiry Date</label>
+                <input v-model="form.qid_expiry" type="date" :disabled="viewMode" 
+                  :class="[errors.qid_expiry ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
+                <p v-if="errors.qid_expiry" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.qid_expiry }}</p>
+              </div>
             </div>
             
             <div class="space-y-4 pt-2">
@@ -364,7 +365,12 @@ const validate = () => {
         errors.value.date_of_birth = 'Birth date is required';
     }
 
-    if (!form.value.passport_number) errors.value.passport_number = 'Passport is required';
+    if (!form.value.passport_number) {
+        errors.value.passport_number = 'Passport is required';
+    } else if (!/^[A-Z0-9]{7,15}$/i.test(form.value.passport_number)) {
+        errors.value.passport_number = 'Passport must be alphanumeric (7-15 chars)';
+    }
+
     if (!form.value.passport_expiry) errors.value.passport_expiry = 'Expiry date required';
     
     if (!form.value.qid_number) {
