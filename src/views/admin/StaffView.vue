@@ -28,11 +28,25 @@
         </button>
       </div>
 
-      <div class="flex items-center gap-2">
-        <select v-model="perPage" @change="fetchStaff(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none dark:text-white">
-          <option :value="10">10 per page</option>
-          <option :value="25">25 per page</option>
-          <option :value="50">50 per page</option>
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <SearchableSelect 
+          v-model="statusFilter"
+          :options="statusOptions"
+          @change="fetchStaff(1)"
+          placeholder="All Status"
+          class="flex-1 md:w-48"
+        />
+        <SearchableSelect 
+          v-model="companyFilter"
+          :options="companyOptions"
+          @change="fetchStaff(1)"
+          placeholder="All Companies"
+          class="flex-1 md:w-64"
+        />
+        <select v-model="perPage" @change="fetchStaff(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none dark:text-white font-semibold">
+          <option :value="10">10 / pg</option>
+          <option :value="25">25 / pg</option>
+          <option :value="50">50 / pg</option>
         </select>
       </div>
     </div>
@@ -57,6 +71,10 @@
           <span class="font-semibold text-slate-900 dark:text-white">{{ row.name }}</span>
           <span class="text-xs text-slate-500">{{ row.mobile }}</span>
         </div>
+      </template>
+
+      <template #company_name="{ row }">
+        <span class="font-semibold text-slate-700 dark:text-slate-300">{{ row.company?.name || 'N/A' }}</span>
       </template>
 
       <template #qid_expiry="{ value }">
@@ -84,8 +102,9 @@
           <button @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Staff">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
-          <button @click="confirmDelete(row)" class="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Delete Staff">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <button @click="toggleStatus(row)" class="p-1 transition-colors" :class="row.status === 'active' ? 'text-green-500 hover:text-red-500' : 'text-slate-400 hover:text-green-500'" :title="row.status === 'active' ? 'Deactivate Staff' : 'Activate Staff'">
+            <svg v-if="row.status === 'active'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
         </div>
       </template>
@@ -94,8 +113,10 @@
     <!-- Upsert/View Modal -->
     <Modal :show="showModal" :title="viewMode ? 'Staff Details' : (editMode ? 'Edit Staff Member' : 'Add Staff Member')" @close="showModal = false" maxWidth="5xl">
       <form @submit.prevent="saveStaff" class="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <!-- Basic Info -->
-        <div class="space-y-6">
+        <!-- Left Column -->
+        <div class="space-y-10">
+          <!-- Basic Info -->
+          <div class="space-y-6">
           <div class="flex items-center gap-3 mb-2">
             <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -135,8 +156,9 @@
             <div>
               <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mobile Number</label>
               <input v-model="form.mobile" type="text" :disabled="viewMode" 
+                @input="form.mobile = form.mobile.replace(/[^0-9]/g, '')"
                 :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="+974 ...">
+                class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-15 digit number">
               <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.mobile }}</p>
             </div>
 
@@ -152,6 +174,42 @@
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Joining Date</label>
                 <input v-model="form.joining_date" type="date" :disabled="viewMode" 
                   class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
+              </div>
+            </div>
+          </div>
+        </div>
+
+          <!-- Company Details -->
+          <div class="space-y-6">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              </div>
+              <h4 class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Assignment</h4>
+            </div>
+            
+            <div class="space-y-4">
+              <div>
+                <SearchableSelect 
+                  label="Assigned Company"
+                  v-model="form.company_id"
+                  :options="modalCompanyOptions"
+                  :disabled="viewMode"
+                  placeholder="Select Assigned Company"
+                />
+                <p v-if="errors.company_id" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.company_id }}</p>
+                <p class="mt-2 text-[10px] text-slate-400 italic">Companies can be managed in the <router-link to="/admin/companies" class="text-blue-500 hover:underline">Companies Menu</router-link></p>
+              </div>
+
+              <div v-if="editMode || viewMode" class="pt-4">
+                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Account Status</label>
+                 <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/50">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" :checked="form.status === 'active'" @change="form.status = $event.target.checked ? 'active' : 'inactive'" :disabled="viewMode" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        <span class="ml-3 text-xs font-black" :class="form.status === 'active' ? 'text-green-600' : 'text-slate-400'">{{ form.status === 'active' ? 'Active Employee' : 'Inactive / Blocked' }}</span>
+                    </label>
+                 </div>
               </div>
             </div>
           </div>
@@ -204,25 +262,89 @@
             <div class="space-y-4 pt-2">
               <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">QID Documents</label>
-                <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'qid_files')" multiple accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition-all cursor-pointer">
-                <div v-else class="flex flex-wrap gap-2 pt-1">
-                  <a v-for="file in form.qid_documents" :key="file.id" :href="file.url" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold text-blue-600 hover:bg-blue-50 transition-colors">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    {{ file.name }}
-                  </a>
-                  <span v-if="!form.qid_documents?.length" class="text-xs text-slate-400 italic">No documents attached</span>
+                
+                <div class="flex flex-wrap gap-3 mb-3">
+                  <!-- Existing Documents -->
+                  <div v-for="file in form.qid_documents" :key="file.id" class="group relative">
+                    <a :href="getFileUrl(file.url)" target="_blank" 
+                       :class="[isImage(file.name) ? 'w-24 h-24' : 'w-24 h-24 flex flex-col items-center justify-center bg-white dark:bg-slate-800']"
+                       class="block rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm hover:border-blue-500 transition-all">
+                      <img v-if="isImage(file.name)" :src="getFileUrl(file.url)" class="w-full h-full object-cover" />
+                      <div v-else class="flex flex-col items-center p-2 text-center">
+                        <svg class="w-8 h-8 text-slate-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        <span class="text-[8px] font-bold text-slate-500 truncate w-full px-1">{{ file.name }}</span>
+                      </div>
+                    </a>
+                    <button v-if="!viewMode" @click.stop="removeStoredDocument('qid', file.id)" 
+                      class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-all z-20"
+                      title="Remove document">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                  </div>
+
+                  <!-- New Uploads Previews -->
+                  <div v-for="(file, index) in form.qid_files" :key="'new-'+index" class="group relative">
+                    <div :class="[form.qid_previews[index] ? 'w-24 h-24' : 'w-24 h-24 flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/20']"
+                         class="rounded-xl overflow-hidden border-2 border-dashed border-blue-400 dark:border-blue-500/50 shadow-sm">
+                      <img v-if="form.qid_previews[index]" :src="form.qid_previews[index]" class="w-full h-full object-cover" />
+                      <div v-else class="flex flex-col items-center p-2 text-center">
+                        <svg class="w-8 h-8 text-blue-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        <span class="text-[8px] font-bold text-blue-500 truncate w-full px-1">{{ file.name }}</span>
+                      </div>
+                    </div>
+                    <button v-if="!viewMode" @click.stop="removeNewFile('qid', index)" 
+                      class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-all z-20"
+                      title="Remove file">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                  </div>
                 </div>
+
+                <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'qid_files')" multiple accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition-all cursor-pointer">
+                <p v-if="!form.qid_documents?.length && !form.qid_files?.length" class="text-xs text-slate-400 italic py-2">No documents attached</p>
               </div>
               <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Passport Documents</label>
-                <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'passport_files')" multiple accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 transition-all cursor-pointer">
-                <div v-else class="flex flex-wrap gap-2 pt-1">
-                  <a v-for="file in form.passport_documents" :key="file.id" :href="file.url" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold text-indigo-600 hover:bg-indigo-50 transition-colors">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    {{ file.name }}
-                  </a>
-                  <span v-if="!form.passport_documents?.length" class="text-xs text-slate-400 italic">No documents attached</span>
+                
+                <div class="flex flex-wrap gap-3 mb-3">
+                  <!-- Existing Documents -->
+                  <div v-for="file in form.passport_documents" :key="file.id" class="group relative">
+                    <a :href="getFileUrl(file.url)" target="_blank" 
+                       :class="[isImage(file.name) ? 'w-24 h-24' : 'w-24 h-24 flex flex-col items-center justify-center bg-white dark:bg-slate-800']"
+                       class="block rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-500 transition-all">
+                      <img v-if="isImage(file.name)" :src="getFileUrl(file.url)" class="w-full h-full object-cover" />
+                      <div v-else class="flex flex-col items-center p-2 text-center">
+                        <svg class="w-8 h-8 text-slate-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        <span class="text-[8px] font-bold text-slate-500 truncate w-full px-1">{{ file.name }}</span>
+                      </div>
+                    </a>
+                    <button v-if="!viewMode" @click.stop="removeStoredDocument('passport', file.id)" 
+                      class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-all z-20"
+                      title="Remove document">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                  </div>
+
+                  <!-- New Uploads Previews -->
+                  <div v-for="(file, index) in form.passport_files" :key="'new-'+index" class="group relative">
+                    <div :class="[form.passport_previews[index] ? 'w-24 h-24' : 'w-24 h-24 flex flex-col items-center justify-center bg-indigo-50 dark:bg-indigo-900/20']"
+                         class="rounded-xl overflow-hidden border-2 border-dashed border-indigo-400 dark:border-indigo-500/50 shadow-sm">
+                      <img v-if="form.passport_previews[index]" :src="form.passport_previews[index]" class="w-full h-full object-cover" />
+                      <div v-else class="flex flex-col items-center p-2 text-center">
+                        <svg class="w-8 h-8 text-indigo-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        <span class="text-[8px] font-bold text-indigo-500 truncate w-full px-1">{{ file.name }}</span>
+                      </div>
+                    </div>
+                    <button v-if="!viewMode" @click.stop="removeNewFile('passport', index)" 
+                      class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-all z-20"
+                      title="Remove file">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                  </div>
                 </div>
+
+                <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'passport_files')" multiple accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 transition-all cursor-pointer">
+                <p v-if="!form.passport_documents?.length && !form.passport_files?.length" class="text-xs text-slate-400 italic py-2">No documents attached</p>
               </div>
             </div>
           </div>
@@ -248,16 +370,39 @@
       @confirm="deleteStaff"
       @cancel="showConfirmModal = false"
     />
+
+    <!-- Status Toggle Confirmation Modal -->
+    <ConfirmModal 
+      :show="showStatusModal" 
+      :title="selectedStaff?.status === 'active' ? 'Deactivate Staff' : 'Activate Staff'"
+      :message="`Are you sure you want to set ${selectedStaff?.name} to ${selectedStaff?.status === 'active' ? 'Inactive' : 'Active'}?`"
+      :description="selectedStaff?.status === 'active' ? 'This will mark the employee as inactive and stop their active assignments.' : 'This will restore the employee to active status.'"
+      :variant="selectedStaff?.status === 'active' ? 'danger' : 'success'"
+      :confirm-text="selectedStaff?.status === 'active' ? 'Yes, Inactivate' : 'Yes, Activate'"
+      :loading="saving"
+      @confirm="handleStatusToggle"
+      @cancel="showStatusModal = false"
+    >
+      <template #icon>
+        <svg v-if="selectedStaff?.status === 'active'" class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <svg v-else class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </template>
+    </ConfirmModal>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
-import { staffService } from '@/services/api';
+import SearchableSelect from '@/components/shared/SearchableSelect.vue';
+import { staffService, companyService, BASE_URL } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 
 const notificationStore = useNotificationStore();
@@ -271,15 +416,40 @@ const sortDir = ref('desc');
 const perPage = ref(10);
 const pagination = ref({});
 const filter = ref('');
+const statusFilter = ref('');
+const statusOptions = [
+  { id: '', name: 'All Status' },
+  { id: 'active', name: 'Active Staff' },
+  { id: 'inactive', name: 'Inactive Staff' }
+];
+const companyFilter = ref('');
 const route = useRoute();
 
 const showModal = ref(false);
 const showConfirmModal = ref(false);
+const showStatusModal = ref(false);
 const itemToDelete = ref(null);
+const selectedStaff = ref(null);
 const deleting = ref(false);
 const editMode = ref(false);
 const viewMode = ref(false);
 const errors = ref({});
+const companies = ref([]);
+const companyOptions = computed(() => {
+  const options = [
+    { id: '', name: 'All Companies' },
+    { id: 'null', name: 'Freelance Only' }
+  ];
+  if (Array.isArray(companies.value)) {
+    companies.value.forEach(c => options.push({ id: c.id, name: c.name }));
+  }
+  return options;
+});
+
+const modalCompanyOptions = computed(() => {
+  if (!Array.isArray(companies.value)) return [];
+  return companies.value.map(c => ({ id: c.id, name: c.name }));
+});
 
 const nationalities = [
   'Qatar', 'India', 'Nepal', 'Philippines', 'Bangladesh', 'Pakistan', 'Sri Lanka', 
@@ -300,20 +470,36 @@ const form = ref({
   qid_expiry: '',
   joining_date: '',
   status: 'active',
+  company_id: null,
+  qid_documents: [],
+  passport_documents: [],
   qid_files: [],
-  passport_files: []
+  passport_files: [],
+  qid_previews: [],
+  passport_previews: [],
+  delete_document_ids: []
 });
 
 const columns = [
   { key: 'name', label: 'Name & Contact', sortable: true },
   { key: 'profession', label: 'Profession', sortable: true },
-  { key: 'nationality', label: 'Nationality', sortable: true },
+  { key: 'company_name', label: 'Company', sortable: false },
   { key: 'qid_number', label: 'QID Number', sortable: false },
   { key: 'qid_expiry', label: 'QID Expiry', sortable: true },
   { key: 'passport_expiry', label: 'Passport Expiry', sortable: true },
   { key: 'status', label: 'Status', sortable: false },
   { key: 'actions', label: 'Actions', sortable: false }
 ];
+
+const fetchCompanies = async () => {
+  if (companies.value.length > 0) return;
+  try {
+    const res = await companyService.getSimple();
+    companies.value = res.data;
+  } catch (err) {
+    console.error('Failed to fetch companies', err);
+  }
+};
 
 const fetchStaff = async (page = 1) => {
   loading.value = true;
@@ -324,7 +510,9 @@ const fetchStaff = async (page = 1) => {
       sort_by: sortBy.value,
       sort_direction: sortDir.value,
       per_page: perPage.value,
-      filter: filter.value
+      filter: filter.value,
+      status: statusFilter.value,
+      company_id: companyFilter.value
     });
     staffMembers.value = res.data.data;
     pagination.value = res.data.meta;
@@ -345,8 +533,67 @@ const handleSort = (key) => {
   fetchStaff(1);
 };
 
+const isImage = (fileName) => {
+  if (!fileName) return false;
+  const ext = fileName.split('.').pop().toLowerCase();
+  return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+};
+
+const getFileUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  // Ensure we don't double slash
+  const path = url.startsWith('/') ? url : `/${url}`;
+  return `${BASE_URL}${path}`;
+};
+
+const cleanPreviews = () => {
+  if (form.value.qid_previews) {
+    form.value.qid_previews.forEach(url => url && URL.revokeObjectURL(url));
+  }
+  if (form.value.passport_previews) {
+    form.value.passport_previews.forEach(url => url && URL.revokeObjectURL(url));
+  }
+  form.value.qid_previews = [];
+  form.value.passport_previews = [];
+};
+
 const handleFileChange = (e, field) => {
-  form.value[field] = Array.from(e.target.files);
+  const files = Array.from(e.target.files);
+  form.value[field] = files;
+  
+  const previewField = field.replace('_files', '_previews');
+  
+  // Clean old previews for this field
+  form.value[previewField].forEach(url => URL.revokeObjectURL(url));
+  form.value[previewField] = [];
+
+  files.forEach(file => {
+    if (file.type.startsWith('image/')) {
+      form.value[previewField].push(URL.createObjectURL(file));
+    } else {
+      form.value[previewField].push(null); // No preview for non-images
+    }
+  });
+};
+
+const removeStoredDocument = (type, id) => {
+  const field = type === 'qid' ? 'qid_documents' : 'passport_documents';
+  form.value[field] = form.value[field].filter(doc => doc.id !== id);
+  if (!form.value.delete_document_ids) {
+    form.value.delete_document_ids = [];
+  }
+  form.value.delete_document_ids.push(id);
+};
+
+const removeNewFile = (type, index) => {
+  if (type === 'qid') {
+    form.value.qid_files.splice(index, 1);
+    form.value.qid_previews.splice(index, 1);
+  } else if (type === 'passport') {
+    form.value.passport_files.splice(index, 1);
+    form.value.passport_previews.splice(index, 1);
+  }
 };
 
 const validate = () => {
@@ -357,8 +604,12 @@ const validate = () => {
     
     if (!form.value.mobile) {
         errors.value.mobile = 'Mobile number is required';
-    } else if (!/^\+?[0-9]{8,15}$/.test(form.value.mobile)) {
-        errors.value.mobile = 'Invalid format (e.g. +97412345678)';
+    } else if (!/^[0-9]{8,15}$/.test(form.value.mobile)) {
+        errors.value.mobile = 'Mobile number must be 8-15 digits';
+    }
+
+    if (!form.value.company_id) {
+        errors.value.company_id = 'Please assign a company';
     }
 
     if (!form.value.date_of_birth) {
@@ -384,23 +635,52 @@ const validate = () => {
     return Object.keys(errors.value).length === 0;
 };
 
-const openModal = (staff = null, isView = false) => {
+const openModal = async (staff = null, isView = false) => {
+  cleanPreviews();
   errors.value = {};
   viewMode.value = isView;
+  fetchCompanies();
+  
   if (staff) {
     editMode.value = !isView;
-    form.value = { 
-        ...staff, 
-        qid_files: [], 
-        passport_files: [] 
-    };
+    try {
+        // Fetch full details to ensure documents and other relations are loaded
+        const res = await staffService.getById(staff.id);
+        const data = res.data.data;
+        form.value = { 
+            ...data, 
+            qid_documents: data.qid_documents || [],
+            passport_documents: data.passport_documents || [],
+            qid_files: [], 
+            passport_files: [],
+            qid_previews: [],
+            passport_previews: [],
+            delete_document_ids: []
+        };
+    } catch (err) {
+        console.error('Failed to fetch full staff details', err);
+        form.value = { 
+            ...staff, 
+            qid_documents: staff.qid_documents || [],
+            passport_documents: staff.passport_documents || [],
+            qid_files: [], 
+            passport_files: [],
+            qid_previews: [],
+            passport_previews: [],
+            delete_document_ids: []
+        };
+    }
   } else {
     editMode.value = false;
     form.value = {
       id: null, name: '', nationality: '', profession: '', mobile: '',
       date_of_birth: '', passport_number: '', passport_expiry: '',
       qid_number: '', qid_expiry: '', joining_date: '', status: 'active',
-      qid_files: [], passport_files: []
+      company_id: null,
+      qid_documents: [], passport_documents: [],
+      qid_files: [], passport_files: [],
+      qid_previews: [], passport_previews: [],
+      delete_document_ids: []
     };
   }
   showModal.value = true;
@@ -415,11 +695,20 @@ const saveStaff = async () => {
     // Append fields
     Object.keys(form.value).forEach(key => {
         if (['qid_files', 'passport_files'].includes(key)) {
-            form.value[key].forEach(file => formData.append(`${key}[]`, file));
-        } else if (form.value[key] !== null) {
-            formData.append(key, form.value[key]);
+            if (Array.isArray(form.value[key])) {
+                form.value[key].forEach(file => formData.append(`${key}[]`, file));
+            }
+        } else if (!['qid_documents', 'passport_documents', 'qid_previews', 'passport_previews', 'delete_document_ids'].includes(key)) {
+            // Only append non-object and non-file-info fields
+            if (form.value[key] !== null && form.value[key] !== undefined) {
+                formData.append(key, form.value[key]);
+            }
         }
     });
+
+    if (form.value.delete_document_ids && form.value.delete_document_ids.length > 0) {
+        form.value.delete_document_ids.forEach(id => formData.append('delete_document_ids[]', id));
+    }
 
     try {
         if (editMode.value) {
@@ -438,26 +727,28 @@ const saveStaff = async () => {
     }
 };
 
-const confirmDelete = (staff) => {
-  itemToDelete.value = staff;
-  showConfirmModal.value = true;
+const toggleStatus = (staff) => {
+  selectedStaff.value = staff;
+  showStatusModal.value = true;
 };
 
-const deleteStaff = async () => {
-  if (!itemToDelete.value) return;
-  
-  deleting.value = true;
-  try {
-    await staffService.delete(itemToDelete.value.id);
-    notificationStore.addNotification('Staff member deleted successfully');
-    showConfirmModal.value = false;
-    itemToDelete.value = null;
-    fetchStaff(pagination.value.current_page || 1);
-  } catch (err) {
-    alert('Failed to delete staff member');
-  } finally {
-    deleting.value = false;
-  }
+const handleStatusToggle = async () => {
+    if (!selectedStaff.value) return;
+    
+    saving.value = true;
+    const newStatus = selectedStaff.value.status === 'active' ? 'inactive' : 'active';
+    
+    try {
+        await staffService.update(selectedStaff.value.id, { status: newStatus });
+        notificationStore.addNotification(`Staff member is now ${newStatus}`);
+        showStatusModal.value = false;
+        fetchStaff(pagination.value.current_page || 1);
+    } catch (err) {
+        console.error('Status toggle failed', err);
+        notificationStore.addNotification(err.response?.data?.message || 'Failed to update status', 'error');
+    } finally {
+        saving.value = false;
+    }
 };
 
 // Utilities
@@ -482,5 +773,10 @@ onMounted(() => {
     filter.value = route.query.filter;
   }
   fetchStaff();
+  fetchCompanies(); // Populate filter dropdown
+});
+
+onUnmounted(() => {
+  cleanPreviews();
 });
 </script>

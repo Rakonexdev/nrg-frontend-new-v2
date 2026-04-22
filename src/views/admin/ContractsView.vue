@@ -3,74 +3,163 @@
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Contracts Management</h1>
-        <p class="text-slate-500 dark:text-slate-400">Track profit, assignments, and payment status</p>
+        <p class="text-slate-500 dark:text-slate-400">Track staff contracts, fees, and payments</p>
       </div>
       <button @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         New Contract
       </button>
     </div>
-
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Contract Value</p>
-            <h3 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">QAR {{ formatCurrency(totalValue) }}</h3>
-        </div>
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Active Contracts</p>
-            <h3 class="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">{{ contracts.length }}</h3>
-        </div>
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Avg Contact Value</p>
-            <h3 class="text-2xl font-black text-amber-500 tracking-tight">QAR {{ formatCurrency(totalValue / (contracts.length || 1)) }}</h3>
-        </div>
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Pending Amount</p>
-            <h3 class="text-2xl font-black text-rose-500 tracking-tight">QAR {{ formatCurrency(totalPendingValue) }}</h3>
-        </div>
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-24 h-24 bg-orange-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Expenses</p>
-            <h3 class="text-2xl font-black text-orange-500 tracking-tight">QAR {{ formatCurrency(totalExpensesValue) }}</h3>
-        </div>
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-24 h-24 bg-teal-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Profit</p>
-            <h3 class="text-2xl font-black text-teal-600 dark:text-teal-400 tracking-tight">QAR {{ formatCurrency(totalProfitValue) }}</h3>
-        </div>
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      <KpiCard 
+        title="Total Collected" 
+        :value="formatCurrencyValue(contractSummary.total_paid)" 
+        :icon="summaryIcons.paid" 
+        color-class="bg-emerald-600" 
+      />
+      <KpiCard 
+        title="Pending Collection" 
+        :value="formatCurrencyValue(contractSummary.total_pending)" 
+        :icon="summaryIcons.pending" 
+        color-class="bg-amber-500" 
+        subtitle="Unpaid balances"
+      />
+      <KpiCard 
+        title="Contract Profit" 
+        :value="formatCurrencyValue(contractSummary.total_contract_profit)" 
+        :icon="summaryIcons.profit" 
+        color-class="bg-blue-600" 
+        subtitle="Gross from contracts"
+      />
+      <KpiCard 
+        title="General Overheads" 
+        :value="formatCurrencyValue(contractSummary.total_overheads)" 
+        :icon="summaryIcons.overhead" 
+        color-class="bg-rose-500" 
+        subtitle="Fuel, Rent, Utilities, etc."
+      />
+      <KpiCard 
+        title="Net Enterprise Profit" 
+        :value="formatCurrencyValue(contractSummary.net_company_profit)" 
+        :icon="summaryIcons.enterprise" 
+        color-class="bg-indigo-600" 
+        subtitle="Final Business Profit"
+      />
     </div>
-
     <!-- Filters & Search -->
-    <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative z-30">
       <div class="relative w-full md:w-96 group">
         <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-blue-500 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </span>
-        <input v-model="search" @input="fetchContracts(1)" type="text" placeholder="Search staff or company..." 
+        <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search staff or company..." 
                class="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white font-medium">
       </div>
-      <div class="flex items-center gap-3">
-        <select v-model="paymentStatusFilter" @change="fetchContracts(1)" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold outline-none dark:text-white focus:ring-4 focus:ring-blue-500/10 transition-all">
-          <option value="">All payment statuses</option>
-          <option v-for="status in paymentStatusOptions" :key="status" :value="status">{{ status }}</option>
-        </select>
-        <select v-model="perPage" @change="fetchContracts(1)" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold outline-none dark:text-white focus:ring-4 focus:ring-blue-500/10 transition-all">
-          <option :value="10">10 per page</option>
-          <option :value="25">25 per page</option>
-          <option :value="50">50 per page</option>
-        </select>
+      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+
+        <div class="w-full md:w-32">
+          <select v-model="perPage" @change="fetchContracts(1)" class="w-full h-[50px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold outline-none dark:text-white focus:ring-4 focus:ring-blue-500/10 transition-all">
+            <option :value="10">10 per page</option>
+            <option :value="25">25 per page</option>
+            <option :value="50">50 per page</option>
+          </select>
+        </div>
+        <button v-if="search" @click="resetMainFilters" class="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Reset Filters">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </button>
       </div>
     </div>
+
+    <!-- View Modal -->
+    <Modal :show="showViewModal" title="Contract Details" @close="showViewModal = false" maxWidth="4xl">
+        <div v-if="selectedViewContract" class="p-8 space-y-8 bg-slate-50/30 dark:bg-slate-900/30">
+            <!-- Header Info -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
+                <div class="flex items-center gap-5">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                        <span class="text-2xl font-black">{{ selectedViewContract.staff?.name?.charAt(0).toUpperCase() || 'E' }}</span>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">{{ selectedViewContract.staff?.name || 'N/A' }}</h2>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mt-1 border border-blue-100 dark:border-blue-800/50">
+                            {{ selectedViewContract.staff?.company_name || 'Individual' }}
+                        </span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Expense</p>
+                    <p class="text-4xl font-black text-blue-600 dark:text-blue-500">{{ formatCurrency(selectedViewContract.expense_total) }}</p>
+                </div>
+            </div>
+
+            <!-- Finance Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Gross Income</p>
+                    <p class="text-3xl font-black text-emerald-600 dark:text-emerald-500">{{ formatCurrency(selectedViewContract.paid_amount) }}</p>
+                    <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">(Total Collected)</p>
+                </div>
+                <div class="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
+                    <p class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">Employee Expenses</p>
+                    <p class="text-3xl font-black text-rose-500">{{ formatCurrency(selectedViewContract.employee_expenses_total) }}</p>
+                    <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">(Fees + Daily Exp)</p>
+                </div>
+                <div class="p-6 bg-blue-600 rounded-3xl border border-blue-500 shadow-xl shadow-blue-500/20 transition-all hover:shadow-md">
+                    <p class="text-[10px] font-black text-blue-100 uppercase tracking-widest mb-1">Company Profit</p>
+                    <p class="text-3xl font-black text-white">{{ formatCurrency(selectedViewContract.profit_amount) }}</p>
+                    <p class="text-[9px] font-bold text-blue-200 mt-1 uppercase tracking-widest">(Available for Overhead)</p>
+                </div>
+            </div>
+
+            <!-- Daily Expenses Log -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between px-2">
+                    <h3 class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Daily Expenses Log</h3>
+                    <span class="text-[10px] font-black text-slate-400 uppercase">Total: {{ selectedViewContract.daily_expenses?.length || 0 }} entries</span>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-800/50">
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <tr v-for="exp in selectedViewContract.daily_expenses" :key="exp.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(exp.expense_date) }}</td>
+                                <td class="px-6 py-4 text-sm font-black text-slate-800 dark:text-white">{{ exp.description }}</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[9px] font-black text-slate-500 uppercase tracking-tighter">{{ exp.category?.name || 'General' }}</span>
+                                </td>
+                                <td class="px-6 py-4 text-sm font-black text-rose-500 text-right">{{ formatCurrency(exp.amount) }}</td>
+                            </tr>
+                            <tr v-if="!selectedViewContract.daily_expenses?.length">
+                                <td colspan="4" class="px-6 py-12 text-center text-slate-400 font-bold text-sm tracking-tight italic">No dynamic expenses recorded for this contract yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer Details -->
+            <div class="pt-6 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center text-slate-400">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Last Updated: {{ formatDate(selectedViewContract.updated_at) }}</span>
+                </div>
+                <button @click="showViewModal = false" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl transition-all font-black uppercase tracking-widest text-[10px]">Close View</button>
+            </div>
+        </div>
+    </Modal>
 
     <!-- Data Table -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-32 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none">
         <div class="w-16 h-16 border-4 border-blue-600/10 border-t-blue-600 rounded-full animate-spin"></div>
-        <p class="mt-6 text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em] text-xs">Loading Contracts</p>
+        <p class="mt-6 text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em] text-xs">Loading Contract Records</p>
     </div>
     
     <div v-else class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden shadow-slate-200/20 dark:shadow-none">
@@ -78,80 +167,42 @@
             :columns="columns" 
             :data="contracts" 
             :pagination="pagination"
-            :sort-by="sortBy"
-            :sort-dir="sortDir"
-            @sort="handleSort"
-            @page-change="fetchContracts">
-            
-            <template #staff="{ row }">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 font-black text-xs">
-                        {{ row.staff?.name?.charAt(0) || 'S' }}
-                    </div>
-                    <div>
-                        <p class="font-bold text-slate-800 dark:text-white">{{ row.staff?.name }}</p>
-                        <p class="text-[10px] text-slate-500 font-medium">{{ row.staff?.position || 'Staff' }}</p>
-                    </div>
-                </div>
+            @page-change="fetchContracts"
+        >
+            <template #staff_name="{ row }">
+                <span class="font-black text-slate-800 dark:text-white tracking-tight">{{ row.staff?.name || 'N/A' }}</span>
             </template>
 
-            <template #company="{ row }">
-                <span class="font-black text-xs text-slate-500 uppercase tracking-widest">{{ row.company?.name }}</span>
+            <template #company_name="{ row }">
+                <span class="font-black text-slate-800 dark:text-white tracking-tight">{{ row.staff?.company_name || 'No Company' }}</span>
             </template>
 
-            <template #date_range="{ row }">
-                <div class="text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                    <span class="text-blue-600 dark:text-blue-400">{{ formatDate(row.start_date) }}</span>
-                    <span class="mx-2 opacity-30">→</span>
-                    <span class="text-rose-500">{{ formatDate(row.end_date) }}</span>
-                </div>
+            <template #net_payable="{ row }">
+                <span class="font-black text-slate-800 dark:text-white">{{ formatCurrency(row.net_payable) }}</span>
             </template>
 
-            <template #contract_value="{ value }">
-                <span class="font-black text-slate-800 dark:text-white">{{ formatCurrency(value) }}</span>
+            <template #adjustment_total="{ row }">
+                <span class="font-black text-indigo-600 dark:text-indigo-400">{{ formatCurrency(row.adjustment_total || 0) }}</span>
             </template>
 
             <template #paid_amount="{ value }">
-                <span class="font-black text-emerald-600 dark:text-emerald-400">{{ formatCurrency(value) }}</span>
+                <span class="font-black text-emerald-600">{{ formatCurrency(value) }}</span>
             </template>
 
             <template #pending_amount="{ value }">
                 <span class="font-black text-rose-500">{{ formatCurrency(value) }}</span>
             </template>
 
-            <template #expense_total="{ value }">
-                <span class="font-black text-orange-500">{{ formatCurrency(value) }}</span>
-            </template>
-
-            <template #profit_amount="{ value }">
-                <span class="font-black text-teal-600 dark:text-teal-400">{{ formatCurrency(value) }}</span>
-            </template>
-
-            <template #payment_status="{ value }">
-                <span class="inline-flex items-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" :class="paymentStatusClass(value)">
-                    {{ value }}
-                </span>
-            </template>
-
-            <template #payment_type="{ value }">
-                <div class="flex items-center gap-2">
-                    <div class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400">
-                        <svg v-if="value === 'Cash'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                        <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3-3v12a3 3 0 003 3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </div>
-                    <span class="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">{{ value }}</span>
-                </div>
-            </template>
 
             <template #actions="{ row }">
                 <div class="flex items-center gap-2">
-                <button @click="openPaymentModal(row)" class="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-all" title="Manage Payments">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m4-6h-8m8 0l-3-3m3 3l-3 3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <button @click="openPaymentModal(row)" class="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-all" title="Manage Payments">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </button>
-                <button @click="openModal(row)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <button @click="openViewModal(row)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all" title="View Details">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </button>
-                <button @click="confirmDelete(row)" class="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all">
+                <button @click="confirmDelete(row)" class="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all" title="Delete">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </button>
                 </div>
@@ -164,235 +215,337 @@
       <form @submit.prevent="saveContract" class="p-4 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Staff Member</label>
-                <select v-model="form.staff_id" required class="w-full px-5 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm appearance-none">
-                    <option value="" disabled>Select Staff</option>
-                    <option v-for="s in staffList" :key="s.id" :value="s.id">{{ s.name }}</option>
-                </select>
+                <SearchableSelect 
+                  label="Staff Member"
+                  v-model="form.staff_id"
+                  :options="staffList"
+                  placeholder="Select Staff"
+                />
             </div>
-            <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Client Company</label>
-                <select v-model="form.company_id" required class="w-full px-5 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm appearance-none">
-                    <option value="" disabled>Select Company</option>
-                    <option v-for="c in companyList" :key="c.id" :value="c.id">{{ c.name }}</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="relative">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Start Date</label>
-                <input v-model="form.start_date" type="date" required class="w-full px-5 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm">
-            </div>
-            <div class="relative">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">End Date</label>
-                <input v-model="form.end_date" type="date" required class="w-full px-5 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm">
+            <div v-if="selectedStaff" class="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 h-full flex flex-col justify-center">
+                <div>
+                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Company</p>
+                   <p class="text-sm font-black text-slate-800 dark:text-white tracking-tight">{{ selectedStaff.company_name || 'N/A' }}</p>
+                </div>
+                <div>
+                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">QID Number</p>
+                   <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">{{ selectedStaff.qid_number || 'N/A' }}</p>
+                </div>
             </div>
         </div>
 
-        <div v-if="contractDuration" class="p-5 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-700/20 rounded-2xl space-y-4">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Calculated Duration</span>
-                <span class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-black shadow-lg shadow-blue-500/20">{{ contractDuration }}</span>
-            </div>
-            <div class="flex flex-wrap gap-2 pt-2 border-t border-blue-200/50 dark:border-blue-700/20">
-                <span v-for="year in contractYearsList" :key="year" class="px-2.5 py-1 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-700/50 rounded-lg text-[10px] font-black text-slate-600 dark:text-slate-300">
-                    {{ year }}
-                </span>
-            </div>
-        </div>
-
+        <h3 class="text-sm font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 pb-2">Contract Financials</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Contract Value (Lump Sum QAR)</label>
-                <div class="relative group">
-                    <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-black text-xs transition-colors group-focus-within:text-blue-500">QAR</span>
-                    <input v-model="form.contract_value" type="text" required class="w-full pl-16 pr-5 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-sm" placeholder="Ex: 50,000">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Contract Value</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
+                    <input v-model="form.total_income" type="number" step="0.01" class="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-sm" placeholder="Ex: 5000.00">
                 </div>
             </div>
-            <div>
-                <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 h-full flex flex-col justify-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Paid Amount</p>
-                    <p class="text-lg font-black text-emerald-600 dark:text-emerald-400">QAR {{ formatCurrency(form.paid_amount || 0) }}</p>
-                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-2">Managed through payment history entries.</p>
-                </div>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pending Amount</p>
-                <p class="text-lg font-black text-rose-500">QAR {{ formatCurrency(form.pending_amount || 0) }}</p>
-            </div>
-            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Payment Status</p>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" :class="paymentStatusClass(form.payment_status)">
-                    {{ form.payment_status }}
-                </span>
-            </div>
-            <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment Method</label>
-                <select v-model="form.payment_type" required class="w-full px-5 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-extrabold text-sm appearance-none cursor-pointer">
-                    <option value="Cash">Cash</option>
-                    <option value="Online">Online Transaction</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Linked Expenses</p>
-                <p class="text-lg font-black text-orange-500">QAR {{ formatCurrency(form.expense_total || 0) }}</p>
-            </div>
-            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Profit</p>
-                <p class="text-lg font-black text-teal-600 dark:text-teal-400">QAR {{ formatCurrency(form.profit_amount || 0) }}</p>
-            </div>
-        </div>
-
-        <div v-if="false" class="space-y-4">
-            <div class="flex items-center justify-between">
+            <div class="md:col-span-2 p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 flex justify-between items-center">
                 <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment History</p>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">Add ledger entries to update paid and pending totals.</p>
+                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Net Payable from Client</p>
+                    <p class="text-lg font-black text-blue-600 dark:text-blue-400">QAR {{ formatCurrency(parseFloat(form.total_income) || 0) }}</p>
                 </div>
-                <span v-if="!editMode" class="text-xs font-bold text-slate-500 dark:text-slate-400">Create the contract first to add payments.</span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount</label>
-                    <input v-model="paymentForm.amount" :disabled="!editMode || paymentSaving" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" placeholder="Ex: 1,000">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Date</label>
-                    <input v-model="paymentForm.payment_date" :disabled="!editMode || paymentSaving" type="date" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Method</label>
-                    <select v-model="paymentForm.payment_method" :disabled="!editMode || paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm">
-                        <option value="Cash">Cash</option>
-                        <option value="Online">Online Transaction</option>
-                    </select>
-                </div>
-                <div class="flex items-end">
-                    <button @click.prevent="addPayment" :disabled="!editMode || paymentSaving" class="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all">
-                        {{ paymentSaving ? 'Saving...' : 'Add Payment' }}
-                    </button>
-                </div>
-                <div class="md:col-span-4">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Notes</label>
-                    <textarea v-model="paymentForm.notes" :disabled="!editMode || paymentSaving" rows="2" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-medium text-sm" placeholder="Optional payment note"></textarea>
-                </div>
-            </div>
-
-            <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
-                <div v-if="paymentLoading" class="px-6 py-8 text-sm font-bold text-slate-500 dark:text-slate-400">Loading payment history...</div>
-                <div v-else-if="payments.length === 0" class="px-6 py-8 text-sm font-bold text-slate-500 dark:text-slate-400">No payment entries yet.</div>
-                <div v-else class="divide-y divide-slate-200 dark:divide-slate-700">
-                    <div v-for="payment in payments" :key="payment.id" class="px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="space-y-1">
-                            <p class="font-black text-slate-800 dark:text-white">QAR {{ formatCurrency(payment.amount) }}</p>
-                            <p class="text-xs font-bold text-slate-500 dark:text-slate-400">{{ formatDate(payment.payment_date) }} • {{ payment.payment_method }}</p>
-                            <p v-if="payment.notes" class="text-sm text-slate-600 dark:text-slate-300">{{ payment.notes }}</p>
-                        </div>
-                        <button @click="removePayment(payment)" :disabled="paymentDeletingId === payment.id" class="self-start md:self-center px-4 py-2 text-sm font-black text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all disabled:opacity-50">
-                            {{ paymentDeletingId === payment.id ? 'Removing...' : 'Delete' }}
+                <div class="text-right">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment Type</p>
+                    <div class="flex gap-2 mt-1">
+                        <button v-for="t in ['Cash', 'Online']" :key="t" @click.prevent="form.payment_type = t" :class="form.payment_type === t ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-400'" class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
+                            {{ t }}
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
+<div class="hidden">
+
+</div>
       </form>
+
       <template #footer>
         <button @click="showModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">Cancel</button>
-        <button @click="saveContract" class="px-10 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl shadow-xl shadow-blue-500/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
+        <button @click="handleInitialSave" class="px-10 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl shadow-xl shadow-blue-500/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
           {{ saving ? 'Processing...' : (editMode ? 'Update Contract' : 'Create Contract') }}
         </button>
       </template>
     </Modal>
 
-    <Modal :show="showPaymentModal" title="Manage Contract Payments" @close="closePaymentModal" maxWidth="5xl">
+    <Modal :show="showPaymentModal" title="Manage Contract Payments" @close="closePaymentModal" maxWidth="6xl">
       <div class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 md:col-span-2">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Contract</p>
-            <p class="text-lg font-black text-slate-800 dark:text-white">{{ paymentContract.staff?.name || 'Contract' }}</p>
-            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ paymentContract.company?.name || 'Company' }}</p>
-          </div>
-          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Paid Amount</p>
-            <p class="text-lg font-black text-emerald-600 dark:text-emerald-400">QAR {{ formatCurrency(paymentContract.paid_amount || 0) }}</p>
-          </div>
-          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pending Amount</p>
-            <p class="text-lg font-black text-rose-500">QAR {{ formatCurrency(paymentContract.pending_amount || 0) }}</p>
-          </div>
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-slate-200 dark:border-slate-700 p-1 bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl">
+          <button 
+            @click="paymentModalTab = 'details'" 
+            :class="[
+              'flex-1 py-3 px-6 text-sm font-black transition-all rounded-xl flex items-center justify-center gap-2.5',
+              paymentModalTab === 'details' 
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
+                : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900/50'
+            ]"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            Contract Details
+          </button>
+          <button 
+            @click="paymentModalTab = 'payments'" 
+            :class="[
+              'flex-1 py-3 px-6 text-sm font-black transition-all rounded-xl flex items-center justify-center gap-2.5',
+              paymentModalTab === 'payments' 
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
+                : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900/50'
+            ]"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            Manage Contract Payment
+          </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Linked Expenses</p>
-            <p class="text-lg font-black text-orange-500">QAR {{ formatCurrency(paymentContract.expense_total || 0) }}</p>
-          </div>
-          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Profit</p>
-            <p class="text-lg font-black text-teal-600 dark:text-teal-400">QAR {{ formatCurrency(paymentContract.profit_amount || 0) }}</p>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment History</p>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Record ledger entries independently from contract details.</p>
-          </div>
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" :class="paymentStatusClass(paymentContract.payment_status)">
-            {{ paymentContract.payment_status || 'Pending' }}
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-          <div>
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount</label>
-            <input v-model="paymentForm.amount" :disabled="paymentSaving" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" placeholder="Ex: 1,000">
-          </div>
-          <div>
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Date</label>
-            <input v-model="paymentForm.payment_date" :disabled="paymentSaving" type="date" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm">
-          </div>
-          <div>
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Method</label>
-            <select v-model="paymentForm.payment_method" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm">
-              <option value="Cash">Cash</option>
-              <option value="Online">Online Transaction</option>
-            </select>
-          </div>
-          <div class="flex items-end">
-            <button @click.prevent="addPayment" :disabled="paymentSaving || !paymentContract.id" class="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all">
-              {{ paymentSaving ? 'Saving...' : 'Add Payment' }}
-            </button>
-          </div>
-          <div class="md:col-span-4">
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Notes</label>
-            <textarea v-model="paymentForm.notes" :disabled="paymentSaving" rows="2" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-medium text-sm" placeholder="Optional payment note"></textarea>
-          </div>
-        </div>
-
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
-          <div v-if="paymentLoading" class="px-6 py-8 text-sm font-bold text-slate-500 dark:text-slate-400">Loading payment history...</div>
-          <div v-else-if="payments.length === 0" class="px-6 py-8 text-sm font-bold text-slate-500 dark:text-slate-400">No payment entries yet.</div>
-          <div v-else class="divide-y divide-slate-200 dark:divide-slate-700">
-            <div v-for="payment in payments" :key="payment.id" class="px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div class="space-y-1">
-                <p class="font-black text-slate-800 dark:text-white">QAR {{ formatCurrency(payment.amount) }}</p>
-                <p class="text-xs font-bold text-slate-500 dark:text-slate-400">{{ formatDate(payment.payment_date) }} • {{ payment.payment_method }}</p>
-                <p v-if="payment.notes" class="text-sm text-slate-600 dark:text-slate-300">{{ payment.notes }}</p>
+        <!-- ===================== TAB 1: Contract Details ===================== -->
+        <div v-if="paymentModalTab === 'details'" class="space-y-6 animate-fade-in">
+          <!-- Row 1: Contract Info + Contract Value + Additional Payment -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Contract Information (Employee + Company) -->
+            <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Contract Information</p>
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 flex-shrink-0">
+                  <span class="text-lg font-black">{{ paymentContract.staff?.name?.charAt(0).toUpperCase() || 'E' }}</span>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-base font-black text-slate-800 dark:text-white truncate">{{ paymentContract.staff?.name || 'N/A' }}</p>
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mt-1 border border-blue-100 dark:border-blue-800/50">
+                    {{ paymentContract.staff?.company_name || 'Individual' }}
+                  </span>
+                </div>
               </div>
-              <button @click="removePayment(payment)" :disabled="paymentDeletingId === payment.id" class="self-start md:self-center px-4 py-2 text-sm font-black text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all disabled:opacity-50">
-                {{ paymentDeletingId === payment.id ? 'Removing...' : 'Delete' }}
+            </div>
+
+            <!-- Contract Value Card -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Contract Value</p>
+              <p class="text-2xl font-black text-slate-800 dark:text-white">QAR {{ formatCurrency(paymentContract.total_income || 0) }}</p>
+              <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Base Contract Amount</p>
+            </div>
+
+            <!-- Additional Payment Card -->
+            <div class="p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 shadow-sm">
+              <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Additional Payment</p>
+              <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400">QAR {{ formatCurrency(paymentContract.adjustment_total || 0) }}</p>
+              <p class="text-[9px] font-bold text-indigo-400 uppercase tracking-tighter mt-1">{{ contractAdjustments.length }} adjustment{{ contractAdjustments.length !== 1 ? 's' : '' }} added</p>
+            </div>
+          </div>
+
+          <!-- Row 2: Total Paid + Linked Expenses + Profit -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Total Paid Card (with pending) -->
+            <div class="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 shadow-sm">
+              <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Total Paid</p>
+              <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400">QAR {{ formatCurrency(paymentContract.paid_amount || 0) }}</p>
+              <div class="flex items-center gap-1.5 mt-2">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-900/30 text-[9px] font-black text-rose-500 uppercase tracking-tighter">
+                  Pending: QAR {{ formatCurrency(paymentContract.pending_amount || 0) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Linked Expenses Card -->
+            <div class="p-5 rounded-2xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 shadow-sm">
+              <p class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">Linked Expenses</p>
+              <p class="text-2xl font-black text-orange-500">QAR {{ formatCurrency(paymentContract.expense_total || 0) }}</p>
+              <p class="text-[9px] font-bold text-orange-400 uppercase tracking-tighter mt-1">Fixed Fees + Dynamic</p>
+            </div>
+
+            <!-- Profit Card -->
+            <div class="p-5 rounded-2xl bg-teal-600 border border-teal-500 shadow-xl shadow-teal-500/15">
+              <p class="text-[10px] font-black text-teal-100 uppercase tracking-widest mb-1">Profit</p>
+              <p class="text-2xl font-black text-white">QAR {{ formatCurrency(paymentContract.profit_amount || 0) }}</p>
+              <p class="text-[9px] font-bold text-teal-200 uppercase tracking-tighter mt-1">Paid − Expenses</p>
+            </div>
+          </div>
+
+          <!-- Add Additional Amount Section -->
+          <div class="space-y-4">
+            <div class="flex items-center gap-3 px-1">
+              <div class="w-1 h-6 rounded-full bg-indigo-500"></div>
+              <h3 class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Add Additional Amount</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Date</label>
+                <input v-model="adjustmentForm.adjustment_date" :disabled="adjustmentSaving" type="date" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm">
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
+                  <input v-model="adjustmentForm.amount" :disabled="adjustmentSaving" type="number" step="0.01" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm" placeholder="0.00">
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason</label>
+                <input v-model="adjustmentForm.reason" :disabled="adjustmentSaving" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm" placeholder="Reason for additional amount">
+              </div>
+              <div class="flex items-end">
+                <button @click.prevent="submitAdjustmentFromModal" :disabled="adjustmentSaving || !paymentContract.id" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30">
+                  {{ adjustmentSaving ? 'Adding...' : 'Add Additional Amount' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Adjustments List -->
+          <div v-if="contractAdjustments.length > 0" class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
+            <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Additional Amounts History</p>
+              <span class="text-[10px] font-black text-slate-400 uppercase">{{ contractAdjustments.length }} Entries</span>
+            </div>
+            <table class="w-full text-left">
+              <thead>
+                <tr class="bg-slate-50/50 dark:bg-slate-800/30">
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reason</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr v-for="adj in contractAdjustments" :key="adj.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                  <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(adj.adjustment_date) }}</td>
+                  <td class="px-5 py-3.5 text-sm font-bold text-slate-800 dark:text-white">{{ adj.reason }}</td>
+                  <td class="px-5 py-3.5 text-sm font-black text-indigo-600 dark:text-indigo-400 text-right">QAR {{ formatCurrency(adj.amount) }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="bg-indigo-50/50 dark:bg-indigo-900/10 border-t-2 border-indigo-100 dark:border-indigo-900/30">
+                  <td colspan="2" class="px-5 py-3 text-[10px] font-black text-indigo-500 uppercase tracking-widest">Total Additional</td>
+                  <td class="px-5 py-3 text-sm font-black text-indigo-600 dark:text-indigo-400 text-right">QAR {{ formatCurrency(paymentContract.adjustment_total || 0) }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div v-else class="rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 px-6 py-8 text-center">
+            <p class="text-sm font-bold text-slate-400 dark:text-slate-500 italic">No additional amounts added yet.</p>
+          </div>
+        </div>
+
+        <!-- ===================== TAB 2: Manage Contract Payment ===================== -->
+        <div v-if="paymentModalTab === 'payments'" class="space-y-6 animate-fade-in">
+          <!-- Payment Status Header -->
+          <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+            <div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Collection / Payment Management</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Record ledger entries independently from contract details.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-right hidden md:block">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Net Payable</p>
+                <p class="text-base font-black text-slate-800 dark:text-white">QAR {{ formatCurrency(paymentContract.net_payable || 0) }}</p>
+              </div>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" :class="paymentStatusClass(paymentContract.payment_status)">
+                {{ paymentContract.payment_status || 'Payment Not Initialized' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Quick Summary Pills -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center">
+              <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contract Value</p>
+              <p class="text-sm font-black text-slate-800 dark:text-white mt-0.5">QAR {{ formatCurrency(paymentContract.total_income || 0) }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center">
+              <p class="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Adjustments</p>
+              <p class="text-sm font-black text-indigo-600 dark:text-indigo-400 mt-0.5">QAR {{ formatCurrency(paymentContract.adjustment_total || 0) }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center">
+              <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Paid</p>
+              <p class="text-sm font-black text-emerald-600 mt-0.5">QAR {{ formatCurrency(paymentContract.paid_amount || 0) }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center">
+              <p class="text-[9px] font-black text-rose-500 uppercase tracking-widest">Pending</p>
+              <p class="text-sm font-black text-rose-500 mt-0.5">QAR {{ formatCurrency(paymentContract.pending_amount || 0) }}</p>
+            </div>
+          </div>
+
+          <!-- Payment Entry Form -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount</label>
+              <input v-model="paymentForm.amount" :disabled="paymentSaving" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm" placeholder="Ex: 1,000">
+            </div>
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Date</label>
+              <input v-model="paymentForm.payment_date" :disabled="paymentSaving" type="date" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
+            </div>
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Method</label>
+              <select v-model="paymentForm.payment_method" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
+                <option value="Cash">Cash</option>
+                <option value="Online">Online Transaction</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button @click.prevent="addPayment" :disabled="paymentSaving || !paymentContract.id" class="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30">
+                {{ paymentSaving ? 'Saving...' : 'Add Payment' }}
               </button>
             </div>
+            <div class="md:col-span-4">
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Notes</label>
+              <textarea v-model="paymentForm.notes" :disabled="paymentSaving" rows="2" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-medium text-sm" placeholder="Optional payment note"></textarea>
+            </div>
+          </div>
+
+          <!-- Payment History Table -->
+          <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
+            <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment History</p>
+              <span class="text-[10px] font-black text-slate-400 uppercase">{{ payments.length }} Entries</span>
+            </div>
+            <div v-if="paymentLoading" class="px-6 py-10 text-center">
+              <div class="w-8 h-8 border-3 border-blue-600/10 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
+              <p class="mt-3 text-sm font-bold text-slate-500 dark:text-slate-400">Loading payment history...</p>
+            </div>
+            <div v-else-if="payments.length === 0" class="px-6 py-10 text-center">
+              <svg class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              <p class="text-sm font-bold text-slate-400 dark:text-slate-500 italic">No payment entries yet.</p>
+            </div>
+            <table v-else class="w-full text-left">
+              <thead>
+                <tr class="bg-slate-50/50 dark:bg-slate-800/30">
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Notes</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr v-for="payment in payments" :key="payment.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                  <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</td>
+                  <td class="px-5 py-3.5 text-sm font-black text-emerald-600 dark:text-emerald-400 text-right">QAR {{ formatCurrency(payment.amount) }}</td>
+                  <td class="px-5 py-3.5">
+                    <span class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter" :class="payment.payment_method === 'Cash' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 border border-amber-200 dark:border-amber-800' : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 border border-blue-200 dark:border-blue-800'">
+                      {{ payment.payment_method }}
+                    </span>
+                  </td>
+                  <td class="px-5 py-3.5 text-xs text-slate-500 dark:text-slate-400 max-w-[200px] truncate">{{ payment.notes || '—' }}</td>
+                  <td class="px-5 py-3.5 text-center">
+                    <button @click="removePayment(payment)" :disabled="paymentDeletingId === payment.id" class="px-3 py-1.5 text-[10px] font-black text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all disabled:opacity-50 uppercase tracking-widest">
+                      {{ paymentDeletingId === payment.id ? 'Removing...' : 'Delete' }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="bg-emerald-50/50 dark:bg-emerald-900/10 border-t-2 border-emerald-100 dark:border-emerald-900/30">
+                  <td class="px-5 py-3 text-[10px] font-black text-emerald-600 uppercase tracking-widest">Total Collected</td>
+                  <td class="px-5 py-3 text-sm font-black text-emerald-600 dark:text-emerald-400 text-right">QAR {{ formatCurrency(paymentContract.paid_amount || 0) }}</td>
+                  <td colspan="3"></td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
       </div>
@@ -400,6 +553,19 @@
         <button @click="closePaymentModal" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">Close</button>
       </template>
     </Modal>
+ 
+    <!-- Confirm Add Modal -->
+    <ConfirmModal 
+      :show="showCreateConfirmModal" 
+      variant="info"
+      title="Confirm Contract Creation"
+      message="Once you added the contract it is not editable so please verify all details and submit."
+      confirmText="Yes, Submit"
+      cancelText="Wait, Let me check"
+      :loading="saving"
+      @confirm="() => { showCreateConfirmModal = false; saveContract(); }"
+      @cancel="showCreateConfirmModal = false"
+    />
 
     <!-- Confirm Delete Modal -->
     <ConfirmModal 
@@ -423,19 +589,63 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import KpiCard from '@/components/shared/KpiCard.vue';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
+import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import AlertModal from '@/components/shared/AlertModal.vue';
 import { contractService, staffService, companyService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 
 const notificationStore = useNotificationStore();
 
+const contractSummary = ref({
+    total_contracts: 0,
+    total_value: 0,
+    total_paid: 0,
+    total_pending: 0,
+    total_contract_profit: 0,
+    total_overheads: 0,
+    net_company_profit: 0
+});
+
+const summaryIcons = {
+    contracts: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
+    value: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3 1.343 3 3-1.343 3-3 3m0-13c-1.11 0-2.08.402-2.599 1M12 8V7m0 1v8m0 0v1m0-1c1.11 0 2.08-.402 2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
+    paid: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
+    pending: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
+    profit: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
+    overhead: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
+    enterprise: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
+};
+
+const fetchSummary = async () => {
+    try {
+        const res = await contractService.getSummary();
+        contractSummary.value = res.data;
+    } catch (err) {
+        console.error('Failed to load contract summary', err);
+    }
+};
+
+const selectedExpenseCategory = ref('');
+const activeCategories = ref([]);
+
+const toggleCategory = (cat) => {
+    if (!cat) return;
+    if (!activeCategories.value.includes(cat)) {
+        activeCategories.value.push(cat);
+    }
+    selectedExpenseCategory.value = '';
+};
+const removeCategory = (cat) => {
+    activeCategories.value = activeCategories.value.filter(c => c !== cat);
+};
+
 const contracts = ref([]);
 const staffList = ref([]);
-const companyList = ref([]);
 const loading = ref(true);
 const saving = ref(false);
 const paymentLoading = ref(false);
@@ -449,8 +659,13 @@ const perPage = ref(10);
 const pagination = ref({});
 
 const showModal = ref(false);
+const showViewModal = ref(false);
+const selectedViewContract = ref(null);
 const showPaymentModal = ref(false);
+const paymentModalTab = ref('details');
+const contractAdjustments = ref([]);
 const showConfirmModal = ref(false);
+const showCreateConfirmModal = ref(false);
 const showAlertModal = ref(false);
 const alertConfig = ref({
     type: 'error',
@@ -463,23 +678,37 @@ const editMode = ref(false);
 const form = ref({
   id: null,
   staff_id: '',
-  company_id: '',
-  start_date: '',
-  end_date: '',
-  contract_value: '',
+  qid_renewal_fee: '',
+  qid_next_renewal_date: '',
+  passport_renewal_fee: '',
+  profession_change_fee: '',
+  sponsorship_change_fee: '',
+  health_card_fee: '',
+  others_fee: '',
+  others_reason: '',
+  total_income: '',
   paid_amount: 0,
   pending_amount: 0,
-  payment_status: 'Pending',
+  payment_status: 'Payment Not Initialized',
   payment_type: 'Cash'
+});
+const showAdjustmentModal = ref(false);
+const adjustmentSaving = ref(false);
+const adjustmentContract = ref({ id: null, net_payable: 0 });
+const adjustmentForm = ref({
+    amount: '',
+    reason: '',
+    adjustment_date: new Date().toISOString().slice(0, 10)
 });
 const paymentContract = ref({
   id: null,
   staff: null,
   company: null,
-  contract_value: 0,
+  total_income: 0,
+  net_payable: 0,
   paid_amount: 0,
   pending_amount: 0,
-  payment_status: 'Pending',
+  payment_status: 'Payment Not Initialized',
   payment_type: 'Cash'
 });
 const payments = ref([]);
@@ -490,58 +719,32 @@ const paymentForm = ref({
   notes: ''
 });
 
-const paymentStatusOptions = ['Pending', 'Partially Paid', 'Fully Paid'];
+const paymentStatusOptions = ['Payment Not Initialized', 'Partially Paid', 'Fully Paid'];
 
-const contractDuration = computed(() => {
-    if (!form.value.start_date || !form.value.end_date) return '';
-    const start = new Date(form.value.start_date);
-    const end = new Date(form.value.end_date);
-    
-    if (end < start) return 'Invalid Date Range';
 
-    let years = end.getFullYear() - start.getFullYear();
-    let months = end.getMonth() - start.getMonth();
-    
-    if (months < 0) {
-        years--;
-        months += 12;
-    }
 
-    const duration = [];
-    if (years > 0) duration.push(`${years} ${years === 1 ? 'year' : 'years'}`);
-    if (months > 0) duration.push(`${months} ${months === 1 ? 'month' : 'months'}`);
-    
-    return duration.length > 0 ? duration.join(' and ') : 'Less than a month';
+const selectedStaff = computed(() => {
+    if (!form.value.staff_id) return null;
+    return staffList.value.find(s => s.id === form.value.staff_id) || null;
 });
 
-const contractYearsList = computed(() => {
-    if (!form.value.start_date || !form.value.end_date) return [];
-    const start = new Date(form.value.start_date).getFullYear();
-    const end = new Date(form.value.end_date).getFullYear();
-    const years = [];
-    for (let y = start; y <= end; y++) {
-        years.push(y);
-    }
-    return years;
+const currentExpenseTotal = computed(() => {
+    const fields = ['qid_renewal_fee', 'passport_renewal_fee', 'profession_change_fee', 'sponsorship_change_fee', 'health_card_fee', 'others_fee'];
+    return fields.reduce((sum, field) => {
+        const val = parseFloat(form.value[field]) || 0;
+        return sum + val;
+    }, 0);
 });
 
 const columns = [
-  { key: 'staff', label: 'Staff Member', sortable: false },
-  { key: 'company', label: 'Client', sortable: false },
-  { key: 'date_range', label: 'Duration/Dates', sortable: false },
-  { key: 'contract_value', label: 'Value (QAR)', sortable: true },
-  { key: 'paid_amount', label: 'Paid (QAR)', sortable: true },
-  { key: 'pending_amount', label: 'Pending (QAR)', sortable: true },
-  { key: 'expense_total', label: 'Expenses (QAR)', sortable: false },
-  { key: 'profit_amount', label: 'Profit (QAR)', sortable: false },
-  { key: 'payment_status', label: 'Payment Status', sortable: true },
+  { key: 'staff_name', label: 'Staff Member', sortable: false },
+  { key: 'company_name', label: 'Company', sortable: false },
+  { key: 'net_payable', label: 'Contract Value', sortable: true },
+  { key: 'adjustment_total', label: 'Additional', sortable: false },
+  { key: 'paid_amount', label: 'Paid', sortable: true },
+  { key: 'pending_amount', label: 'Balance', sortable: true },
   { key: 'actions', label: 'Actions', sortable: false }
 ];
-
-const totalValue = computed(() => contracts.value.reduce((sum, c) => sum + parseFloat(c.contract_value || 0), 0));
-const totalPendingValue = computed(() => contracts.value.reduce((sum, c) => sum + parseFloat(c.pending_amount || 0), 0));
-const totalExpensesValue = computed(() => contracts.value.reduce((sum, c) => sum + parseFloat(c.expense_total || 0), 0));
-const totalProfitValue = computed(() => contracts.value.reduce((sum, c) => sum + parseFloat(c.profit_amount || 0), 0));
 
 const fetchContracts = async (page = 1) => {
   loading.value = true;
@@ -550,7 +753,8 @@ const fetchContracts = async (page = 1) => {
       page,
       search: search.value,
       payment_status: paymentStatusFilter.value,
-      sort_by: sortBy.value,
+      staff_id: '',
+      sort_by: sortBy.value === 'total_income' ? 'total_income' : sortBy.value,
       sort_direction: sortDir.value,
       per_page: perPage.value
     });
@@ -565,12 +769,8 @@ const fetchContracts = async (page = 1) => {
 
 const fetchResources = async () => {
     try {
-        const [staffRes, companyRes] = await Promise.all([
-            staffService.getAll({ per_page: 1000, status: 'active' }),
-            companyService.getAll({ per_page: 1000, is_active: 1 })
-        ]);
-        staffList.value = staffRes.data.data;
-        companyList.value = companyRes.data.data;
+        const staffRes = await staffService.getSimple({ status: 'active' });
+        staffList.value = staffRes.data || [];
     } catch (err) {
         console.error('Failed to fetch resources', err);
     }
@@ -586,7 +786,25 @@ const handleSort = (key) => {
   fetchContracts(1);
 };
 
+const searchDebounceTimer = ref(null);
+
+const debouncedSearch = () => {
+    clearTimeout(searchDebounceTimer.value);
+    searchDebounceTimer.value = setTimeout(() => {
+        fetchContracts(1);
+    }, 400);
+};
+
+const resetMainFilters = () => {
+    search.value = '';
+    paymentStatusFilter.value = '';
+
+    clearTimeout(searchDebounceTimer.value);
+    fetchContracts(1);
+};
+
 const openModal = (contract = null) => {
+  activeCategories.value = [];
   if (contract) {
     editMode.value = true;
     syncFormWithContract(contract);
@@ -595,26 +813,49 @@ const openModal = (contract = null) => {
     form.value = { 
         id: null, 
         staff_id: '', 
-        company_id: '', 
-        start_date: '', 
-        end_date: '', 
-        contract_value: '', 
+        qid_renewal_fee: '',
+        qid_next_renewal_date: '',
+        passport_renewal_fee: '',
+        profession_change_fee: '',
+        sponsorship_change_fee: '',
+        health_card_fee: '',
+        others_fee: '',
+        others_reason: '',
         paid_amount: 0,
         pending_amount: 0,
-        payment_status: 'Pending',
+        payment_status: 'Payment Not Initialized',
         payment_type: 'Cash'
     };
   }
+  selectedExpenseCategory.value = '';
   showModal.value = true;
+};
+const openViewModal = (contract) => {
+    selectedViewContract.value = contract;
+    showViewModal.value = true;
+};
+
+const handleInitialSave = () => {
+    if (editMode.value) {
+        saveContract();
+    } else {
+        showCreateConfirmModal.value = true;
+    }
 };
 
 const saveContract = async () => {
   saving.value = true;
   try {
     const payload = { ...form.value };
-    if (typeof payload.contract_value === 'string') {
-        payload.contract_value = payload.contract_value.replace(/[^0-9.]/g, '');
-    }
+    
+    // Normalize format strings
+    const fields = ['total_income', 'qid_renewal_fee', 'passport_renewal_fee', 'profession_change_fee', 'sponsorship_change_fee', 'health_card_fee', 'others_fee'];
+    fields.forEach(f => {
+        if (typeof payload[f] === 'string') payload[f] = payload[f].replace(/[^0-9.]/g, '');
+        if (payload[f] === '' || payload[f] === null || payload[f] === undefined) {
+            payload[f] = 0;
+        }
+    });
     delete payload.paid_amount;
     delete payload.pending_amount;
     delete payload.payment_status;
@@ -625,11 +866,11 @@ const saveContract = async () => {
       notificationStore.addNotification('Contract updated successfully');
     } else {
       const res = await contractService.create(payload);
-      syncFormWithContract(res.data.data);
-      editMode.value = true;
+      showModal.value = false;
       notificationStore.addNotification('Contract created successfully');
     }
     fetchContracts(pagination.value.current_page || 1);
+    fetchSummary();
   } catch (err) {
     alertConfig.value = {
         type: 'error',
@@ -652,6 +893,7 @@ const fetchContractPayments = async (contractId) => {
 
     syncPaymentContract(contractRes.data.data);
     payments.value = paymentsRes.data.data || [];
+    contractAdjustments.value = contractRes.data.data.adjustments || [];
   } catch (err) {
     console.error('Failed to fetch contract payments', err);
   } finally {
@@ -662,6 +904,8 @@ const fetchContractPayments = async (contractId) => {
 const openPaymentModal = async (contract) => {
   syncPaymentContract(contract);
   resetPaymentForm();
+  paymentModalTab.value = 'details';
+  contractAdjustments.value = [];
   showPaymentModal.value = true;
   await fetchContractPayments(contract.id);
 };
@@ -669,6 +913,7 @@ const openPaymentModal = async (contract) => {
 const closePaymentModal = () => {
   showPaymentModal.value = false;
   payments.value = [];
+  contractAdjustments.value = [];
   paymentDeletingId.value = null;
 };
 
@@ -685,6 +930,7 @@ const addPayment = async () => {
     await contractService.addPayment(paymentContract.value.id, payload);
     await fetchContractPayments(paymentContract.value.id);
     await fetchContracts(pagination.value.current_page || 1);
+    await fetchSummary();
     resetPaymentForm();
     notificationStore.addNotification('Payment entry added successfully');
   } catch (err) {
@@ -707,6 +953,7 @@ const removePayment = async (payment) => {
     await contractService.deletePayment(paymentContract.value.id, payment.id);
     await fetchContractPayments(paymentContract.value.id);
     await fetchContracts(pagination.value.current_page || 1);
+    await fetchSummary();
     notificationStore.addNotification('Payment entry deleted successfully');
   } catch (err) {
     alertConfig.value = {
@@ -734,6 +981,7 @@ const deleteContract = async () => {
     showConfirmModal.value = false;
     itemToDelete.value = null;
     fetchContracts(pagination.value.current_page || 1);
+    fetchSummary();
   } catch (err) {
     alertConfig.value = {
         type: 'error',
@@ -755,6 +1003,10 @@ const formatCurrency = (value) => {
     return parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
+const formatCurrencyValue = (value) => {
+    return 'QAR ' + formatCurrency(value);
+};
+
 const parseAmount = (value) => {
     if (value === null || value === undefined || value === '') {
         return 0;
@@ -769,12 +1021,21 @@ const syncFormWithContract = (contract) => {
     form.value = {
         ...contract,
         staff_id: contract.staff?.id || contract.staff_id,
-        company_id: contract.company?.id || contract.company_id,
         paid_amount: contract.paid_amount ?? 0,
         pending_amount: contract.pending_amount ?? 0,
-        payment_status: contract.payment_status || 'Pending',
+        payment_status: contract.payment_status || 'Payment Not Initialized',
         payment_type: contract.payment_type || 'Cash'
     };
+
+    // Populate activeCategories based on existing data
+    activeCategories.value = [];
+    if (contract.qid_renewal_fee > 0) activeCategories.value.push('qid');
+    if (contract.passport_renewal_fee > 0) activeCategories.value.push('passport');
+    if (contract.profession_change_fee > 0) activeCategories.value.push('profession');
+    if (contract.sponsorship_change_fee > 0) activeCategories.value.push('sponsorship');
+    if (contract.health_card_fee > 0) activeCategories.value.push('health');
+    if (contract.others_fee > 0) activeCategories.value.push('others');
+    form.value.others_reason = contract.others_reason || '';
 };
 
 const syncPaymentContract = (contract) => {
@@ -782,7 +1043,7 @@ const syncPaymentContract = (contract) => {
         ...contract,
         paid_amount: contract.paid_amount ?? 0,
         pending_amount: contract.pending_amount ?? 0,
-        payment_status: contract.payment_status || 'Pending',
+        payment_status: contract.payment_status || 'Payment Not Initialized',
         payment_type: contract.payment_type || 'Cash'
     };
 };
@@ -796,6 +1057,95 @@ const resetPaymentForm = () => {
     };
 };
 
+
+const openAdjustmentModal = (contract) => {
+    adjustmentContract.value = contract;
+    adjustmentForm.value = {
+        amount: '',
+        reason: '',
+        adjustment_date: new Date().toISOString().slice(0, 10)
+    };
+    showAdjustmentModal.value = true;
+};
+
+const closeAdjustmentModal = () => {
+    showAdjustmentModal.value = false;
+};
+
+const submitAdjustment = async () => {
+    if (!adjustmentContract.value.id) return;
+    if (!adjustmentForm.value.amount || parseFloat(adjustmentForm.value.amount) <= 0) {
+        alertConfig.value = { type: 'error', title: 'Invalid Amount', message: 'Please enter a valid adjustment amount.' };
+        showAlertModal.value = true;
+        return;
+    }
+
+    adjustmentSaving.value = true;
+    try {
+        const payload = {
+            ...adjustmentForm.value,
+            amount: parseAmount(adjustmentForm.value.amount)
+        };
+        await contractService.addAdjustment(adjustmentContract.value.id, payload);
+        notificationStore.addNotification('Contract value adjusted successfully');
+        closeAdjustmentModal();
+        await fetchContracts(pagination.value.current_page || 1);
+        await fetchSummary();
+    } catch (err) {
+        alertConfig.value = {
+            type: 'error',
+            title: 'Adjustment Error',
+            message: err.response?.data?.message || 'Failed to add adjustment'
+        };
+        showAlertModal.value = true;
+    } finally {
+        adjustmentSaving.value = false;
+    }
+};
+
+const submitAdjustmentFromModal = async () => {
+    if (!paymentContract.value.id) return;
+    if (!adjustmentForm.value.amount || parseFloat(adjustmentForm.value.amount) <= 0) {
+        alertConfig.value = { type: 'error', title: 'Invalid Amount', message: 'Please enter a valid additional amount.' };
+        showAlertModal.value = true;
+        return;
+    }
+    if (!adjustmentForm.value.reason) {
+        alertConfig.value = { type: 'error', title: 'Reason Required', message: 'Please enter a reason for the additional amount.' };
+        showAlertModal.value = true;
+        return;
+    }
+
+    adjustmentSaving.value = true;
+    try {
+        const payload = {
+            ...adjustmentForm.value,
+            amount: parseAmount(adjustmentForm.value.amount)
+        };
+        await contractService.addAdjustment(paymentContract.value.id, payload);
+        notificationStore.addNotification('Additional amount added successfully');
+        // Reset adjustment form
+        adjustmentForm.value = {
+            amount: '',
+            reason: '',
+            adjustment_date: new Date().toISOString().slice(0, 10)
+        };
+        // Refresh contract data in modal
+        await fetchContractPayments(paymentContract.value.id);
+        await fetchContracts(pagination.value.current_page || 1);
+        await fetchSummary();
+    } catch (err) {
+        alertConfig.value = {
+            type: 'error',
+            title: 'Adjustment Error',
+            message: err.response?.data?.message || 'Failed to add additional amount'
+        };
+        showAlertModal.value = true;
+    } finally {
+        adjustmentSaving.value = false;
+    }
+};
+
 const paymentStatusClass = (value) => {
     if (value === 'Fully Paid') {
         return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300';
@@ -805,11 +1155,26 @@ const paymentStatusClass = (value) => {
         return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
     }
 
+    if (value === 'Payment Not Initialized') {
+        return 'bg-slate-100 text-slate-700 dark:bg-slate-700/50 dark:text-slate-300';
+    }
+
     return 'bg-slate-100 text-slate-700 dark:bg-slate-700/50 dark:text-slate-300';
 };
 
 onMounted(() => {
     fetchContracts();
     fetchResources();
+    fetchSummary();
 });
 </script>
+
+<style scoped>
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+</style>

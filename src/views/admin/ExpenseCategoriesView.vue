@@ -41,24 +41,61 @@
       </div>
 
       <div class="p-6">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6">
             <h3 class="text-lg font-bold text-slate-800 dark:text-white">
                 {{ activeTab === 'main' ? 'All Main Categories' : 'All Sub-Categories' }}
             </h3>
-            <button @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-semibold text-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                Add {{ activeTab === 'main' ? 'Main' : 'Sub' }} Category
-            </button>
+            
+            <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                <!-- Search -->
+                <div class="relative flex-1 md:w-64">
+                    <input 
+                        v-model="search" 
+                        type="text" 
+                        :placeholder="activeTab === 'main' ? 'Search main categories...' : 'Search sub-categories...'"
+                        class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    >
+                    <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+
+                <!-- Type Filter (Main Categories only) -->
+                <select 
+                    v-if="activeTab === 'main'"
+                    v-model="targetTypeFilter"
+                    class="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                >
+                    <option value="">All Types</option>
+                    <option value="Employee">Employee Related</option>
+                    <option value="Company">Company Related</option>
+                </select>
+
+                <button @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-semibold text-sm ml-auto">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    Add {{ activeTab === 'main' ? 'Main' : 'Sub' }} Category
+                </button>
+            </div>
         </div>
 
         <DataTable 
           :columns="activeTab === 'main' ? mainColumns : subColumns" 
-          :data="filteredCategories" 
-          :loading="loading">
+          :data="categories" 
+          :loading="loading"
+          :pagination="pagination"
+          @page-change="handlePageChange"
+        >
           
           <template #parent="{ row }">
             <span class="px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
                 {{ row.parent?.name || 'N/A' }}
+            </span>
+          </template>
+
+          <template #target_type="{ value }">
+            <span :class="[
+                'px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tighter',
+                value === 'Employee' ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+            ]">
+                {{ value }}
             </span>
           </template>
 
@@ -77,11 +114,28 @@
     </div>
 
     <!-- Category Modal -->
-    <Modal :show="showModal" :title="editMode ? 'Edit Category' : 'Create New Category'" @close="showModal = false" maxWidth="lg">
+    <Modal :show="showModal" :title="editMode ? (activeTab === 'main' ? 'Edit Category' : 'Edit Sub-Category') : (activeTab === 'main' ? 'Create New Category' : 'Create New Sub-Category')" @close="showModal = false" maxWidth="lg">
       <form @submit.prevent="saveCategory" class="p-2 space-y-6">
         <div>
-          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Category Name</label>
-          <input v-model="form.name" type="text" required class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" placeholder="e.g. Office Supplies">
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
+            {{ activeTab === 'main' ? 'Category Name' : 'Sub-Category Name' }}
+          </label>
+          <input v-model="form.name" type="text" required class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" :placeholder="activeTab === 'main' ? 'e.g. Office Supplies' : 'e.g. Stationery'">
+        </div>
+
+        <div v-if="activeTab === 'main'">
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Target Type</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" @click="form.target_type = 'Employee'" :class="[
+              'px-4 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all',
+              form.target_type === 'Employee' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700/50 text-slate-500 hover:bg-slate-100'
+            ]">Employee Related</button>
+            <button type="button" @click="form.target_type = 'Company'" :class="[
+              'px-4 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all',
+              form.target_type === 'Company' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700/50 text-slate-500 hover:bg-slate-100'
+            ]">Company Related</button>
+          </div>
+          <p class="mt-2 text-[9px] text-slate-400 font-medium">Employee-related categories will link expenses to specific contracts.</p>
         </div>
 
         <div v-if="activeTab === 'sub'">
@@ -100,7 +154,7 @@
       <template #footer>
         <button @click="showModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">Cancel</button>
         <button @click="saveCategory" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-xl shadow-blue-500/25 transition-all font-black text-sm" :disabled="saving">
-          {{ saving ? 'Saving...' : (editMode ? 'Update Category' : 'Create Category') }}
+          {{ saving ? 'Saving...' : (editMode ? (activeTab === 'main' ? 'Update Category' : 'Update Sub-Category') : (activeTab === 'main' ? 'Create Category' : 'Create Sub-Category')) }}
         </button>
       </template>
     </Modal>
@@ -135,16 +189,24 @@ const itemToDelete = ref(null);
 const saving = ref(false);
 const deleting = ref(false);
 const editMode = ref(false);
+const search = ref('');
+const targetTypeFilter = ref('');
+const pagination = ref({});
+const currentPage = ref(1);
+const mainCategoriesOnly = ref([]);
+const debounceTimer = ref(null);
 
 const form = ref({
     id: null,
     name: '',
+    target_type: 'Company',
     parent_id: '',
     description: ''
 });
 
 const mainColumns = [
     { key: 'name', label: 'Name', sortable: true },
+    { key: 'target_type', label: 'Type', sortable: true },
     { key: 'description', label: 'Description', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
@@ -155,26 +217,61 @@ const subColumns = [
     { key: 'actions', label: 'Actions', sortable: false }
 ];
 
-const filteredCategories = computed(() => {
-    if (activeTab.value === 'main') {
-        return categories.value.filter(c => !c.parent_id);
-    }
-    return categories.value.filter(c => c.parent_id);
-});
-
-const mainCategoriesOnly = computed(() => categories.value.filter(c => !c.parent_id));
-
 const fetchCategories = async () => {
     loading.value = true;
+    categories.value = []; // Clear existing data to prevent flashing old tab data
     try {
-        const res = await expenseCategoryService.getAll();
-        categories.value = res.data;
+        const res = await expenseCategoryService.getAll({
+            page: currentPage.value,
+            per_page: 10,
+            search: search.value,
+            type: activeTab.value,
+            target_type: (activeTab.value === 'main' && targetTypeFilter.value) ? targetTypeFilter.value : undefined
+        });
+        
+        if (res.data.data) {
+            categories.value = res.data.data;
+            pagination.value = {
+                current_page: res.data.current_page,
+                last_page: res.data.last_page,
+                total: res.data.total,
+                from: res.data.from,
+                to: res.data.to
+            };
+        } else {
+            categories.value = res.data;
+            pagination.value = null;
+        }
+
+        // Only fetch main categories for the dropdown if we need them (Sub tab) or on initial load
+        if (activeTab.value === 'sub' || mainCategoriesOnly.value.length === 0) {
+            const allMainRes = await expenseCategoryService.getAll({ type: 'main' });
+            mainCategoriesOnly.value = allMainRes.data;
+        }
     } catch (err) {
         notificationStore.addNotification('Failed to fetch categories', 'error');
     } finally {
         loading.value = false;
     }
 };
+
+const handlePageChange = (page) => {
+    currentPage.value = page;
+    fetchCategories();
+};
+
+watch([activeTab, targetTypeFilter], () => {
+    currentPage.value = 1;
+    fetchCategories();
+});
+
+watch(search, () => {
+    clearTimeout(debounceTimer.value);
+    debounceTimer.value = setTimeout(() => {
+        currentPage.value = 1;
+        fetchCategories();
+    }, 500);
+});
 
 const openModal = (category = null) => {
     if (category) {
@@ -185,6 +282,7 @@ const openModal = (category = null) => {
         form.value = {
             id: null,
             name: '',
+            target_type: 'Company',
             parent_id: activeTab.value === 'sub' ? '' : null,
             description: ''
         };
@@ -202,6 +300,8 @@ const saveCategory = async () => {
             if (activeTab.value === 'main') form.value.parent_id = null;
             await expenseCategoryService.create(form.value);
             notificationStore.addNotification('Category created');
+            currentPage.value = 1;
+            search.value = ''; // Clear search to show the new item
         }
         showModal.value = false;
         fetchCategories();

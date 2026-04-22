@@ -23,9 +23,17 @@
               </slot>
             </td>
           </tr>
-          <tr v-if="data.length === 0">
-            <td :colspan="columns.length" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400 italic">
-              No records found.
+          <tr v-if="loading">
+            <td :colspan="columns.length" class="px-6 py-12 text-center">
+              <div class="flex flex-col items-center gap-2">
+                <div class="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Loading records...</span>
+              </div>
+            </td>
+          </tr>
+          <tr v-else-if="data.length === 0">
+            <td :colspan="columns.length" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400 italic font-medium">
+              No records match your criteria.
             </td>
           </tr>
         </tbody>
@@ -39,14 +47,24 @@
         Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} entries
       </div>
       <div class="flex items-center gap-2">
+        <!-- First Page -->
+        <button 
+          v-if="pagination.current_page > 3"
+          @click="$emit('page-change', 1)"
+          class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-sm">
+          1
+        </button>
+        <span v-if="pagination.current_page > 4" class="text-slate-400">...</span>
+
         <button 
           @click="$emit('page-change', pagination.current_page - 1)"
           :disabled="pagination.current_page === 1"
           class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-sm">
           Previous
         </button>
+        
         <button 
-          v-for="page in totalPages" :key="page"
+          v-for="page in visiblePages" :key="page"
           @click="$emit('page-change', page)"
           :class="[
             'px-3 py-1 rounded-md text-sm font-medium transition-colors shadow-sm',
@@ -56,11 +74,20 @@
           ]">
           {{ page }}
         </button>
+
         <button 
           @click="$emit('page-change', pagination.current_page + 1)"
           :disabled="pagination.current_page === pagination.last_page"
           class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-sm">
           Next
+        </button>
+
+        <span v-if="pagination.current_page < pagination.last_page - 3" class="text-slate-400">...</span>
+        <button 
+          v-if="pagination.current_page < pagination.last_page - 2"
+          @click="$emit('page-change', pagination.last_page)"
+          class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-sm">
+          {{ pagination.last_page }}
         </button>
       </div>
     </div>
@@ -73,6 +100,7 @@ import { computed } from 'vue';
 const props = defineProps({
   columns: { type: Array, required: true },
   data: { type: Array, required: true },
+  loading: { type: Boolean, default: false },
   pagination: { type: Object, default: null },
   sortBy: { type: String, default: null },
   sortDir: { type: String, default: 'asc' }
@@ -80,8 +108,16 @@ const props = defineProps({
 
 defineEmits(['sort', 'page-change']);
 
-const totalPages = computed(() => {
-  if (!props.pagination) return 0;
-  return props.pagination.last_page;
+const visiblePages = computed(() => {
+  if (!props.pagination) return [];
+  const current = props.pagination.current_page;
+  const last = props.pagination.last_page;
+  const delta = 2;
+  const range = [];
+  
+  for (let i = Math.max(1, current - delta); i <= Math.min(last, current + delta); i++) {
+    range.push(i);
+  }
+  return range;
 });
 </script>

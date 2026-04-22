@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+  <div class="h-full bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
     <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
         <div v-html="icon" class="w-32 h-32 text-blue-600"></div>
     </div>

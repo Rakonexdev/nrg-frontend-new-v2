@@ -30,15 +30,25 @@ api.interceptors.response.use(
     }
 );
 
+export const BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
+
 export const staffService = {
     getAll: (params) => api.get('/staff', { params }),
+    getSimple: (params) => api.get('/staff', { params: { ...params, mode: 'simple' } }),
     getById: (id) => api.get(`/staff/${id}`),
+    getCompanies: () => api.get('/companies'),
     create: (data) => api.post('/staff', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
-    update: (id, data) => api.post(`/staff/${id}`, { ...data, _method: 'PUT' }, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
+    update: (id, data) => {
+        if (data instanceof FormData) {
+            data.append('_method', 'PUT');
+            return api.post(`/staff/${id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+        return api.put(`/staff/${id}`, data);
+    },
     delete: (id) => api.delete(`/staff/${id}`),
     getDocuments: (id) => api.get(`/staff/${id}/documents`),
     uploadDocuments: (id, data) => api.post(`/staff/${id}/documents`, data, {
@@ -46,23 +56,17 @@ export const staffService = {
     })
 };
 
-export const companyService = {
-    getAll: (params) => api.get('/companies', { params }),
-    getById: (id) => api.get(`/companies/${id}`),
-    create: (data) => api.post('/companies', data),
-    update: (id, data) => api.put(`/companies/${id}`, data),
-    delete: (id) => api.delete(`/companies/${id}`)
-};
-
 export const contractService = {
     getAll: (params) => api.get('/contracts', { params }),
+    getSummary: () => api.get('/contracts/summary'),
     getById: (id) => api.get(`/contracts/${id}`),
     create: (data) => api.post('/contracts', data),
     update: (id, data) => api.put(`/contracts/${id}`, data),
     delete: (id) => api.delete(`/contracts/${id}`),
     getPayments: (id) => api.get(`/contracts/${id}/payments`),
     addPayment: (id, data) => api.post(`/contracts/${id}/payments`, data),
-    deletePayment: (contractId, paymentId) => api.delete(`/contracts/${contractId}/payments/${paymentId}`)
+    deletePayment: (contractId, paymentId) => api.delete(`/contracts/${contractId}/payments/${paymentId}`),
+    addAdjustment: (id, data) => api.post(`/contracts/${id}/adjustments`, data)
 };
 
 export const expenseService = {
@@ -70,14 +74,29 @@ export const expenseService = {
     getById: (id) => api.get(`/expenses/${id}`),
     create: (data) => api.post('/expenses', data),
     update: (id, data) => api.put(`/expenses/${id}`, data),
-    delete: (id) => api.delete(`/expenses/${id}`)
+    delete: (id) => api.delete(`/expenses/${id}`),
+    export: (params) => api.get('/expenses/export', { params, responseType: 'blob' })
 };
 
 export const expenseCategoryService = {
-    getAll: () => api.get('/expense-categories'),
+    getAll: (params) => api.get('/expense-categories', { params }),
     create: (data) => api.post('/expense-categories', data),
     update: (id, data) => api.put(`/expense-categories/${id}`, data),
     delete: (id) => api.delete(`/expense-categories/${id}`)
+};
+
+export const companyService = {
+    getAll: (params) => api.get('/companies', { params }),
+    getSimple: () => api.get('/companies', { params: { mode: 'simple' } }),
+    getById: (id) => api.get(`/companies/${id}`),
+    create: (data) => api.post('/companies', data),
+    update: (id, data) => api.put(`/companies/${id}`, data),
+    delete: (id) => api.delete(`/companies/${id}`)
+};
+
+export const collectorService = {
+    getPendingCollections: () => api.get('/collections/pending'),
+    recordPayment: (contractId, data) => api.post(`/contracts/${contractId}/payments`, data),
 };
 
 export default api;

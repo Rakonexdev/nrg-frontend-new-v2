@@ -16,39 +16,28 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <router-link to="/admin/staff" class="block group">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <router-link to="/admin/staff" class="block group h-full">
         <KpiCard 
           title="Total Staff" 
           :value="stats.total_staff" 
           :icon="icons.users" 
           color-class="bg-blue-600" 
-          :trend="12"
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
-      <router-link to="/admin/companies?status=active" class="block group">
+      <router-link to="/admin/staff?filter=expiring_qid" class="block group h-full">
         <KpiCard 
-          title="Active Companies" 
-          :value="stats.active_companies" 
-          :icon="icons.briefcase" 
-          color-class="bg-indigo-600" 
-          :trend="5"
-          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
-        />
-      </router-link>
-      <router-link to="/admin/staff?filter=expiring_qid" class="block group">
-        <KpiCard 
-          title="Expiring QIDs" 
+          title="QID Expiry (This Month)" 
           :value="stats.expiring_qid" 
           :icon="icons.alert" 
           color-class="bg-amber-500" 
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
-      <router-link to="/admin/staff?filter=expired_passport" class="block group">
+      <router-link to="/admin/staff?filter=expired_passport" class="block group h-full">
         <KpiCard 
-          title="Expired Passports" 
+          title="Passport Expiry (This Month)" 
           :value="stats.expired_passport" 
           :icon="icons.document" 
           color-class="bg-rose-500" 
@@ -57,24 +46,64 @@
       </router-link>
     </div>
 
-    <!-- Charts Section -->
+    <!-- Data Tables Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Main Chart -->
-      <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Staff Recruitment Pattern</h3>
-          <select class="text-xs font-semibold bg-slate-50 border-none rounded-md px-2 py-1 outline-none">
-            <option>Last 6 Months</option>
-            <option>Last Year</option>
-          </select>
+      <!-- Recent Collections Table -->
+      <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-0 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between p-6 pb-2">
+          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Recent Collections</h3>
+          <router-link to="/admin/contracts" class="text-xs font-bold text-blue-600 hover:text-blue-700">View All Collections →</router-link>
         </div>
-        <div class="h-80 w-full relative">
-            <Line v-if="chartData.labels.length" :data="chartData" :options="chartOptions" />
-            <div v-else class="h-full flex items-center justify-center text-slate-400 italic">No data available for trend</div>
+        
+        <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="text-[10px] uppercase tracking-widest text-slate-500 border-b border-slate-50 dark:border-slate-700/50">
+                <th class="px-6 py-4 font-black">Time & Date</th>
+                <th class="px-6 py-4 font-black">Collector</th>
+                <th class="px-6 py-4 font-black">Company</th>
+                <th class="px-6 py-4 font-black">Staff</th>
+                <th class="px-6 py-4 font-black text-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
+              <tr v-for="collection in recentCollections" :key="collection.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="flex flex-col">
+                    <span class="text-sm font-black text-slate-800 dark:text-white leading-tight mb-0.5">{{ collection.date }}</span>
+                    <span class="text-[10px] font-bold text-blue-500/70 dark:text-blue-400/60 uppercase tracking-wider">{{ collection.time_ago }}</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                      {{ collection.collector.charAt(0) }}
+                    </div>
+                    <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ collection.collector }}</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-sm text-slate-600 dark:text-slate-400 truncate max-w-[150px] block">{{ collection.company }}</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                    {{ collection.staff }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <span class="text-xs font-medium text-slate-400 uppercase mr-1">QAR</span>
+                  <span class="text-base font-black text-slate-900 dark:text-white">{{ formatCurrency(collection.amount) }}</span>
+                </td>
+              </tr>
+              <tr v-if="!recentCollections.length">
+                <td colspan="5" class="px-6 py-10 text-center text-slate-400 italic text-sm">No collections recorded yet.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- Quick Actions / Alerts -->
+      <!-- Upcoming Expirations -->
       <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden relative">
           <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-6">Upcoming Expirations</h3>
           <div class="space-y-4">
@@ -96,78 +125,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted } from 'vue';
 import KpiCard from '@/components/shared/KpiCard.vue';
 import api from '@/services/api';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-} from 'chart.js';
-import { Line } from 'vue-chartjs';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
 
 const loading = ref(false);
 const lastSync = ref(new Date().toLocaleTimeString());
 const stats = ref({
     total_staff: 0,
-    active_staff: 0,
-    total_companies: 0,
-    active_companies: 0,
     expiring_qid: 0,
     expired_passport: 0
 });
 
-const chartData = reactive({
-    labels: [],
-    datasets: [
-        {
-            label: 'New Staff Joining',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            borderColor: '#3b82f6',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 4,
-            pointBackgroundColor: '#fff',
-            data: []
-        }
-    ]
-});
-
-const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        legend: { display: false },
-        tooltip: {
-            backgroundColor: '#1E293B',
-            padding: 12,
-            titleFont: { size: 14, weight: 'bold' },
-            cornerRadius: 8
-        }
-    },
-    scales: {
-        y: { grid: { borderDash: [5, 5], color: '#E2E8F0' }, ticks: { font: { weight: '600' } } },
-        x: { grid: { display: false }, ticks: { font: { weight: '600' } } }
-    }
-};
+const recentCollections = ref([]);
 
 const icons = {
     users: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
@@ -176,16 +146,19 @@ const icons = {
     document: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
 };
 
+const formatCurrency = (val) => {
+  return parseFloat(val).toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
+}
+
 const fetchDashboardData = async () => {
     loading.value = true;
     try {
         const res = await api.get('/dashboard');
         stats.value = res.data.stats;
-        
-        // Prepare chart
-        chartData.labels = res.data.monthlyTrend.map(t => t.month);
-        chartData.datasets[0].data = res.data.monthlyTrend.map(t => t.count);
-        
+        recentCollections.value = res.data.recentCollections;
         lastSync.value = new Date().toLocaleTimeString();
     } catch (err) {
         console.error('Failed to load dashboard data', err);

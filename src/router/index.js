@@ -25,6 +25,12 @@ const router = createRouter({
           component: () => import('../views/admin/DashboardView.vue')
         },
         {
+          path: 'companies',
+          name: 'admin-companies',
+          component: () => import('../views/admin/CompaniesView.vue'),
+          meta: { title: 'Companies Management' }
+        },
+        {
           path: 'staff',
           name: 'admin-staff',
           component: () => import('../views/admin/StaffView.vue')
@@ -35,11 +41,6 @@ const router = createRouter({
           component: () => import('../views/admin/StaffDetailView.vue')
         },
         {
-          path: 'companies',
-          name: 'admin-companies',
-          component: () => import('../views/admin/CompaniesView.vue')
-        },
-        {
           path: 'contracts',
           name: 'admin-contracts',
           component: () => import('../views/admin/ContractsView.vue')
@@ -48,7 +49,8 @@ const router = createRouter({
         {
           path: 'expenses',
           name: 'admin-expenses',
-          component: () => import('../views/admin/ExpensesView.vue')
+          component: () => import('../views/admin/ExpensesView.vue'),
+          meta: { title: 'Expenses Management' }
         },
         {
           path: 'expenses/categories',
@@ -59,6 +61,12 @@ const router = createRouter({
           path: 'settlements',
           name: 'admin-settlements',
           component: () => import('../views/admin/SettlementsView.vue')
+        },
+        {
+          path: 'change-password',
+          name: 'admin-change-password',
+          component: () => import('../views/admin/ChangePasswordView.vue'),
+          meta: { title: 'Security Settings' }
         }
       ]
     },

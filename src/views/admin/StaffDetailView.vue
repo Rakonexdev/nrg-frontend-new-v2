@@ -126,11 +126,31 @@
                     </div>
                 </div>
 
-                <div class="mt-12 p-8 bg-blue-50 dark:bg-blue-900/20 rounded-[2rem] border-2 border-dashed border-blue-200 dark:border-blue-800/50">
+                </div>
+
+                <!-- Company Details Insert -->
+                <div v-if="staff.company_name" class="mt-8 p-8 bg-teal-50 dark:bg-teal-900/20 rounded-[2rem] border border-teal-100 dark:border-teal-800/50">
+                    <h4 class="text-xs font-black text-teal-800 dark:text-teal-300 uppercase tracking-[0.2em] mb-4">Company Allocation</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <p class="text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest mb-1">Company Name</p>
+                            <p class="text-sm font-black text-slate-800 dark:text-white">{{ staff.company_name }}</p>
+                        </div>
+                        <div v-if="staff.company_contact_person">
+                            <p class="text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest mb-1">Contact Person</p>
+                            <p class="text-sm font-black text-slate-800 dark:text-white">{{ staff.company_contact_person }}</p>
+                        </div>
+                        <div v-if="staff.company_phone">
+                            <p class="text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest mb-1">Contact Phone</p>
+                            <p class="text-sm font-black text-slate-800 dark:text-white">{{ staff.company_phone }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-8 bg-blue-50 dark:bg-blue-900/20 rounded-[2rem] border-2 border-dashed border-blue-200 dark:border-blue-800/50">
                     <h4 class="text-xs font-black text-blue-800 dark:text-blue-300 uppercase tracking-[0.2em] mb-4">Internal System Notes</h4>
                     <p class="text-sm text-blue-600 dark:text-blue-400 font-bold leading-relaxed italic">"Premium profile verification completed. All identity documents are currently up to date. Security clearance approved for site operations."</p>
                 </div>
-            </div>
         </div>
     </div>
   </div>
