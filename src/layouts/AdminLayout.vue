@@ -15,10 +15,11 @@
         
         <router-link v-for="link in navLinks" :key="link.to" :to="link.to" 
                      class="flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative" 
-                     active-class="bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]">
+                     :active-class="link.to === '/admin' ? '' : 'bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]'"
+                     exact-active-class="bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]">
           <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
           <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
-          <div v-if="$route.path === link.to" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
+          <div v-if="link.to === '/admin' ? $route.path === '/admin' : $route.path.startsWith(link.to)" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
         </router-link>
 
 
@@ -34,7 +35,7 @@
       <header class="h-20 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md flex items-center justify-between px-10 relative z-20">
         <div class="flex items-center gap-3">
             <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-            <h2 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ $route.meta.title || 'Overview' }}</h2>
+            <h2 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ $route.meta.title || 'System Dashboard' }}</h2>
         </div>
         <div class="flex items-center gap-6">
           <!-- Profile Dropdown -->

@@ -103,22 +103,27 @@
         </div>
       </div>
 
-      <!-- Upcoming Expirations -->
+        <!-- Upcoming Expirations -->
       <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden relative">
           <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-6">Upcoming Expirations</h3>
           <div class="space-y-4">
-              <div v-for="i in 5" :key="i" class="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
+              <div v-for="staff in upcomingExpirations" :key="staff.id" class="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
                   <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
                       <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                   </div>
                   <div class="min-w-0 flex-1">
-                      <p class="text-sm font-bold text-slate-900 dark:text-white truncate">Staff Name Sample</p>
-                      <p class="text-xs text-slate-500">QID expires in 12 days</p>
+                      <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ staff.name }}</p>
+                      <p class="text-xs" :class="staff.status === 'critical' ? 'text-red-500 font-bold' : (staff.status === 'warning' ? 'text-amber-500 font-medium' : 'text-slate-500')">
+                        {{ staff.type }} expires in {{ staff.days }} days
+                      </p>
                   </div>
-                  <button class="text-xs font-bold text-blue-600 hover:text-blue-700">View</button>
+                  <router-link :to="`/admin/staff?search=${staff.name}`" class="text-xs font-bold text-blue-600 hover:text-blue-700">View</router-link>
+              </div>
+              <div v-if="!upcomingExpirations.length" class="py-10 text-center text-slate-400 italic text-sm">
+                  No expirations in the next 30 days.
               </div>
           </div>
-          <button class="w-full mt-6 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 transition-colors bg-slate-50 dark:bg-slate-700 rounded-lg">View All Alerts</button>
+          <router-link to="/admin/staff?filter=expiring_qid" class="block w-full mt-6 py-2 text-center text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 transition-colors bg-slate-50 dark:bg-slate-700 rounded-lg">View All Alerts</router-link>
       </div>
     </div>
   </div>
@@ -138,6 +143,7 @@ const stats = ref({
 });
 
 const recentCollections = ref([]);
+const upcomingExpirations = ref([]);
 
 const icons = {
     users: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
@@ -159,6 +165,7 @@ const fetchDashboardData = async () => {
         const res = await api.get('/dashboard');
         stats.value = res.data.stats;
         recentCollections.value = res.data.recentCollections;
+        upcomingExpirations.value = res.data.upcomingExpirations || [];
         lastSync.value = new Date().toLocaleTimeString();
     } catch (err) {
         console.error('Failed to load dashboard data', err);

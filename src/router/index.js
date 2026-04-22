@@ -22,7 +22,8 @@ const router = createRouter({
         {
           path: '',
           name: 'admin-dashboard',
-          component: () => import('../views/admin/DashboardView.vue')
+          component: () => import('../views/admin/DashboardView.vue'),
+          meta: { title: 'System Overview' }
         },
         {
           path: 'companies',
@@ -33,17 +34,20 @@ const router = createRouter({
         {
           path: 'staff',
           name: 'admin-staff',
-          component: () => import('../views/admin/StaffView.vue')
+          component: () => import('../views/admin/StaffView.vue'),
+          meta: { title: 'Staff Management' }
         },
         {
           path: 'staff/:id',
           name: 'admin-staff-detail',
-          component: () => import('../views/admin/StaffDetailView.vue')
+          component: () => import('../views/admin/StaffDetailView.vue'),
+          meta: { title: 'Staff Member Details' }
         },
         {
           path: 'contracts',
           name: 'admin-contracts',
-          component: () => import('../views/admin/ContractsView.vue')
+          component: () => import('../views/admin/ContractsView.vue'),
+          meta: { title: 'Contracts & Collections' }
         },
 
         {
@@ -55,12 +59,14 @@ const router = createRouter({
         {
           path: 'expenses/categories',
           name: 'admin-expense-categories',
-          component: () => import('../views/admin/ExpenseCategoriesView.vue')
+          component: () => import('../views/admin/ExpenseCategoriesView.vue'),
+          meta: { title: 'Expense Categories' }
         },
         {
           path: 'settlements',
           name: 'admin-settlements',
-          component: () => import('../views/admin/SettlementsView.vue')
+          component: () => import('../views/admin/SettlementsView.vue'),
+          meta: { title: 'Payment Settlements' }
         },
         {
           path: 'change-password',
