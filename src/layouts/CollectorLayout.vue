@@ -33,9 +33,15 @@
                   <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest truncate">{{ authStore.user?.email || 'collector@nrg.local' }}</p>
               </div>
               
-              <div class="px-3 mt-2">
+              <div class="px-3 mt-2 space-y-1">
+                  <button @click="openChangePassword" class="w-full flex items-center gap-4 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl hover:text-teal-600 transition-all group font-bold text-xs uppercase tracking-widest">
+                      <div class="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-teal-600 group-hover:scale-110 transition-transform">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      </div>
+                      Change Password
+                  </button>
                   <button @click="logout" class="w-full flex items-center gap-4 px-4 py-3 bg-rose-500/10 text-rose-500 dark:text-rose-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500/20 transition-all group">
-                      <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-900 shadow-sm flex items-center justify-center group-hover:rotate-12 transition-transform border border-slate-200 dark:border-slate-800">
+                      <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center group-hover:rotate-12 transition-transform border border-slate-200 dark:border-slate-800">
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                       </div>
                       Sign Out
@@ -111,6 +117,11 @@ onMounted(() => {
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutsideProfile);
 });
+
+const openChangePassword = () => {
+    showProfileDropdown.value = false;
+    router.push({ name: 'collector-change-password' });
+};
 
 const logout = async () => {
     showProfileDropdown.value = false;

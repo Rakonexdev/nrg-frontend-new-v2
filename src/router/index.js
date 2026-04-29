@@ -49,7 +49,12 @@ const router = createRouter({
           component: () => import('../views/admin/ContractsView.vue'),
           meta: { title: 'Contracts & Collections' }
         },
-
+        {
+          path: 'collectors',
+          name: 'admin-collectors',
+          component: () => import('../views/admin/CollectorsView.vue'),
+          meta: { title: 'Collectors Management' }
+        },
         {
           path: 'expenses',
           name: 'admin-expenses',
@@ -100,6 +105,12 @@ const router = createRouter({
           path: 'settle',
           name: 'collector-settle',
           component: () => import('../views/collector/SettlementView.vue')
+        },
+        {
+          path: 'change-password',
+          name: 'collector-change-password',
+          component: () => import('../views/admin/ChangePasswordView.vue'),
+          meta: { title: 'Security Settings' }
         }
       ]
     }

@@ -3,7 +3,7 @@
     <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-blue-500/5 border border-slate-200/50 dark:border-slate-800/50 overflow-hidden">
       <div class="p-10 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900 pointer-events-none">
         <h1 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Security <span class="text-blue-600">Settings</span></h1>
-        <p class="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">Update your administrative credentials</p>
+        <p class="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">Update your account credentials</p>
       </div>
 
       <form @submit.prevent="handleSubmit" class="p-10 space-y-8">

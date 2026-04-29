@@ -79,7 +79,7 @@ export const expenseService = {
 };
 
 export const expenseCategoryService = {
-    getAll: (params) => api.get('/expense-categories', { params }),
+    getAll: () => api.get('/expense-categories'),
     create: (data) => api.post('/expense-categories', data),
     update: (id, data) => api.put(`/expense-categories/${id}`, data),
     delete: (id) => api.delete(`/expense-categories/${id}`)
@@ -95,8 +95,16 @@ export const companyService = {
 };
 
 export const collectorService = {
+    // Operations for collector mobile app
     getPendingCollections: () => api.get('/collections/pending'),
     recordPayment: (contractId, data) => api.post(`/contracts/${contractId}/payments`, data),
+    
+    // CRUD operations for admin management
+    getAll: (params) => api.get('/collectors', { params }),
+    getById: (id) => api.get(`/collectors/${id}`),
+    create: (data) => api.post('/collectors', data),
+    update: (id, data) => api.put(`/collectors/${id}`, data),
+    delete: (id) => api.delete(`/collectors/${id}`)
 };
 
 export default api;
