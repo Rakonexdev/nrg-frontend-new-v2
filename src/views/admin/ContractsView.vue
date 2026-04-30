@@ -893,7 +893,7 @@ const fetchContractPayments = async (contractId) => {
 const openPaymentModal = async (contract) => {
   syncPaymentContract(contract);
   resetPaymentForm();
-  paymentModalTab.value = 'details';
+  paymentModalTab.value = 'payments';
   contractAdjustments.value = [];
   showPaymentModal.value = true;
   await fetchContractPayments(contract.id);
