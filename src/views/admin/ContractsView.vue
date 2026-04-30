@@ -83,7 +83,8 @@
                     <div>
                         <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">{{ selectedViewContract.staff?.name || 'N/A' }}</h2>
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mt-1 border border-blue-100 dark:border-blue-800/50">
-                            {{ selectedViewContract.staff?.company_name || 'Individual' }}
+                            {{ selectedViewContract.staff?.company_name || 'Individual' }} 
+                            <span v-if="selectedViewContract.staff?.branch_name" class="ml-1 opacity-60">({{ selectedViewContract.staff.branch_name }})</span>
                         </span>
                     </div>
                 </div>
@@ -94,51 +95,131 @@
             </div>
 
             <!-- Finance Summary -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Gross Income</p>
-                    <p class="text-3xl font-black text-emerald-600 dark:text-emerald-500">{{ formatCurrency(selectedViewContract.paid_amount) }}</p>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-3xl border border-indigo-100 dark:border-indigo-800 shadow-sm transition-all hover:shadow-md">
+                    <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Contract Value</p>
+                    <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400">QAR {{ formatCurrency(selectedViewContract.net_income || selectedViewContract.total_income) }}</p>
+                    <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">(Total + Adjustments)</p>
+                </div>
+                <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-3xl border border-emerald-100 dark:border-emerald-800 shadow-sm transition-all hover:shadow-md">
+                    <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Gross Income</p>
+                    <p class="text-2xl font-black text-emerald-600 dark:text-emerald-500">QAR {{ formatCurrency(selectedViewContract.paid_amount) }}</p>
                     <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">(Total Collected)</p>
                 </div>
-                <div class="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
+                <div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-3xl border border-amber-100 dark:border-amber-800 shadow-sm transition-all hover:shadow-md">
+                    <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1">Pending Balance</p>
+                    <p class="text-2xl font-black text-amber-600 dark:text-amber-400">QAR {{ formatCurrency(selectedViewContract.pending_amount) }}</p>
+                    <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">(Remaining to Pay)</p>
+                </div>
+                <div class="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-3xl border border-rose-100 dark:border-rose-800 shadow-sm transition-all hover:shadow-md">
                     <p class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">Employee Expenses</p>
-                    <p class="text-3xl font-black text-rose-500">{{ formatCurrency(selectedViewContract.employee_expenses_total) }}</p>
+                    <p class="text-2xl font-black text-rose-500">QAR {{ formatCurrency(selectedViewContract.employee_expenses_total) }}</p>
                     <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">(Fees + Daily Exp)</p>
                 </div>
-                <div class="p-6 bg-blue-600 rounded-3xl border border-blue-500 shadow-xl shadow-blue-500/20 transition-all hover:shadow-md">
+                <div class="p-4 bg-blue-600 rounded-3xl border border-blue-500 shadow-xl shadow-blue-500/20 transition-all hover:shadow-md">
                     <p class="text-[10px] font-black text-blue-100 uppercase tracking-widest mb-1">Company Profit</p>
-                    <p class="text-3xl font-black text-white">{{ formatCurrency(selectedViewContract.profit_amount) }}</p>
-                    <p class="text-[9px] font-bold text-blue-200 mt-1 uppercase tracking-widest">(Available for Overhead)</p>
+                    <p class="text-2xl font-black text-white">QAR {{ formatCurrency(selectedViewContract.profit_amount) }}</p>
+                    <p class="text-[9px] font-bold text-blue-200 mt-1 uppercase tracking-widest">(Net Available)</p>
                 </div>
             </div>
+
+
 
             <!-- Daily Expenses Log -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between px-2">
-                    <h3 class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Daily Expenses Log</h3>
-                    <span class="text-[10px] font-black text-slate-400 uppercase">Total: {{ selectedViewContract.daily_expenses?.length || 0 }} entries</span>
+                    <h3 class="text-sm font-black text-rose-500 uppercase tracking-widest">Daily Expenses Log</h3>
+                    <span class="text-[10px] font-black text-slate-400 uppercase">{{ selectedViewContract.daily_expenses?.length || 0 }} Entries</span>
                 </div>
                 <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                     <table class="w-full text-left">
                         <thead>
-                            <tr class="bg-slate-50 dark:bg-slate-800/50">
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
+                            <tr class="bg-rose-50 dark:bg-rose-900/10">
+                                <th class="px-6 py-4 text-[10px] font-black text-rose-400 uppercase tracking-widest">Date</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-rose-400 uppercase tracking-widest">Category / Reason</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-rose-400 uppercase tracking-widest text-right">Amount</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                            <tr v-for="exp in selectedViewContract.daily_expenses" :key="exp.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(exp.expense_date) }}</td>
-                                <td class="px-6 py-4 text-sm font-black text-slate-800 dark:text-white">{{ exp.description }}</td>
+                            <tr v-for="expense in selectedViewContract.daily_expenses" :key="expense.id" class="hover:bg-rose-50/30 transition-colors">
+                                <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(expense.expense_date) }}</td>
                                 <td class="px-6 py-4">
-                                    <span class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[9px] font-black text-slate-500 uppercase tracking-tighter">{{ exp.category?.name || 'General' }}</span>
+                                    <div class="text-sm font-black text-slate-800 dark:text-white">
+                                        {{ expense.category?.name }}
+                                        <span v-if="expense.subcategory?.name" class="text-[9px] text-slate-400 ml-1">({{ expense.subcategory.name }})</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{{ expense.description || expense.reason }}</div>
                                 </td>
-                                <td class="px-6 py-4 text-sm font-black text-rose-500 text-right">{{ formatCurrency(exp.amount) }}</td>
+                                <td class="px-6 py-4 text-sm font-black text-rose-500 text-right">QAR {{ formatCurrency(expense.amount) }}</td>
                             </tr>
                             <tr v-if="!selectedViewContract.daily_expenses?.length">
-                                <td colspan="4" class="px-6 py-12 text-center text-slate-400 font-bold text-sm tracking-tight italic">No dynamic expenses recorded for this contract yet.</td>
+                                <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic text-xs font-bold">No daily expenses recorded for this contract.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Additional Amounts History -->
+            <div v-if="selectedViewContract.adjustments?.length" class="space-y-4">
+                <div class="flex items-center justify-between px-2">
+                    <h3 class="text-sm font-black text-indigo-500 uppercase tracking-widest">Additional Amounts History</h3>
+                    <span class="text-[10px] font-black text-slate-400 uppercase">{{ selectedViewContract.adjustments.length }} Entries</span>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-indigo-50 dark:bg-indigo-900/10">
+                                <th class="px-6 py-4 text-[10px] font-black text-indigo-400 uppercase tracking-widest">Date</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-indigo-400 uppercase tracking-widest">Reason</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-indigo-400 uppercase tracking-widest text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <tr v-for="adj in selectedViewContract.adjustments" :key="adj.id" class="hover:bg-indigo-50/30 transition-colors">
+                                <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(adj.adjustment_date) }}</td>
+                                <td class="px-6 py-4 text-sm font-black text-slate-800 dark:text-white">{{ adj.reason }}</td>
+                                <td class="px-6 py-4 text-sm font-black text-indigo-600 text-right">QAR {{ formatCurrency(adj.amount) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payment History -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between px-2">
+                    <h3 class="text-sm font-black text-emerald-500 uppercase tracking-widest">Payment History (Collections)</h3>
+                    <span class="text-[10px] font-black text-slate-400 uppercase">{{ selectedViewContract.payments?.length || 0 }} Entries</span>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-emerald-50 dark:bg-emerald-900/10">
+                                <th class="px-6 py-4 text-[10px] font-black text-emerald-600 uppercase tracking-widest">Date</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-emerald-600 uppercase tracking-widest">Settlement Info</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-emerald-600 uppercase tracking-widest text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <tr v-for="payment in selectedViewContract.payments" :key="payment.id" class="hover:bg-emerald-50/30 transition-colors">
+                                <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</td>
+                                <td class="px-6 py-4">
+                                    <div v-if="payment.is_settled" class="space-y-1">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-[8px] font-black text-emerald-600 uppercase tracking-widest border border-emerald-200 dark:border-emerald-800/50">
+                                            Settled
+                                        </span>
+                                        <p class="text-[9px] font-bold text-slate-400 italic">ID: #{{ payment.settlement?.settlement_number || payment.settlement_id }}</p>
+                                        <p class="text-[9px] font-bold text-slate-400">{{ formatDate(payment.settled_at) }}</p>
+                                    </div>
+                                    <span v-else class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-[8px] font-black text-amber-600 uppercase tracking-widest border border-amber-200 dark:border-amber-800/50">
+                                        Pending Settlement
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm font-black text-emerald-600 text-right">QAR {{ formatCurrency(payment.amount) }}</td>
+                            </tr>
+                            <tr v-if="!selectedViewContract.payments?.length">
+                                <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic text-xs font-bold">No payment history found.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -304,6 +385,7 @@
                   <p class="text-base font-black text-slate-800 dark:text-white truncate">{{ paymentContract.staff?.name || 'N/A' }}</p>
                   <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mt-1 border border-blue-100 dark:border-blue-800/50">
                     {{ paymentContract.staff?.company_name || 'Individual' }}
+                    <span v-if="paymentContract.staff?.branch_name" class="ml-1 opacity-60">({{ paymentContract.staff.branch_name }})</span>
                   </span>
                 </div>
               </div>
@@ -357,6 +439,7 @@
             <div class="flex items-center gap-3 px-1">
               <div class="w-1 h-6 rounded-full bg-indigo-500"></div>
               <h3 class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Add Additional Amount</h3>
+              <p class="text-[10px] text-slate-400 font-bold italic ml-auto">This increases the total value of the contract.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
               <DateInput 
@@ -365,7 +448,7 @@
                 :disabled="adjustmentSaving"
               />
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment</label>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount</label>
                 <div class="relative">
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
                   <input v-model="adjustmentForm.amount" :disabled="adjustmentSaving" type="number" step="0.01" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm" placeholder="0.00">
@@ -423,7 +506,7 @@
           <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <div>
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Collection / Payment Management</p>
-              <p class="text-sm text-slate-500 dark:text-slate-400">Record ledger entries independently from contract details.</p>
+              <p class="text-[10px] text-emerald-500 font-bold italic">Record payments received against the contract balance.</p>
             </div>
             <div class="flex items-center gap-3">
               <div class="text-right hidden md:block">
@@ -819,9 +902,15 @@ const openModal = (contract = null) => {
   selectedExpenseCategory.value = '';
   showModal.value = true;
 };
-const openViewModal = (contract) => {
-    selectedViewContract.value = contract;
-    showViewModal.value = true;
+const openViewModal = async (contract) => {
+    try {
+        const res = await contractService.getById(contract.id);
+        selectedViewContract.value = res.data.data;
+        showViewModal.value = true;
+    } catch (err) {
+        console.error('Failed to fetch contract details', err);
+        notificationStore.addNotification('Failed to load contract details', 'error');
+    }
 };
 
 const handleInitialSave = () => {

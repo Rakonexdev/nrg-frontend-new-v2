@@ -46,26 +46,29 @@
 
     <!-- Data Table -->
     <DataTable :columns="columns" :data="collections" :loading="loading" :pagination="pagination" @page-change="handlePageChange">
-      <template #company="{ value }">
-        <span class="font-bold text-slate-800 dark:text-slate-200">{{ value?.name || 'N/A' }}</span>
+      <template #staff_info="{ row }">
+        <div class="flex flex-col">
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ row.contract?.staff?.name || 'N/A' }}</span>
+            <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">{{ row.contract?.staff?.company?.name || 'Individual' }}</span>
+        </div>
       </template>
-      <template #collected_amount="{ value }">
-        <span class="font-black text-blue-600 dark:text-blue-400">QAR {{ value?.toLocaleString() }}</span>
+      <template #amount="{ value }">
+        <span class="font-black text-blue-600 dark:text-blue-400">QAR {{ parseFloat(value || 0).toLocaleString() }}</span>
       </template>
-      <template #payment_channel="{ value }">
+      <template #payment_method="{ value }">
         <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
           {{ value?.replace('_', ' ') }}
         </span>
       </template>
-      <template #collection_date="{ value }">
+      <template #payment_date="{ value }">
         <span class="font-medium text-slate-600 dark:text-slate-400">{{ formatDate(value) }}</span>
       </template>
-      <template #collector="{ value }">
+      <template #creator="{ value }">
         <div class="flex items-center gap-2">
-          <div class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500">
+          <div class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500 uppercase">
             {{ value?.name?.substring(0, 1) }}
           </div>
-          <span class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ value?.name }}</span>
+          <span class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ value?.name || 'System' }}</span>
         </div>
       </template>
     </DataTable>
@@ -73,27 +76,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, watch } from 'vue';
 import { reportService } from '@/services/api';
 import DataTable from '@/components/shared/DataTable.vue';
 import DateInput from '@/components/shared/DateInput.vue';
+import debounce from 'lodash/debounce';
 
 const loading = ref(false);
 const collections = ref([]);
 const pagination = ref({});
-const summary = ref({});
+const summary = ref({ total_collected: 0 });
 const filters = reactive({
   from_date: '',
   to_date: '',
+  search: '',
   page: 1
 });
 
 const columns = [
-  { key: 'collection_date', label: 'Date', sortable: true },
-  { key: 'company', label: 'Company' },
-  { key: 'collected_amount', label: 'Amount' },
-  { key: 'payment_channel', label: 'Channel' },
-  { key: 'collector', label: 'Collector' },
+  { key: 'payment_date', label: 'Date', sortable: true },
+  { key: 'staff_info', label: 'Staff / Company' },
+  { key: 'amount', label: 'Amount' },
+  { key: 'payment_method', label: 'Method' },
+  { key: 'creator', label: 'Collector' },
   { key: 'notes', label: 'Notes' }
 ];
 
@@ -101,8 +106,8 @@ const fetchCollections = async () => {
   loading.value = true;
   try {
     const response = await reportService.getCollections(filters);
-    collections.value = response.data.collections.data;
-    pagination.value = response.data.collections;
+    collections.value = response.data.data;
+    pagination.value = response.data;
     summary.value = response.data.summary;
   } catch (error) {
     console.error('Error fetching collections report:', error);
@@ -110,6 +115,13 @@ const fetchCollections = async () => {
     loading.value = false;
   }
 };
+
+const debouncedFetch = debounce(() => {
+    filters.page = 1;
+    fetchCollections();
+}, 500);
+
+watch(() => filters.search, debouncedFetch);
 
 const handlePageChange = (page) => {
   filters.page = page;
@@ -119,6 +131,7 @@ const handlePageChange = (page) => {
 const resetFilters = () => {
   filters.from_date = '';
   filters.to_date = '';
+  filters.search = '';
   filters.page = 1;
   fetchCollections();
 };
@@ -136,3 +149,4 @@ onMounted(() => {
   fetchCollections();
 });
 </script>
+

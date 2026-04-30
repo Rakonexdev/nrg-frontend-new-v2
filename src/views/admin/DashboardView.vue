@@ -52,7 +52,7 @@
       <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-0 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
         <div class="flex items-center justify-between p-6 pb-2">
           <h3 class="text-lg font-bold text-slate-800 dark:text-white">Recent Collections</h3>
-          <router-link to="/admin/contracts" class="text-xs font-bold text-blue-600 hover:text-blue-700">View All Collections →</router-link>
+          <router-link to="/admin/reports/collections" class="text-xs font-bold text-blue-600 hover:text-blue-700">View All Collections →</router-link>
         </div>
         
         <div class="overflow-x-auto max-h-[500px] overflow-y-auto">

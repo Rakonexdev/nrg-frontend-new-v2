@@ -65,10 +65,6 @@
         </div>
       </template>
 
-      <template #branch_number="{ value }">
-        <span class="font-medium text-slate-600 dark:text-slate-400">Branch: {{ value || 'Main' }}</span>
-      </template>
-
       <template #is_active="{ value }">
         <span :class="[
           'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest',
@@ -114,13 +110,6 @@
                 <input v-model="form.computer_card" type="text"
                        class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="ID number">
-            </div>
-
-            <div>
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Number</label>
-                <input v-model="form.branch_number" type="text"
-                       class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
-                       placeholder="e.g. 001">
             </div>
 
             <div>
@@ -187,6 +176,7 @@
                 <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Add New Branch</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input v-model="branchForm.name" type="text" placeholder="Branch Name" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
+                    <input v-model="branchForm.branch_number" type="text" placeholder="Branch Number (e.g. 001)" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
                     <input v-model="branchForm.location" type="text" placeholder="Location/Address" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
                     <input v-model="branchForm.contact_person" type="text" placeholder="Contact Person" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
                     <input v-model="branchForm.contact_number" type="text" placeholder="Contact Number" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
@@ -215,7 +205,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                             </div>
                             <div>
-                                <h5 class="text-sm font-black text-slate-800 dark:text-white">{{ branch.name }}</h5>
+                                <h5 class="text-sm font-black text-slate-800 dark:text-white">{{ branch.name }} <span class="text-blue-500 ml-1">#{{ branch.branch_number }}</span></h5>
                                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{{ branch.location || 'No location set' }}</p>
                             </div>
                         </div>
@@ -253,7 +243,6 @@ const columns = [
     { key: 'name', label: 'Company Info', sortable: true },
     { key: 'contact_person', label: 'Contact Person', sortable: true },
     { key: 'phone_number', label: 'Phone & Alternative', sortable: false },
-    { key: 'branch_number', label: 'Branch', sortable: true },
     { key: 'is_active', label: 'Status', sortable: true },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
@@ -291,8 +280,10 @@ const selectedCompany = ref(null);
 const branches = ref([]);
 const branchesLoading = ref(false);
 const branchSaving = ref(false);
+
 const branchForm = ref({
     name: '',
+    branch_number: '',
     location: '',
     contact_person: '',
     contact_number: ''
@@ -301,7 +292,6 @@ const branchForm = ref({
 const form = ref({
     name: '',
     computer_card: '',
-    branch_number: '',
     contact_person: '',
     phone_number: '',
     alternative_phone_number: '',
@@ -349,7 +339,6 @@ const openModal = (company = null) => {
         form.value = {
             name: '',
             computer_card: '',
-            branch_number: '',
             contact_person: '',
             phone_number: '',
             alternative_phone_number: '',
@@ -406,6 +395,13 @@ const handleStatusToggle = async () => {
 const openBranchModal = async (company) => {
     selectedCompany.value = company;
     showBranchModal.value = true;
+    branchForm.value = { 
+        name: '', 
+        branch_number: '',
+        location: '', 
+        contact_person: '', 
+        contact_number: '' 
+    };
     fetchBranches();
 };
 
@@ -423,13 +419,24 @@ const fetchBranches = async () => {
 };
 
 const saveBranch = async () => {
-    if (!branchForm.value.name) return;
+    if (!branchForm.value.name) {
+        notificationStore.addNotification('Please enter branch name', 'warning');
+        return;
+    }
+    
     branchSaving.value = true;
     try {
         await branchService.create(selectedCompany.value.id, branchForm.value);
-        branchForm.value = { name: '', location: '', contact_person: '', contact_number: '' };
-        fetchBranches();
         notificationStore.addNotification('Branch added successfully', 'success');
+        
+        branchForm.value = { 
+            name: '', 
+            branch_number: '',
+            location: '', 
+            contact_person: '', 
+            contact_number: '' 
+        };
+        fetchBranches();
     } catch (err) {
         notificationStore.addNotification('Failed to add branch', 'error');
     } finally {

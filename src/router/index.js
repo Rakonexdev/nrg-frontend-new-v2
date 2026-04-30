@@ -74,12 +74,6 @@ const router = createRouter({
           meta: { title: 'Payment Settlements' }
         },
         {
-          path: 'change-password',
-          name: 'admin-change-password',
-          component: () => import('../views/admin/ChangePasswordView.vue'),
-          meta: { title: 'Security Settings' }
-        },
-        {
           path: 'reports/collections',
           name: 'admin-reports-collections',
           component: () => import('../views/admin/reports/CollectionsReportView.vue'),

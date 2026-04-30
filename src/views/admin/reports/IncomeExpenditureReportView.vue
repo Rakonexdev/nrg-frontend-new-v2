@@ -47,21 +47,30 @@
       </div>
     </div>
 
-    <!-- Daily Comparison Table -->
-    <DataTable :columns="columns" :data="dailyData" :loading="loading">
+    <!-- Data Table -->
+    <DataTable :columns="columns" :data="reportData" :loading="loading" :pagination="pagination" @page-change="handlePageChange">
       <template #date="{ value }">
         <span class="font-bold text-slate-800 dark:text-slate-200">{{ formatDate(value) }}</span>
       </template>
-      <template #income="{ value }">
-        <span class="font-bold text-emerald-600 dark:text-emerald-400">QAR {{ value?.toLocaleString() }}</span>
-      </template>
-      <template #expenditure="{ value }">
-        <span class="font-bold text-rose-600 dark:text-rose-400">QAR {{ value?.toLocaleString() }}</span>
-      </template>
-      <template #balance="{ value }">
-        <span class="font-black" :class="value >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-rose-600'">
-          QAR {{ value?.toLocaleString() }}
+      <template #type="{ value }">
+        <span :class="value === 'income' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'"
+              class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+          {{ value }}
         </span>
+      </template>
+      <template #staff_company="{ row }">
+        <div class="flex flex-col">
+            <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ row.staff_name || '-' }}</span>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ row.company_name || '-' }}</span>
+        </div>
+      </template>
+      <template #amount="{ value, row }">
+        <span class="font-black" :class="row.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">
+          {{ row.type === 'income' ? '+' : '-' }} QAR {{ parseFloat(value || 0).toLocaleString() }}
+        </span>
+      </template>
+      <template #payment_method="{ value }">
+        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 capitalize">{{ value?.replace('_', ' ') }}</span>
       </template>
     </DataTable>
   </div>
@@ -74,10 +83,14 @@ import DataTable from '@/components/shared/DataTable.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 
 const loading = ref(false);
-const dailyData = ref([]);
-const summary = ref({});
+const reportData = ref([]);
+const pagination = ref({});
+const summary = ref({
+    total_income: 0,
+    total_expenditure: 0,
+    net_balance: 0
+});
 
-// Native JS for yyyy-mm-dd
 const getISODate = (date) => {
   const d = new Date(date);
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -85,27 +98,36 @@ const getISODate = (date) => {
 
 const filters = reactive({
   from_date: getISODate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)),
-  to_date: getISODate(new Date())
+  to_date: getISODate(new Date()),
+  page: 1
 });
 
 const columns = [
   { key: 'date', label: 'Date' },
-  { key: 'income', label: 'Income' },
-  { key: 'expenditure', label: 'Expenditure' },
-  { key: 'balance', label: 'Net Balance' }
+  { key: 'type', label: 'Type' },
+  { key: 'staff_company', label: 'Staff / Company' },
+  { key: 'amount', label: 'Amount' },
+  { key: 'payment_method', label: 'Method' },
+  { key: 'notes', label: 'Description / Notes' }
 ];
 
 const fetchReport = async () => {
   loading.value = true;
   try {
     const response = await reportService.getIncomeExpenditure(filters);
-    dailyData.value = response.data.daily_data;
+    reportData.value = response.data.data.data;
+    pagination.value = response.data.data;
     summary.value = response.data.summary;
   } catch (error) {
     console.error('Error fetching income expenditure report:', error);
   } finally {
     loading.value = false;
   }
+};
+
+const handlePageChange = (page) => {
+    filters.page = page;
+    fetchReport();
 };
 
 const formatDate = (date) => {
@@ -121,3 +143,4 @@ onMounted(() => {
   fetchReport();
 });
 </script>
+
