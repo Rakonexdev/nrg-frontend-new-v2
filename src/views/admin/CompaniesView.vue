@@ -80,6 +80,9 @@
 
       <template #actions="{ row }">
         <div class="flex items-center gap-3">
+          <button @click="openBranchModal(row)" class="p-1 text-slate-400 hover:text-emerald-500 transition-colors" title="Manage Branches">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
           <button @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Company">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
@@ -175,13 +178,71 @@
         </svg>
       </template>
     </ConfirmModal>
+    
+    <!-- Branches Management Modal -->
+    <Modal :show="showBranchModal" :title="`Branches - ${selectedCompany?.name}`" @close="showBranchModal = false" maxWidth="3xl">
+        <div class="p-8 space-y-8">
+            <!-- Add New Branch Form -->
+            <div class="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Add New Branch</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input v-model="branchForm.name" type="text" placeholder="Branch Name" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
+                    <input v-model="branchForm.location" type="text" placeholder="Location/Address" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
+                    <input v-model="branchForm.contact_person" type="text" placeholder="Contact Person" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
+                    <input v-model="branchForm.contact_number" type="text" placeholder="Contact Number" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button @click="saveBranch" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2" :disabled="branchSaving">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        Add Branch
+                    </button>
+                </div>
+            </div>
+
+            <!-- Branches List -->
+            <div class="space-y-4">
+                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Existing Branches</h4>
+                <div v-if="branchesLoading" class="flex justify-center py-10">
+                    <div class="w-8 h-8 border-4 border-blue-600/10 border-t-blue-600 rounded-full animate-spin"></div>
+                </div>
+                <div v-else-if="branches.length === 0" class="text-center py-10 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+                    <p class="text-xs text-slate-400 font-bold">No branches registered for this company yet.</p>
+                </div>
+                <div v-else class="space-y-3">
+                    <div v-for="branch in branches" :key="branch.id" class="flex items-center justify-between p-4 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-black text-slate-800 dark:text-white">{{ branch.name }}</h5>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{{ branch.location || 'No location set' }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div v-if="branch.contact_number" class="mr-4 text-right hidden sm:block">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{{ branch.contact_person || 'Contact' }}</p>
+                                <p class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ branch.contact_number }}</p>
+                            </div>
+                            <button @click="deleteBranch(branch.id)" class="p-2 text-slate-400 hover:text-red-500 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template #footer>
+            <button @click="showBranchModal = false" class="px-8 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Close Panel</button>
+        </template>
+    </Modal>
 
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { companyService } from '@/services/api';
+import { companyService, branchService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
@@ -209,6 +270,7 @@ const loading = ref(true);
 const saving = ref(false);
 const showModal = ref(false);
 const showStatusModal = ref(false);
+const showBranchModal = ref(false);
 const editMode = ref(false);
 const searchQuery = ref('');
 const statusFilter = ref('');
@@ -225,6 +287,16 @@ const statusOptions = [
     { id: 'inactive', name: 'Inactive Companies' }
 ];
 const selectedCompany = ref(null);
+
+const branches = ref([]);
+const branchesLoading = ref(false);
+const branchSaving = ref(false);
+const branchForm = ref({
+    name: '',
+    location: '',
+    contact_person: '',
+    contact_number: ''
+});
 
 const form = ref({
     name: '',
@@ -328,6 +400,51 @@ const handleStatusToggle = async () => {
         notificationStore.addNotification(errorMsg, 'error');
     } finally {
         saving.value = false;
+    }
+};
+
+const openBranchModal = async (company) => {
+    selectedCompany.value = company;
+    showBranchModal.value = true;
+    fetchBranches();
+};
+
+const fetchBranches = async () => {
+    if (!selectedCompany.value) return;
+    branchesLoading.value = true;
+    try {
+        const res = await branchService.getAll(selectedCompany.value.id);
+        branches.value = res.data;
+    } catch (err) {
+        notificationStore.addNotification('Failed to load branches', 'error');
+    } finally {
+        branchesLoading.value = false;
+    }
+};
+
+const saveBranch = async () => {
+    if (!branchForm.value.name) return;
+    branchSaving.value = true;
+    try {
+        await branchService.create(selectedCompany.value.id, branchForm.value);
+        branchForm.value = { name: '', location: '', contact_person: '', contact_number: '' };
+        fetchBranches();
+        notificationStore.addNotification('Branch added successfully', 'success');
+    } catch (err) {
+        notificationStore.addNotification('Failed to add branch', 'error');
+    } finally {
+        branchSaving.value = false;
+    }
+};
+
+const deleteBranch = async (id) => {
+    if (!confirm('Are you sure you want to delete this branch?')) return;
+    try {
+        await branchService.delete(id);
+        fetchBranches();
+        notificationStore.addNotification('Branch deleted successfully', 'success');
+    } catch (err) {
+        notificationStore.addNotification('Failed to delete branch', 'error');
     }
 };
 

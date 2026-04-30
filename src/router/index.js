@@ -78,6 +78,18 @@ const router = createRouter({
           name: 'admin-change-password',
           component: () => import('../views/admin/ChangePasswordView.vue'),
           meta: { title: 'Security Settings' }
+        },
+        {
+          path: 'reports/collections',
+          name: 'admin-reports-collections',
+          component: () => import('../views/admin/reports/CollectionsReportView.vue'),
+          meta: { title: 'Collections Report' }
+        },
+        {
+          path: 'reports/income-expenditure',
+          name: 'admin-reports-income-expenditure',
+          component: () => import('../views/admin/reports/IncomeExpenditureReportView.vue'),
+          meta: { title: 'Income & Expenditure Report' }
         }
       ]
     },

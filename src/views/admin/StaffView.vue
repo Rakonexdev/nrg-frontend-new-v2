@@ -74,7 +74,10 @@
       </template>
 
       <template #company_name="{ row }">
-        <span class="font-semibold text-slate-700 dark:text-slate-300">{{ row.company?.name || 'N/A' }}</span>
+        <div class="flex flex-col">
+          <span class="font-semibold text-slate-700 dark:text-slate-300">{{ row.company?.name || 'N/A' }}</span>
+          <span v-if="row.branch" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{{ row.branch.name }}</span>
+        </div>
       </template>
 
       <template #qid_expiry="{ value }">
@@ -154,65 +157,65 @@
             </div>
 
             <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mobile Number</label>
-              <input v-model="form.mobile" type="text" :disabled="viewMode" 
-                @input="form.mobile = form.mobile.replace(/[^0-9]/g, '')"
-                :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-15 digit number">
-              <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.mobile }}</p>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <SearchableSelect 
+                    label="Assigned Company"
+                    v-model="form.company_id"
+                    :options="modalCompanyOptions"
+                    :disabled="viewMode"
+                    placeholder="Select Assigned Company"
+                    @change="handleCompanyChange"
+                  />
+                  <p v-if="errors.company_id" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.company_id }}</p>
+                </div>
+                <div>
+                  <SearchableSelect 
+                    label="Assign Branch"
+                    v-model="form.branch_id"
+                    :options="modalBranchOptions"
+                    :disabled="viewMode || !form.company_id"
+                    placeholder="Select Branch"
+                  />
+                  <p class="mt-1 ml-1 text-[10px] text-slate-400 italic">Optional: Defaults to Main</p>
+                </div>
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Date of Birth</label>
-                <input v-model="form.date_of_birth" type="date" :disabled="viewMode" 
-                  :class="[errors.date_of_birth ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
-                <p v-if="errors.date_of_birth" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.date_of_birth }}</p>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mobile Number</label>
+                <input v-model="form.mobile" type="text" :disabled="viewMode" 
+                  @input="form.mobile = form.mobile.replace(/[^0-9]/g, '')"
+                  :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-15 digit number">
+                <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.mobile }}</p>
               </div>
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Joining Date</label>
-                <input v-model="form.joining_date" type="date" :disabled="viewMode" 
-                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Alt. Mobile (Optional)</label>
+                <input v-model="form.alternative_mobile" type="text" :disabled="viewMode" 
+                  @input="form.alternative_mobile = form.alternative_mobile.replace(/[^0-9]/g, '')"
+                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Alternative contact">
               </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <DateInput 
+                label="Date of Birth"
+                v-model="form.date_of_birth"
+                :disabled="viewMode"
+                :error="errors.date_of_birth"
+              />
+              <DateInput 
+                label="Joining Date"
+                v-model="form.joining_date"
+                :disabled="viewMode"
+                :error="errors.joining_date"
+              />
             </div>
           </div>
         </div>
 
-          <!-- Company Details -->
-          <div class="space-y-6">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-              </div>
-              <h4 class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Assignment</h4>
-            </div>
-            
-            <div class="space-y-4">
-              <div>
-                <SearchableSelect 
-                  label="Assigned Company"
-                  v-model="form.company_id"
-                  :options="modalCompanyOptions"
-                  :disabled="viewMode"
-                  placeholder="Select Assigned Company"
-                />
-                <p v-if="errors.company_id" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.company_id }}</p>
-                <p class="mt-2 text-[10px] text-slate-400 italic">Companies can be managed in the <router-link to="/admin/companies" class="text-blue-500 hover:underline">Companies Menu</router-link></p>
-              </div>
-
-              <div v-if="editMode || viewMode" class="pt-4">
-                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Account Status</label>
-                 <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/50">
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" :checked="form.status === 'active'" @change="form.status = $event.target.checked ? 'active' : 'inactive'" :disabled="viewMode" class="sr-only peer">
-                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        <span class="ml-3 text-xs font-black" :class="form.status === 'active' ? 'text-green-600' : 'text-slate-400'">{{ form.status === 'active' ? 'Active Employee' : 'Inactive / Blocked' }}</span>
-                    </label>
-                 </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Identity Details -->
@@ -233,13 +236,12 @@
                   class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
                 <p v-if="errors.passport_number" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.passport_number }}</p>
               </div>
-              <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Passport Expiry</label>
-                <input v-model="form.passport_expiry" type="date" :disabled="viewMode" 
-                  :class="[errors.passport_expiry ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
-                <p v-if="errors.passport_expiry" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.passport_expiry }}</p>
-              </div>
+              <DateInput 
+                label="Passport Expiry"
+                v-model="form.passport_expiry"
+                :disabled="viewMode"
+                :error="errors.passport_expiry"
+              />
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -250,13 +252,12 @@
                   class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="11-digit QID">
                 <p v-if="errors.qid_number" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.qid_number }}</p>
               </div>
-              <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">QID Expiry Date</label>
-                <input v-model="form.qid_expiry" type="date" :disabled="viewMode" 
-                  :class="[errors.qid_expiry ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
-                <p v-if="errors.qid_expiry" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.qid_expiry }}</p>
-              </div>
+              <DateInput 
+                label="QID Expiry"
+                v-model="form.qid_expiry"
+                :disabled="viewMode"
+                :error="errors.qid_expiry"
+              />
             </div>
             
             <div class="space-y-4 pt-2">
@@ -402,7 +403,8 @@ import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
 import SearchableSelect from '@/components/shared/SearchableSelect.vue';
-import { staffService, companyService, BASE_URL } from '@/services/api';
+import DateInput from '@/components/shared/DateInput.vue';
+import { staffService, companyService, branchService, BASE_URL } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 
 const notificationStore = useNotificationStore();
@@ -451,6 +453,12 @@ const modalCompanyOptions = computed(() => {
   return companies.value.map(c => ({ id: c.id, name: c.name }));
 });
 
+const branches = ref([]);
+const modalBranchOptions = computed(() => {
+  if (!Array.isArray(branches.value)) return [];
+  return branches.value.map(b => ({ id: b.id, name: b.name }));
+});
+
 const nationalities = [
   'Qatar', 'India', 'Nepal', 'Philippines', 'Bangladesh', 'Pakistan', 'Sri Lanka', 
   'Egypt', 'Jordan', 'Lebanon', 'Syria', 'Sudan', 'Kenya', 'Ethiopia', 'Uganda',
@@ -462,7 +470,10 @@ const form = ref({
   name: '',
   nationality: '',
   profession: '',
+  company_id: null,
+  branch_id: null,
   mobile: '',
+  alternative_mobile: '',
   date_of_birth: '',
   passport_number: '',
   passport_expiry: '',
@@ -643,6 +654,9 @@ const openModal = async (staff = null, isView = false) => {
   
   if (staff) {
     editMode.value = !isView;
+    if (staff.company_id) {
+        fetchBranches(staff.company_id);
+    }
     try {
         // Fetch full details to ensure documents and other relations are loaded
         const res = await staffService.getById(staff.id);
@@ -672,8 +686,12 @@ const openModal = async (staff = null, isView = false) => {
     }
   } else {
     editMode.value = false;
+    branches.value = [];
     form.value = {
       id: null, name: '', nationality: '', profession: '', mobile: '',
+      alternative_mobile: '',
+      company_id: null,
+      branch_id: null,
       date_of_birth: '', passport_number: '', passport_expiry: '',
       qid_number: '', qid_expiry: '', joining_date: '', status: 'active',
       company_id: null,
@@ -751,10 +769,32 @@ const handleStatusToggle = async () => {
     }
 };
 
+const handleCompanyChange = (companyId) => {
+    form.value.branch_id = null;
+    if (companyId) {
+        fetchBranches(companyId);
+    } else {
+        branches.value = [];
+    }
+};
+
+const fetchBranches = async (companyId) => {
+    try {
+        const res = await branchService.getAll(companyId);
+        branches.value = res.data;
+    } catch (err) {
+        console.error('Failed to fetch branches', err);
+    }
+};
+
 // Utilities
 const formatDate = (date) => {
   if (!date) return '-';
-  return new Date(date).toLocaleDateString();
+  const d = new Date(date);
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = d.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
 };
 
 const expiryClass = (date) => {

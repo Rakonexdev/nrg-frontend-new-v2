@@ -67,7 +67,9 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
-              <tr v-for="collection in recentCollections" :key="collection.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+              <tr v-for="collection in recentCollections" :key="collection.id" 
+                  @click="viewCollectionDetails(collection)"
+                  class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group">
                 <td class="px-6 py-4">
                   <div class="flex flex-col">
                     <span class="text-sm font-black text-slate-800 dark:text-white leading-tight mb-0.5">{{ collection.date }}</span>
@@ -126,13 +128,132 @@
           <router-link to="/admin/staff?filter=expiring_qid" class="block w-full mt-6 py-2 text-center text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 transition-colors bg-slate-50 dark:bg-slate-700 rounded-lg">View All Alerts</router-link>
       </div>
     </div>
+
+    <!-- Collection Details Modal -->
+    <Modal :show="showCollectionModal" title="Collection & Company Details" @close="showCollectionModal = false" maxWidth="4xl">
+      <div v-if="selectedCollection" class="p-8 space-y-8">
+        <!-- Current Collection Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="space-y-4">
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Collection Info</h4>
+            <div class="p-5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50">
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-bold text-blue-600 dark:text-blue-400">Amount Collected</span>
+                <span class="text-2xl font-black text-blue-700 dark:text-white">QAR {{ formatCurrency(selectedCollection.amount) }}</span>
+              </div>
+              <div class="space-y-3">
+                <div class="flex justify-between text-sm">
+                  <span class="text-slate-500 font-medium">Date:</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedCollection.date }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-slate-500 font-medium">Method:</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedCollection.method }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-slate-500 font-medium">Staff Member:</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedCollection.staff }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-slate-500 font-medium">Recorded By:</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedCollection.collector }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Company Details</h4>
+            <div v-if="companyInfo" class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50">
+              <h5 class="text-lg font-black text-slate-800 dark:text-white mb-4">{{ companyInfo.name }}</h5>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3 text-sm">
+                  <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  <span class="text-slate-500">Contact:</span>
+                  <span class="font-bold text-slate-700 dark:text-slate-300">{{ companyInfo.contact_person || 'N/A' }}</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                  <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  <span class="text-slate-500">Phone:</span>
+                  <span class="font-bold text-slate-700 dark:text-slate-300">{{ companyInfo.phone_number || 'N/A' }}</span>
+                </div>
+              </div>
+              <router-link :to="`/admin/companies`" class="mt-4 block w-full py-2 text-center text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-xl hover:bg-blue-100 transition-colors">
+                View Full Company Profile
+              </router-link>
+            </div>
+            <div v-else-if="loadingDetails" class="p-10 flex flex-col items-center justify-center space-y-4">
+              <div class="w-8 h-8 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading Company Info...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Collections for Company -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Other Pending Collections for this Company</h4>
+            <span v-if="!loadingDetails" class="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-900/30 text-[9px] font-black text-rose-600 uppercase tracking-widest">
+              {{ pendingCollections.length }} Outstanding
+            </span>
+          </div>
+          
+          <div v-if="loadingDetails" class="flex justify-center py-12">
+            <div class="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+          </div>
+          <div v-else-if="pendingCollections.length > 0" class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="text-[9px] uppercase tracking-[0.2em] text-slate-400 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                  <th class="px-6 py-3 font-black">Staff Member</th>
+                  <th class="px-6 py-3 font-black">Contract Total</th>
+                  <th class="px-6 py-3 font-black">Paid</th>
+                  <th class="px-6 py-3 font-black text-right">Balance Due</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr v-for="item in pendingCollections" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <td class="px-6 py-4">
+                    <span class="text-sm font-bold text-slate-800 dark:text-white">{{ item.staff_name }}</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-xs font-medium text-slate-400 uppercase mr-1">QAR</span>
+                    <span class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ formatCurrency(item.total_income) }}</span>
+                  </td>
+                  <td class="px-6 py-4 text-emerald-600 dark:text-emerald-400">
+                    <span class="text-[10px] font-black uppercase mr-1">QAR</span>
+                    <span class="text-sm font-bold">{{ formatCurrency(item.paid_amount) }}</span>
+                  </td>
+                  <td class="px-6 py-4 text-right text-rose-600 dark:text-rose-400">
+                    <span class="text-[10px] font-black uppercase mr-1">QAR</span>
+                    <span class="text-base font-black">{{ formatCurrency(item.pending_amount) }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else-if="!loadingDetails" class="p-8 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-center">
+            <p class="text-sm font-bold text-slate-400 dark:text-slate-500 italic">No other pending collections found for this company.</p>
+          </div>
+        </div>
+      </div>
+      
+      <template #footer>
+        <div class="flex items-center justify-end w-full p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+          <button @click="showCollectionModal = false" class="px-8 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm">
+            Close View
+          </button>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import KpiCard from '@/components/shared/KpiCard.vue';
-import api from '@/services/api';
+import Modal from '@/components/shared/Modal.vue';
+import api, { companyService } from '@/services/api';
 
 const loading = ref(false);
 const lastSync = ref(new Date().toLocaleTimeString());
@@ -144,6 +265,12 @@ const stats = ref({
 
 const recentCollections = ref([]);
 const upcomingExpirations = ref([]);
+
+const showCollectionModal = ref(false);
+const loadingDetails = ref(false);
+const selectedCollection = ref(null);
+const companyInfo = ref(null);
+const pendingCollections = ref([]);
 
 const icons = {
     users: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
@@ -173,6 +300,27 @@ const fetchDashboardData = async () => {
         loading.value = false;
     }
 }
+
+const viewCollectionDetails = async (collection) => {
+    selectedCollection.value = collection;
+    showCollectionModal.value = true;
+    
+    if (collection.company_id) {
+        loadingDetails.value = true;
+        try {
+            const res = await companyService.getPendingCollections(collection.company_id);
+            companyInfo.value = res.data.company;
+            pendingCollections.value = res.data.pending_contracts;
+        } catch (err) {
+            console.error('Failed to fetch pending collections', err);
+        } finally {
+            loadingDetails.value = false;
+        }
+    } else {
+        companyInfo.value = null;
+        pendingCollections.value = [];
+    }
+};
 
 onMounted(() => fetchDashboardData());
 </script>

@@ -244,20 +244,6 @@
                 </div>
             </div>
 
-            <div class="md:col-span-2 p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 flex justify-between items-center">
-                <div>
-                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Net Payable from Client</p>
-                    <p class="text-lg font-black text-blue-600 dark:text-blue-400">QAR {{ formatCurrency(parseFloat(form.total_income) || 0) }}</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment Type</p>
-                    <div class="flex gap-2 mt-1">
-                        <button v-for="t in ['Cash', 'Online']" :key="t" @click.prevent="form.payment_type = t" :class="form.payment_type === t ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-400'" class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
-                            {{ t }}
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
 
 <div class="hidden">
@@ -278,18 +264,6 @@
         <!-- Tab Navigation -->
         <div class="flex border-b border-slate-200 dark:border-slate-700 p-1 bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl">
           <button 
-            @click="paymentModalTab = 'details'" 
-            :class="[
-              'flex-1 py-3 px-6 text-sm font-black transition-all rounded-xl flex items-center justify-center gap-2.5',
-              paymentModalTab === 'details' 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
-                : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900/50'
-            ]"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            Contract Details
-          </button>
-          <button 
             @click="paymentModalTab = 'payments'" 
             :class="[
               'flex-1 py-3 px-6 text-sm font-black transition-all rounded-xl flex items-center justify-center gap-2.5',
@@ -299,7 +273,19 @@
             ]"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            Manage Contract Payment
+            Admin collection details
+          </button>
+          <button 
+            @click="paymentModalTab = 'details'" 
+            :class="[
+              'flex-1 py-3 px-6 text-sm font-black transition-all rounded-xl flex items-center justify-center gap-2.5',
+              paymentModalTab === 'details' 
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
+                : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900/50'
+            ]"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            Add additional amount
           </button>
         </div>
 
@@ -327,7 +313,7 @@
             <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Contract Value</p>
               <p class="text-2xl font-black text-slate-800 dark:text-white">QAR {{ formatCurrency(paymentContract.total_income || 0) }}</p>
-              <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Base Contract Amount</p>
+              <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Fixed Contract Amount</p>
             </div>
 
             <!-- Additional Payment Card -->
@@ -373,10 +359,11 @@
               <h3 class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Add Additional Amount</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-              <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Date</label>
-                <input v-model="adjustmentForm.adjustment_date" :disabled="adjustmentSaving" type="date" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm">
-              </div>
+              <DateInput 
+                label="Date"
+                v-model="adjustmentForm.adjustment_date"
+                :disabled="adjustmentSaving"
+              />
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment</label>
                 <div class="relative">
@@ -475,10 +462,11 @@
               <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount</label>
               <input v-model="paymentForm.amount" :disabled="paymentSaving" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm" placeholder="Ex: 1,000">
             </div>
-            <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Date</label>
-              <input v-model="paymentForm.payment_date" :disabled="paymentSaving" type="date" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
-            </div>
+            <DateInput 
+              label="Date"
+              v-model="paymentForm.payment_date"
+              :disabled="paymentSaving"
+            />
             <div>
               <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Method</label>
               <select v-model="paymentForm.payment_method" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
@@ -596,6 +584,7 @@ import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
 import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import AlertModal from '@/components/shared/AlertModal.vue';
+import DateInput from '@/components/shared/DateInput.vue';
 import { contractService, staffService, companyService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 
@@ -662,7 +651,7 @@ const showModal = ref(false);
 const showViewModal = ref(false);
 const selectedViewContract = ref(null);
 const showPaymentModal = ref(false);
-const paymentModalTab = ref('details');
+const paymentModalTab = ref('payments');
 const contractAdjustments = ref([]);
 const showConfirmModal = ref(false);
 const showCreateConfirmModal = ref(false);
@@ -995,8 +984,12 @@ const deleteContract = async () => {
 };
 
 const formatDate = (date) => {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  if (!date) return '-';
+  const d = new Date(date);
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = d.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
 };
 
 const formatCurrency = (value) => {

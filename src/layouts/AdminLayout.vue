@@ -13,15 +13,45 @@
       <nav class="flex-1 px-4 space-y-2 mt-4 overflow-y-auto custom-scrollbar">
         <p class="px-4 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-4 mt-6">Core Operations</p>
         
-        <router-link v-for="link in navLinks" :key="link.to" :to="link.to" 
-                     class="flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative" 
-                     :active-class="link.to === '/admin' ? '' : 'bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]'"
-                     exact-active-class="bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]">
-          <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
-          <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
-          <div v-if="link.to === '/admin' ? $route.path === '/admin' : $route.path.startsWith(link.to)" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
-        </router-link>
+        <template v-for="link in navLinks" :key="link.label">
+            <!-- Parent Link with Submenu -->
+            <div v-if="link.subLinks" class="space-y-1">
+                <button @click="toggleSubmenu(link.label)"
+                        class="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl transition-all duration-300 group relative"
+                        :class="isSubmenuActive(link) ? 'bg-slate-100 dark:bg-slate-800 text-blue-600' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'">
+                    <div class="flex items-center gap-4">
+                        <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
+                        <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
+                    </div>
+                    <svg class="w-4 h-4 transition-transform duration-300" 
+                        :class="{ 'rotate-180': openSubmenu === link.label || isSubmenuActive(link) }"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                
+                <transition name="submenu">
+                    <div v-show="openSubmenu === link.label || isSubmenuActive(link)" class="pl-12 space-y-1 overflow-hidden">
+                        <router-link v-for="sub in link.subLinks" :key="sub.to" :to="sub.to"
+                                    class="flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all duration-300 group text-sm font-bold"
+                                    active-class="text-blue-600 dark:text-blue-400"
+                                    exact-active-class="text-blue-600 dark:text-blue-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 group-hover:bg-blue-500 transition-colors"
+                                :class="{ 'bg-blue-600 dark:bg-blue-400 scale-125': $route.path === sub.to }"></span>
+                            <span :class="$route.path === sub.to ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'">{{ sub.label }}</span>
+                        </router-link>
+                    </div>
+                </transition>
+            </div>
 
+            <!-- Regular Link -->
+            <router-link v-else :to="link.to" 
+                        class="flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative" 
+                        :active-class="link.to === '/admin' ? '' : 'bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]'"
+                        exact-active-class="bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]">
+                <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
+                <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
+                <div v-if="link.to === '/admin' ? $route.path === '/admin' : $route.path.startsWith(link.to)" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
+            </router-link>
+        </template>
 
       </nav>
 
@@ -98,12 +128,14 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
 const showProfileDropdown = ref(false);
 const profileRef = ref(null);
+const openSubmenu = ref(null);
 
 const navLinks = [
     { to: '/admin', label: 'Overview', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' },
@@ -111,8 +143,24 @@ const navLinks = [
     { to: '/admin/staff', label: 'Staff', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' },
     { to: '/admin/contracts', label: 'Contracts', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' },
     { to: '/admin/expenses', label: 'Expenses', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' },
-    { to: '/admin/collectors', label: 'Collectors', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' }
+    { to: '/admin/collectors', label: 'Collectors', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' },
+    { 
+        label: 'Reports', 
+        icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+        subLinks: [
+            { to: '/admin/reports/collections', label: 'Collections Report' },
+            { to: '/admin/reports/income-expenditure', label: 'Income & Expenditure' }
+        ]
+    }
 ];
+
+const toggleSubmenu = (label) => {
+    openSubmenu.value = openSubmenu.value === label ? null : label;
+};
+
+const isSubmenuActive = (link) => {
+    return link.subLinks && link.subLinks.some(sub => route.path.startsWith(sub.to));
+};
 
 const openChangePassword = () => {
     showProfileDropdown.value = false;

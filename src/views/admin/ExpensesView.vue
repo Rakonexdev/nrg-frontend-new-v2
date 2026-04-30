@@ -70,14 +70,16 @@
 
       <div class="flex items-center gap-4 w-full md:w-auto md:ml-auto">
         <div class="flex items-center gap-2">
-            <div class="flex flex-col">
-                <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Start Date</span>
-                <input v-model="startDate" @change="fetchExpenses(1)" type="date" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest outline-none dark:text-white focus:ring-4 focus:ring-blue-500/10 transition-all">
-            </div>
-            <div class="flex flex-col">
-                <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">End Date</span>
-                <input v-model="endDate" @change="fetchExpenses(1)" type="date" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest outline-none dark:text-white focus:ring-4 focus:ring-blue-500/10 transition-all">
-            </div>
+            <DateInput 
+              label="Start Date"
+              v-model="startDate"
+              @change="fetchExpenses(1)"
+            />
+            <DateInput 
+              label="End Date"
+              v-model="endDate"
+              @change="fetchExpenses(1)"
+            />
         </div>
 
         <button v-if="search || startDate || endDate" @click="resetFilters" class="p-3 text-slate-400 hover:text-rose-500 transition-all bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700" title="Reset Filters">
@@ -108,7 +110,7 @@
         <div class="flex items-center gap-2">
             <div class="w-2 h-2 rounded-full bg-blue-500"></div>
             <span class="font-black text-slate-800 dark:text-slate-200 tracking-tight">
-                {{ new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) }}
+                {{ formatDate(value) }}
             </span>
         </div>
       </template>
@@ -152,10 +154,11 @@
       <form @submit.prevent="saveExpense" class="p-8 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col gap-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Date -->
-          <div>
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Expense Date</label>
-            <input v-model="form.expense_date" type="date" required class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold">
-          </div>
+          <DateInput 
+            label="Expense Date"
+            v-model="form.expense_date"
+            required
+          />
 
           <!-- Contract Linking (Only for Employee type) -->
           <div v-if="currentType === 'Employee'">
@@ -268,6 +271,7 @@ import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
 import SearchableSelect from '@/components/shared/SearchableSelect.vue';
+import DateInput from '@/components/shared/DateInput.vue';
 import { expenseService, expenseCategoryService, contractService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 
@@ -530,6 +534,15 @@ const deleteExpense = async () => {
   } finally {
     deleting.value = false;
   }
+};
+
+const formatDate = (date) => {
+  if (!date) return '-';
+  const d = new Date(date);
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = d.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
 };
 
 onMounted(async () => {

@@ -91,7 +91,8 @@ export const companyService = {
     getById: (id) => api.get(`/companies/${id}`),
     create: (data) => api.post('/companies', data),
     update: (id, data) => api.put(`/companies/${id}`, data),
-    delete: (id) => api.delete(`/companies/${id}`)
+    delete: (id) => api.delete(`/companies/${id}`),
+    getPendingCollections: (id) => api.get(`/companies/${id}/pending-collections`)
 };
 
 export const collectorService = {
@@ -105,6 +106,18 @@ export const collectorService = {
     create: (data) => api.post('/collectors', data),
     update: (id, data) => api.put(`/collectors/${id}`, data),
     delete: (id) => api.delete(`/collectors/${id}`)
+};
+
+export const reportService = {
+    getCollections: (params) => api.get('/reports/collections', { params }),
+    getIncomeExpenditure: (params) => api.get('/reports/income-expenditure', { params })
+};
+
+export const branchService = {
+    getAll: (companyId) => api.get(`/companies/${companyId}/branches`),
+    create: (companyId, data) => api.post(`/companies/${companyId}/branches`, data),
+    update: (branchId, data) => api.put(`/branches/${branchId}`, data),
+    delete: (branchId) => api.delete(`/branches/${branchId}`)
 };
 
 export default api;
