@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Collectors Management</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage collector accounts and mobile logins</p>
       </div>
-      <button @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg shadow-blue-500/30 transition-all font-semibold">
+      <button v-if="authStore.hasPermission('collector_create')" @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg shadow-blue-500/30 transition-all font-semibold">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         Add Collector
       </button>
@@ -63,46 +63,49 @@
 
       <template #actions="{ row }">
         <div class="flex items-center gap-3">
-          <button @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Collector">
+          <button @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-indigo-500 transition-colors" title="View Details">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button v-if="authStore.hasPermission('collector_edit')" @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Collector">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
-          <button @click="confirmDelete(row)" class="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Delete Collector">
+          <button v-if="authStore.hasPermission('collector_delete')" @click="confirmDelete(row)" class="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Delete Collector">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
         </div>
       </template>
     </DataTable>
 
-    <!-- Upsert Modal -->
-    <Modal :show="showModal" :title="editMode ? 'Edit Collector' : 'Add Collector'" @close="showModal = false" maxWidth="lg">
+    <!-- Upsert/View Modal -->
+    <Modal :show="showModal" :title="viewMode ? 'Collector Details' : (editMode ? 'Edit Collector' : 'Add Collector')" @close="showModal = false" maxWidth="lg">
       <form @submit.prevent="saveCollector" class="space-y-6">
         <div class="space-y-4">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Full Name</label>
-            <input v-model="form.name" type="text" 
-              :class="[errors.name ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-              class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" placeholder="Collector Name">
+            <input v-model="form.name" type="text" :disabled="viewMode"
+              :class="[errors.name ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50', viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900/50']"
+              class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" placeholder="Collector Name">
             <p v-if="errors.name" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.name }}</p>
           </div>
           
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Email (Mobile Login ID)</label>
-            <input v-model="form.email" type="email" 
-              :class="[errors.email ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-              class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" placeholder="collector@nrg.com">
+            <input v-model="form.email" type="email" :disabled="viewMode"
+              :class="[errors.email ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50', viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900/50']"
+              class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" placeholder="collector@nrg.com">
             <p v-if="errors.email" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.email }}</p>
           </div>
 
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mobile Number</label>
-            <input v-model="form.mobile" type="text" 
-              :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-              class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" placeholder="+974 ...">
+            <input v-model="form.mobile" type="text" :disabled="viewMode"
+              :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50', viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900/50']"
+              class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" placeholder="+974 ...">
             <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.mobile }}</p>
           </div>
 
           <!-- Password Fields -->
-          <div v-if="!editMode">
+          <div v-if="!editMode && !viewMode">
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Password</label>
             <div class="relative">
               <input v-model="form.password" :type="showPassword ? 'text' : 'password'" 
@@ -116,7 +119,7 @@
             <p v-if="errors.password" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.password }}</p>
           </div>
 
-          <div v-else class="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-700/50">
+          <div v-else-if="editMode && !viewMode" class="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-700/50">
             <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Change Password <span class="text-slate-400 font-normal normal-case">(Optional)</span></h3>
             
             <div>
@@ -155,9 +158,9 @@
       </form>
       <template #footer>
         <button @click="showModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">
-          Cancel
+          {{ viewMode ? 'Close' : 'Cancel' }}
         </button>
-        <button @click="saveCollector" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
+        <button v-if="!viewMode" @click="saveCollector" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
           <svg v-if="saving" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           {{ saving ? 'Saving...' : 'Save Collector' }}
         </button>
@@ -182,8 +185,10 @@ import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
 import { collectorService } from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
 import { useNotificationStore } from '@/stores/notification';
 
+const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 
 const collectors = ref([]);
@@ -200,6 +205,7 @@ const showConfirmModal = ref(false);
 const itemToDelete = ref(null);
 const deleting = ref(false);
 const editMode = ref(false);
+const viewMode = ref(false);
 const errors = ref({});
 
 const form = ref({
@@ -280,11 +286,12 @@ const validate = () => {
     return Object.keys(errors.value).length === 0;
 };
 
-const openModal = (collector = null) => {
+const openModal = (collector = null, isView = false) => {
   errors.value = {};
+  viewMode.value = isView;
   
   if (collector) {
-    editMode.value = true;
+    editMode.value = !isView;
     showPassword.value = false;
     form.value = { 
         id: collector.id,

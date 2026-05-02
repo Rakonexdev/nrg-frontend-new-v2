@@ -10,11 +10,11 @@
           <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Categories
         </button>
-        <button @click="openModal(null, 'Company')" class="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all font-black uppercase tracking-widest text-[10px]">
+        <button v-if="authStore.hasPermission('expense_create')" @click="openModal(null, 'Company')" class="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all font-black uppercase tracking-widest text-[10px]">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Add Company Expense
         </button>
-        <button @click="openModal(null, 'Employee')" class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
+        <button v-if="authStore.hasPermission('expense_create')" @click="openModal(null, 'Employee')" class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Add Employee Expense
         </button>
@@ -139,10 +139,13 @@
 
       <template #actions="{ row }">
         <div class="flex items-center gap-2">
-          <button @click="openModal(row)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all" title="Edit">
+          <button @click="openModal(row, null, true)" class="p-2 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all" title="View Details">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button v-if="authStore.hasPermission('expense_edit')" @click="openModal(row)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all" title="Edit">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
-          <button @click="confirmDelete(row)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all" title="Delete">
+          <button v-if="authStore.hasPermission('expense_delete')" @click="confirmDelete(row)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all" title="Delete">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
         </div>
@@ -150,7 +153,7 @@
     </DataTable>
 
     <!-- Expense Modal -->
-    <Modal :show="showModal" :title="editMode ? `Edit ${currentType} Expense` : `Record ${currentType} Expense`" @close="showModal = false" maxWidth="4xl">
+    <Modal :show="showModal" :title="viewMode ? `${currentType} Expense Details` : (editMode ? `Edit ${currentType} Expense` : `Record ${currentType} Expense`)" @close="showModal = false" maxWidth="4xl">
       <form @submit.prevent="saveExpense" class="p-8 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col gap-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Date -->
@@ -244,8 +247,8 @@
       </form>
       <template #footer>
         <div class="flex items-center justify-between w-full p-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800">
-            <button @click="showModal = false" class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Cancel</button>
-            <button @click="saveExpense" class="px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl shadow-blue-500/20 transition-all font-black text-[10px] uppercase tracking-[0.2em] transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-3" :disabled="saving">
+            <button @click="showModal = false" class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">{{ viewMode ? 'Close' : 'Cancel' }}</button>
+            <button v-if="!viewMode" @click="saveExpense" class="px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl shadow-blue-500/20 transition-all font-black text-[10px] uppercase tracking-[0.2em] transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-3" :disabled="saving">
             <svg v-if="!saving" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             {{ saving ? 'Verifying...' : 'Confirm & Save' }}
             </button>
@@ -273,8 +276,10 @@ import ConfirmModal from '@/components/shared/ConfirmModal.vue';
 import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 import { expenseService, expenseCategoryService, contractService } from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
 import { useNotificationStore } from '@/stores/notification';
 
+const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 const route = useRoute();
 
@@ -302,6 +307,7 @@ watch(() => route.query.filter, (newFilter) => {
     fetchExpenses(1);
 });
 const editMode = ref(false);
+const viewMode = ref(false);
 const filterType = ref('');
 
 const form = ref({
@@ -414,6 +420,7 @@ const fetchExpenses = async (page = 1) => {
     stats.value = res.data.stats;
   } catch (err) {
     console.error('Failed to fetch expenses', err);
+    notificationStore.error(err.response?.data?.message || 'Failed to load expenses');
   } finally {
     loading.value = false;
   }
@@ -455,10 +462,11 @@ const handleDownload = async () => {
     }
 };
 
-const openModal = async (expense = null, type = 'Company') => {
+const openModal = async (expense = null, type = 'Company', isView = false) => {
+  viewMode.value = isView;
   currentType.value = type;
   if (expense) {
-    editMode.value = true;
+    editMode.value = !isView;
     // Find category type from allCategories if not provided
     const cat = allCategories.value.find(c => c.id == expense.category_id);
     if (cat) currentType.value = cat.target_type || 'Company';
@@ -498,17 +506,17 @@ const saveExpense = async () => {
     
     if (editMode.value) {
       await expenseService.update(payload.id, payload);
-      notificationStore.addNotification('Expense record updated');
+      notificationStore.success('Expense record updated');
     } else {
       await expenseService.create(payload);
-      notificationStore.addNotification('Expense recorded successfully');
+      notificationStore.success('Expense recorded successfully');
     }
     showModal.value = false;
     fetchExpenses(pagination.value?.current_page || 1);
   } catch (err) {
     console.error('Save error:', err.response?.data);
     const msg = err.response?.data?.message || 'Failed to save expense';
-    notificationStore.addNotification(msg, 'error');
+    notificationStore.error(msg);
   } finally {
     saving.value = false;
   }
@@ -526,11 +534,11 @@ const deleteExpense = async () => {
     await expenseService.delete(itemToDelete.value.id);
     showConfirmModal.value = false;
     itemToDelete.value = null;
-    notificationStore.addNotification('Expense record removed');
+    notificationStore.success('Expense record removed');
     fetchExpenses(pagination.value?.current_page || 1);
   } catch (err) {
     console.error('Delete error:', err.response?.data);
-    notificationStore.addNotification('Failed to delete expense', 'error');
+    notificationStore.error('Failed to delete expense');
   } finally {
     deleting.value = false;
   }

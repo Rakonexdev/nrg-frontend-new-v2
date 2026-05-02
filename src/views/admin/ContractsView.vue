@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Contracts Management</h1>
         <p class="text-slate-500 dark:text-slate-400">Track staff contracts, fees, and payments</p>
       </div>
-      <button @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
+      <button v-if="authStore.hasPermission('contract_create')" @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         New Contract
       </button>
@@ -277,13 +277,13 @@
 
             <template #actions="{ row }">
                 <div class="flex items-center gap-2">
-                <button @click="openPaymentModal(row)" class="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-all" title="Manage Payments">
+                <button v-if="authStore.hasPermission('contract_edit')" @click="openPaymentModal(row)" class="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-all" title="Manage Payments">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </button>
                 <button @click="openViewModal(row)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all" title="View Details">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </button>
-                <button @click="confirmDelete(row)" class="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all" title="Delete">
+                <button v-if="authStore.hasPermission('contract_delete')" @click="confirmDelete(row)" class="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all" title="Delete">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </button>
                 </div>
@@ -668,9 +668,11 @@ import ConfirmModal from '@/components/shared/ConfirmModal.vue';
 import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import AlertModal from '@/components/shared/AlertModal.vue';
 import DateInput from '@/components/shared/DateInput.vue';
+import { useAuthStore } from '@/stores/auth';
 import { contractService, staffService, companyService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 
+const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 
 const contractSummary = ref({
@@ -834,6 +836,7 @@ const fetchContracts = async (page = 1) => {
     pagination.value = res.data.meta;
   } catch (err) {
     console.error('Failed to fetch contracts', err);
+    notificationStore.error(err.response?.data?.message || 'Failed to load contracts');
   } finally {
     loading.value = false;
   }
@@ -909,7 +912,7 @@ const openViewModal = async (contract) => {
         showViewModal.value = true;
     } catch (err) {
         console.error('Failed to fetch contract details', err);
-        notificationStore.addNotification('Failed to load contract details', 'error');
+        notificationStore.error('Failed to load contract details');
     }
 };
 
@@ -941,11 +944,11 @@ const saveContract = async () => {
     if (editMode.value) {
       const res = await contractService.update(payload.id, payload);
       syncFormWithContract(res.data.data);
-      notificationStore.addNotification('Contract updated successfully');
+      notificationStore.success('Contract updated successfully');
     } else {
       const res = await contractService.create(payload);
       showModal.value = false;
-      notificationStore.addNotification('Contract created successfully');
+      notificationStore.success('Contract created successfully');
     }
     fetchContracts(pagination.value.current_page || 1);
     fetchSummary();
@@ -1010,7 +1013,7 @@ const addPayment = async () => {
     await fetchContracts(pagination.value.current_page || 1);
     await fetchSummary();
     resetPaymentForm();
-    notificationStore.addNotification('Payment entry added successfully');
+    notificationStore.success('Payment entry added successfully');
   } catch (err) {
     alertConfig.value = {
       type: 'error',
@@ -1032,7 +1035,7 @@ const removePayment = async (payment) => {
     await fetchContractPayments(paymentContract.value.id);
     await fetchContracts(pagination.value.current_page || 1);
     await fetchSummary();
-    notificationStore.addNotification('Payment entry deleted successfully');
+    notificationStore.success('Payment entry deleted successfully');
   } catch (err) {
     alertConfig.value = {
       type: 'error',
@@ -1055,7 +1058,7 @@ const deleteContract = async () => {
   deleting.value = true;
   try {
     await contractService.delete(itemToDelete.value.id);
-    notificationStore.addNotification('Contract deleted successfully');
+    notificationStore.success('Contract deleted successfully');
     showConfirmModal.value = false;
     itemToDelete.value = null;
     fetchContracts(pagination.value.current_page || 1);
@@ -1169,7 +1172,7 @@ const submitAdjustment = async () => {
             amount: parseAmount(adjustmentForm.value.amount)
         };
         await contractService.addAdjustment(adjustmentContract.value.id, payload);
-        notificationStore.addNotification('Contract value adjusted successfully');
+        notificationStore.success('Contract value adjusted successfully');
         closeAdjustmentModal();
         await fetchContracts(pagination.value.current_page || 1);
         await fetchSummary();
@@ -1205,7 +1208,7 @@ const submitAdjustmentFromModal = async () => {
             amount: parseAmount(adjustmentForm.value.amount)
         };
         await contractService.addAdjustment(paymentContract.value.id, payload);
-        notificationStore.addNotification('Additional amount added successfully');
+        notificationStore.success('Additional amount added successfully');
         // Reset adjustment form
         adjustmentForm.value = {
             amount: '',
@@ -1245,6 +1248,7 @@ const paymentStatusClass = (value) => {
 };
 
 onMounted(() => {
+    console.log('ContractsView mounted, fetching data...');
     fetchContracts();
     fetchResources();
     fetchSummary();

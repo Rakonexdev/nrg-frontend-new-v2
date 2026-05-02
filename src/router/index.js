@@ -22,68 +22,68 @@ const router = createRouter({
         {
           path: '',
           name: 'admin-dashboard',
-          component: () => import('../views/admin/DashboardView.vue'),
-          meta: { title: 'System Overview' }
-        },
-        {
-          path: 'companies',
-          name: 'admin-companies',
-          component: () => import('../views/admin/CompaniesView.vue'),
-          meta: { title: 'Companies Management' }
+          component: () => import('../views/admin/DashboardView.vue')
         },
         {
           path: 'staff',
           name: 'admin-staff',
-          component: () => import('../views/admin/StaffView.vue'),
-          meta: { title: 'Staff Management' }
+          component: () => import('../views/admin/StaffView.vue')
         },
         {
           path: 'staff/:id',
           name: 'admin-staff-detail',
-          component: () => import('../views/admin/StaffDetailView.vue'),
-          meta: { title: 'Staff Member Details' }
+          component: () => import('../views/admin/StaffDetailView.vue')
+        },
+        {
+          path: 'companies',
+          name: 'admin-companies',
+          component: () => import('../views/admin/CompaniesView.vue')
         },
         {
           path: 'contracts',
           name: 'admin-contracts',
-          component: () => import('../views/admin/ContractsView.vue'),
-          meta: { title: 'Contracts & Collections' }
+          component: () => import('../views/admin/ContractsView.vue')
         },
-        {
-          path: 'collectors',
-          name: 'admin-collectors',
-          component: () => import('../views/admin/CollectorsView.vue'),
-          meta: { title: 'Collectors Management' }
-        },
+
         {
           path: 'expenses',
           name: 'admin-expenses',
-          component: () => import('../views/admin/ExpensesView.vue'),
-          meta: { title: 'Expenses Management' }
+          component: () => import('../views/admin/ExpensesView.vue')
         },
         {
           path: 'expenses/categories',
           name: 'admin-expense-categories',
-          component: () => import('../views/admin/ExpenseCategoriesView.vue'),
-          meta: { title: 'Expense Categories' }
+          component: () => import('../views/admin/ExpenseCategoriesView.vue')
         },
         {
           path: 'settlements',
           name: 'admin-settlements',
-          component: () => import('../views/admin/SettlementsView.vue'),
-          meta: { title: 'Payment Settlements' }
+          component: () => import('../views/admin/SettlementsView.vue')
         },
+        {
+          path: 'collectors',
+          name: 'admin-collectors',
+          component: () => import('../views/admin/CollectorsView.vue')
+        },
+        // Reports
         {
           path: 'reports/collections',
           name: 'admin-reports-collections',
-          component: () => import('../views/admin/reports/CollectionsReportView.vue'),
+          component: () => import('../views/admin/CollectionsReportView.vue'),
           meta: { title: 'Collections Report' }
         },
         {
           path: 'reports/income-expenditure',
           name: 'admin-reports-income-expenditure',
-          component: () => import('../views/admin/reports/IncomeExpenditureReportView.vue'),
+          component: () => import('../views/admin/IncomeExpenditureReportView.vue'),
           meta: { title: 'Income & Expenditure Report' }
+        },
+        // Role Access (Super Admin only)
+        {
+          path: 'role-access',
+          name: 'admin-role-access',
+          component: () => import('../views/admin/RoleAccessView.vue'),
+          meta: { title: 'Role Access', superAdminOnly: true }
         }
       ]
     },
@@ -111,12 +111,6 @@ const router = createRouter({
           path: 'settle',
           name: 'collector-settle',
           component: () => import('../views/collector/SettlementView.vue')
-        },
-        {
-          path: 'change-password',
-          name: 'collector-change-password',
-          component: () => import('../views/admin/ChangePasswordView.vue'),
-          meta: { title: 'Security Settings' }
         }
       ]
     }
@@ -130,22 +124,21 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !token) {
     next('/login')
   } else if (to.meta.guest && token) {
-    // Redirect based on role if already logged in
     const role = user?.role
     if (role === 'admin' || role === 'super_admin') next('/admin')
     else if (role === 'collector') next('/collector')
     else {
-      // If token exists but role is invalid, allow login page (staying here) or clear
       next()
     }
+  } else if (to.meta.superAdminOnly && user?.role !== 'super_admin') {
+    // Block non-super_admin from super admin only pages
+    next('/admin')
   } else if (to.meta.roles && !to.meta.roles.includes(user?.role)) {
-    // Basic role protection
     if (user?.role === 'admin' || user?.role === 'super_admin') {
       next('/admin')
     } else if (user?.role === 'collector') {
       next('/collector')
     } else {
-      // No valid role, clear and go to login to force fresh state
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       next('/login')

@@ -11,7 +11,14 @@ export const useAuthStore = defineStore('auth', {
   
   getters: {
     isAuthenticated: (state) => !!state.token,
-    userRole: (state) => state.user?.role
+    userRole: (state) => state.user?.role,
+    isSuperAdmin: (state) => state.user?.role === 'super_admin',
+    userPermissions: (state) => state.user?.permissions || [],
+    hasPermission: (state) => (permission) => {
+      // Super admin has all permissions
+      if (state.user?.role === 'super_admin') return true;
+      return (state.user?.permissions || []).includes(permission);
+    }
   },
   
   actions: {
@@ -32,6 +39,16 @@ export const useAuthStore = defineStore('auth', {
         return false;
       } finally {
         this.loading = false;
+      }
+    },
+
+    async refreshUser() {
+      try {
+        const response = await axios.get('/auth/me');
+        this.user = response.data;
+        localStorage.setItem('user', JSON.stringify(this.user));
+      } catch (err) {
+        console.error('Failed to refresh user data', err);
       }
     },
     

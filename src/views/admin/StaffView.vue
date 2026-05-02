@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Staff Management</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage employees, documents and assignments</p>
       </div>
-      <button @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg shadow-blue-500/30 transition-all font-semibold">
+      <button v-if="authStore.hasPermission('staff_create')" @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg shadow-blue-500/30 transition-all font-semibold">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         Add Staff Member
       </button>
@@ -102,12 +102,15 @@
           <button @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-indigo-500 transition-colors" title="View Details">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
-          <button @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Staff">
+          <button v-if="authStore.hasPermission('staff_edit')" @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Staff">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
-          <button @click="toggleStatus(row)" class="p-1 transition-colors" :class="row.status === 'active' ? 'text-green-500 hover:text-red-500' : 'text-slate-400 hover:text-green-500'" :title="row.status === 'active' ? 'Deactivate Staff' : 'Activate Staff'">
+          <button v-if="authStore.hasPermission('staff_edit')" @click="toggleStatus(row)" class="p-1 transition-colors" :class="row.status === 'active' ? 'text-green-500 hover:text-red-500' : 'text-slate-400 hover:text-green-500'" :title="row.status === 'active' ? 'Deactivate Staff' : 'Activate Staff'">
             <svg v-if="row.status === 'active'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button v-if="authStore.hasPermission('staff_delete')" @click="confirmDelete(row)" class="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Delete Staff">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
         </div>
       </template>
@@ -404,10 +407,12 @@ import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
 import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import DateInput from '@/components/shared/DateInput.vue';
+import { useAuthStore } from '@/stores/auth';
 import { staffService, companyService, branchService, BASE_URL } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 
 const notificationStore = useNotificationStore();
+const authStore = useAuthStore();
 
 const staffMembers = ref([]);
 const loading = ref(true);
@@ -529,6 +534,7 @@ const fetchStaff = async (page = 1) => {
     pagination.value = res.data.meta;
   } catch (err) {
     console.error('Failed to fetch staff', err);
+    notificationStore.error(err.response?.data?.message || 'Failed to load staff list');
   } finally {
     loading.value = false;
   }
@@ -731,10 +737,10 @@ const saveStaff = async () => {
     try {
         if (editMode.value) {
             await staffService.update(form.value.id, formData);
-            notificationStore.addNotification('Staff member updated successfully');
+            notificationStore.success('Staff member updated successfully');
         } else {
             await staffService.create(formData);
-            notificationStore.addNotification('Staff member added successfully');
+            notificationStore.success('Staff member added successfully');
         }
         showModal.value = false;
         fetchStaff(pagination.value.current_page || 1);
@@ -758,15 +764,37 @@ const handleStatusToggle = async () => {
     
     try {
         await staffService.update(selectedStaff.value.id, { status: newStatus });
-        notificationStore.addNotification(`Staff member is now ${newStatus}`);
+        notificationStore.success(`Staff member is now ${newStatus}`);
         showStatusModal.value = false;
         fetchStaff(pagination.value.current_page || 1);
     } catch (err) {
         console.error('Status toggle failed', err);
-        notificationStore.addNotification(err.response?.data?.message || 'Failed to update status', 'error');
+        notificationStore.error(err.response?.data?.message || 'Failed to update status');
     } finally {
         saving.value = false;
     }
+};
+
+const confirmDelete = (staff) => {
+  itemToDelete.value = staff;
+  showConfirmModal.value = true;
+};
+
+const deleteStaff = async () => {
+  if (!itemToDelete.value) return;
+  
+  deleting.value = true;
+  try {
+    await staffService.delete(itemToDelete.value.id);
+    notificationStore.success('Staff member deleted successfully');
+    showConfirmModal.value = false;
+    fetchStaff(pagination.value.current_page || 1);
+  } catch (err) {
+    console.error('Delete failed', err);
+    notificationStore.error('Failed to delete staff member');
+  } finally {
+    deleting.value = false;
+  }
 };
 
 const handleCompanyChange = (companyId) => {

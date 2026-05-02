@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Company management</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage business partners and clients</p>
       </div>
-      <button @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
+      <button v-if="authStore.hasPermission('company_create')" @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         Add Company
       </button>
@@ -76,70 +76,80 @@
 
       <template #actions="{ row }">
         <div class="flex items-center gap-3">
-          <button @click="openBranchModal(row)" class="p-1 text-slate-400 hover:text-emerald-500 transition-colors" title="Manage Branches">
+          <button @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-indigo-500 transition-colors" title="View Details">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button v-if="authStore.hasPermission('company_edit')" @click="openBranchModal(row)" class="p-1 text-slate-400 hover:text-emerald-500 transition-colors" title="Manage Branches">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
-          <button @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Company">
+          <button v-if="authStore.hasPermission('company_edit')" @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Company">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
           
           <!-- Separate Toggle Action -->
-          <button v-if="row.is_active" @click="toggleStatus(row)" class="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Deactivate Company">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-          </button>
-          <button v-else @click="toggleStatus(row)" class="p-1 text-green-500 hover:text-green-600 transition-colors" title="Activate Company">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-          </button>
+          <template v-if="authStore.hasPermission('company_edit')">
+            <button v-if="row.is_active" @click="toggleStatus(row)" class="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Deactivate Company">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </button>
+            <button v-else @click="toggleStatus(row)" class="p-1 text-green-500 hover:text-green-600 transition-colors" title="Activate Company">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </button>
+          </template>
         </div>
       </template>
     </DataTable>
 
-    <!-- Add/Edit Modal -->
-    <Modal :show="showModal" :title="editMode ? 'Edit Company' : 'Add New Company'" @close="showModal = false" maxWidth="2xl">
+    <!-- Add/Edit/View Modal -->
+    <Modal :show="showModal" :title="viewMode ? 'Company Details' : (editMode ? 'Edit Company' : 'Add New Company')" @close="showModal = false" maxWidth="2xl">
       <form @submit.prevent="saveCompany" class="p-8 space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="md:col-span-2">
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Company Name</label>
-                <input v-model="form.name" type="text" required
-                       class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                <input v-model="form.name" type="text" required :disabled="viewMode"
+                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
+                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Enter full company name">
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Computer Card</label>
-                <input v-model="form.computer_card" type="text"
-                       class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                <input v-model="form.computer_card" type="text" :disabled="viewMode"
+                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
+                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="ID number">
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Contact Person</label>
-                <input v-model="form.contact_person" type="text"
-                       class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                <input v-model="form.contact_person" type="text" :disabled="viewMode"
+                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
+                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Full name">
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone Number</label>
-                <input v-model="form.phone_number" type="text"
+                <input v-model="form.phone_number" type="text" :disabled="viewMode"
                        @input="form.phone_number = form.phone_number.replace(/[^0-9]/g, '')"
-                       class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
+                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Primary contact">
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Alternative Number</label>
-                <input v-model="form.alternative_phone_number" type="text"
+                <input v-model="form.alternative_phone_number" type="text" :disabled="viewMode"
                        @input="form.alternative_phone_number = form.alternative_phone_number.replace(/[^0-9]/g, '')"
-                       class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
+                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Secondary contact">
             </div>
 
         </div>
 
         <div class="flex justify-end gap-4 mt-8">
-          <button type="button" @click="showModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">Cancel</button>
-          <button type="submit" class="px-10 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl shadow-blue-500/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
+          <button type="button" @click="showModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">{{ viewMode ? 'Close' : 'Cancel' }}</button>
+          <button v-if="!viewMode" type="submit" class="px-10 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl shadow-blue-500/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
             {{ saving ? 'Saving...' : (editMode ? 'Update Company' : 'Create Company') }}
           </button>
         </div>
@@ -237,6 +247,7 @@ import { useNotificationStore } from '@/stores/notification';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
+import { useAuthStore } from '@/stores/auth';
 import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 
 const columns = [
@@ -253,6 +264,7 @@ const formatDate = (date) => {
     return new Date(date).toLocaleDateString();
 };
 
+const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 const companies = ref([]);
 const loading = ref(true);
@@ -261,6 +273,7 @@ const showModal = ref(false);
 const showStatusModal = ref(false);
 const showBranchModal = ref(false);
 const editMode = ref(false);
+const viewMode = ref(false);
 const searchQuery = ref('');
 const statusFilter = ref('');
 const perPage = ref(10);
@@ -322,15 +335,17 @@ const fetchCompanies = async (page = 1) => {
             to: meta.to
         };
     } catch (error) {
-        notificationStore.addNotification('Failed to load companies', 'error');
+        console.error('Failed to fetch companies:', error);
+        notificationStore.error(error.response?.data?.message || 'Failed to load companies');
     } finally {
         loading.value = false;
     }
 };
 
-const openModal = (company = null) => {
+const openModal = (company = null, isView = false) => {
+    viewMode.value = isView;
     if (company) {
-        editMode.value = true;
+        editMode.value = !isView;
         selectedCompany.value = company;
         form.value = { ...company };
     } else {
@@ -380,13 +395,13 @@ const handleStatusToggle = async () => {
     
     try {
         await companyService.update(selectedCompany.value.id, { is_active: newStatus });
-        notificationStore.addNotification(`Company is now ${newStatus ? 'Active' : 'Inactive'}`, 'success');
+        notificationStore.success(`Company is now ${newStatus ? 'Active' : 'Inactive'}`);
         showStatusModal.value = false;
         fetchCompanies(pagination.value.current_page);
     } catch (error) {
         console.error('Status toggle failed', error);
         const errorMsg = error.response?.data?.message || 'Failed to update company status';
-        notificationStore.addNotification(errorMsg, 'error');
+        notificationStore.error(errorMsg);
     } finally {
         saving.value = false;
     }
@@ -412,7 +427,7 @@ const fetchBranches = async () => {
         const res = await branchService.getAll(selectedCompany.value.id);
         branches.value = res.data;
     } catch (err) {
-        notificationStore.addNotification('Failed to load branches', 'error');
+        notificationStore.error(err.response?.data?.message || 'Failed to load branches');
     } finally {
         branchesLoading.value = false;
     }
@@ -427,7 +442,7 @@ const saveBranch = async () => {
     branchSaving.value = true;
     try {
         await branchService.create(selectedCompany.value.id, branchForm.value);
-        notificationStore.addNotification('Branch added successfully', 'success');
+        notificationStore.success('Branch added successfully');
         
         branchForm.value = { 
             name: '', 
@@ -438,7 +453,7 @@ const saveBranch = async () => {
         };
         fetchBranches();
     } catch (err) {
-        notificationStore.addNotification('Failed to add branch', 'error');
+        notificationStore.error('Failed to add branch');
     } finally {
         branchSaving.value = false;
     }
@@ -449,12 +464,15 @@ const deleteBranch = async (id) => {
     try {
         await branchService.delete(id);
         fetchBranches();
-        notificationStore.addNotification('Branch deleted successfully', 'success');
+        notificationStore.success('Branch deleted successfully');
     } catch (err) {
-        notificationStore.addNotification('Failed to delete branch', 'error');
+        notificationStore.error('Failed to delete branch');
     }
 };
 
 
-onMounted(fetchCompanies);
+onMounted(() => {
+    console.log('CompaniesView mounted, fetching data...');
+    fetchCompanies();
+});
 </script>

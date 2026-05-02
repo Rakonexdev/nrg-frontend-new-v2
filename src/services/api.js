@@ -120,4 +120,19 @@ export const branchService = {
     delete: (branchId) => api.delete(`/branches/${branchId}`)
 };
 
+export const roleService = {
+    getAll: () => api.get('/roles'),
+    getPermissions: () => api.get('/roles/permissions'),
+    create: (data) => api.post('/roles', data),
+    update: (id, data) => api.put(`/roles/${id}`, data),
+    delete: (id) => api.delete(`/roles/${id}`)
+};
+
+export const adminUserService = {
+    getAll: () => api.get('/admin-users'),
+    create: (data) => api.post('/admin-users', data),
+    update: (id, data) => api.put(`/admin-users/${id}`, data),
+    delete: (id) => api.delete(`/admin-users/${id}`)
+};
+
 export default api;

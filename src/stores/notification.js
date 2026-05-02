@@ -21,9 +21,14 @@ export const useNotificationStore = defineStore('notification', () => {
         notifications.value = notifications.value.filter(n => n.id !== id);
     };
 
+    const success = (message) => addNotification(message, 'success');
+    const error = (message) => addNotification(message, 'error');
+
     return {
         notifications,
         addNotification,
         removeNotification,
+        success,
+        error
     };
 });
