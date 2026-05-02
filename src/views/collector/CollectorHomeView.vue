@@ -164,11 +164,18 @@
           <!-- Handle -->
           <div class="w-10 h-1 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto -mt-1 mb-2"></div>
 
-          <div>
-            <h3 class="text-lg font-black text-slate-900 dark:text-white">Record Collection</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              <span class="text-teal-600 dark:text-teal-400 font-bold">{{ modalData.company_name }}</span> — {{ modalData.staff_name }}
-            </p>
+          <div class="flex items-start justify-between">
+            <div>
+              <h3 class="text-lg font-black text-slate-900 dark:text-white">Record Collection</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <span class="text-teal-600 dark:text-teal-400 font-bold">{{ modalData.company_name }}</span> — {{ modalData.staff_name }}
+              </p>
+            </div>
+            <button @click="closeModal" class="p-2 -mr-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
 
           <!-- Balance info -->
