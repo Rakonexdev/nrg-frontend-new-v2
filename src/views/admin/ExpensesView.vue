@@ -217,6 +217,15 @@
                 <option v-for="sub in availableSubcategories" :key="sub.id" :value="sub.id">{{ sub.name }}</option>
             </select>
           </div>
+
+          <!-- Validation Date (Only for QID/PP Renewal) -->
+          <div v-if="showValidationDateField" class="animate-in fade-in slide-in-from-top-2 duration-300">
+            <DateInput 
+              label="New Validation/Expiry Date"
+              v-model="form.validation_date"
+              required
+            />
+          </div>
           
           <!-- Reason -->
           <div class="md:col-span-2">
@@ -312,13 +321,16 @@ const filterType = ref('');
 
 const form = ref({
   id: null,
+  category_id: null,
+  subcategory_id: null,
+  amount: 0,
   expense_date: new Date().toISOString().split('T')[0],
-  category_id: '',
-  subcategory_id: '',
-  contract_id: '',
+  validation_date: null,
+  payment_method: 'Cash',
   description: '',
-  amount: '',
-  payment_method: 'Cash'
+  contract_id: null,
+  staff_id: null,
+  company_id: null
 });
 
 const allCategories = ref([]);
@@ -374,6 +386,14 @@ const columns = [
   { key: 'actions', label: 'Actions', sortable: false }
 ];
 
+const showValidationDateField = computed(() => {
+    if (!form.value.subcategory_id) return false;
+    const sub = allCategories.value.find(s => s.id === form.value.subcategory_id);
+    if (!sub) return false;
+    const name = sub.name.toLowerCase();
+    return name.includes('qid') || name.includes('passport') || name.includes('pp');
+});
+
 const handleCategoryChange = () => {
     form.value.subcategory_id = '';
 };
@@ -388,7 +408,10 @@ const fetchResources = async () => {
         rawContracts.value = contractsRes.data.data;
         contractsList.value = contractsRes.data.data.map(c => ({
             id: c.id,
-            name: `${c.staff?.name} Contract (${c.company?.name || 'IND'})`
+            name: c.staff?.name,
+            qid_number: c.staff?.qid_number,
+            mobile: c.staff?.mobile,
+            company_name: c.staff?.company?.name || 'Individual'
         }));
     } catch (err) {
         console.error('Failed to fetch resources', err);
@@ -474,22 +497,26 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
     form.value = { 
         ...expense,
         expense_date: expense.expense_date.split('T')[0],
-        category_id: expense.category_id || '',
-        subcategory_id: expense.subcategory_id || '',
-        contract_id: expense.contract_id || '',
+        validation_date: expense.validation_date ? expense.validation_date.split('T')[0] : null,
+        category_id: expense.category_id || null,
+        subcategory_id: expense.subcategory_id || null,
+        contract_id: expense.contract_id || null,
         payment_method: expense.payment_method || 'Cash'
     };
   } else {
     editMode.value = false;
     form.value = { 
         id: null, 
+        category_id: null,
+        subcategory_id: null,
+        amount: 0,
         expense_date: new Date().toISOString().split('T')[0],
-        category_id: '',
-        subcategory_id: '',
-        contract_id: '',
+        validation_date: null,
+        payment_method: 'Cash',
         description: '',
-        amount: '',
-        payment_method: 'Cash'
+        contract_id: null,
+        staff_id: null,
+        company_id: null
     };
   }
   showModal.value = true;
@@ -499,10 +526,15 @@ const saveExpense = async () => {
   saving.value = true;
   try {
     const payload = { ...form.value };
-    // Essential fields for company expenses
-    // We send dummy category_ids if backend still requires them, 
-    // or we update backend to be more flexible.
-    // For now we assume valid payloads.
+    
+    // Sanitize payload: convert empty strings/values to null for backend validation
+    payload.amount = parseFloat(payload.amount) || 0;
+    payload.category_id = payload.category_id || null;
+    payload.subcategory_id = payload.subcategory_id || null;
+    payload.validation_date = payload.validation_date || null;
+    payload.contract_id = payload.contract_id || null;
+    payload.staff_id = payload.staff_id || null;
+    payload.company_id = payload.company_id || null;
     
     if (editMode.value) {
       await expenseService.update(payload.id, payload);

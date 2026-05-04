@@ -78,6 +78,12 @@ const router = createRouter({
           component: () => import('../views/admin/IncomeExpenditureReportView.vue'),
           meta: { title: 'Income & Expenditure Report' }
         },
+        {
+          path: 'reports/documentation-status',
+          name: 'admin-reports-documentation-status',
+          component: () => import('../views/admin/reports/DocumentationStatusView.vue'),
+          meta: { title: 'Documentation Status' }
+        },
         // Role Access (Super Admin only)
         {
           path: 'role-access',

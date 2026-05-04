@@ -52,8 +52,12 @@
       @page-change="fetchCompanies">
       
       <template #name="{ row }">
-        <div class="flex flex-col">
-          <span class="font-bold text-slate-800 dark:text-white">{{ row.name }}</span>
+        <div class="flex flex-col gap-0.5">
+          <div>
+            <span class="font-bold text-slate-800 dark:text-white">{{ row.name }}</span>
+            <span v-if="row.branch_number" class="text-[11px] font-black text-indigo-500">({{ row.branch_number }})</span>
+          </div>
+          <span v-if="row.branch_name" class="text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-widest font-black">{{ row.branch_name }}</span>
           <span v-if="row.computer_card" class="text-[10px] text-slate-400 uppercase tracking-widest font-black">{{ row.computer_card }}</span>
         </div>
       </template>
@@ -78,9 +82,6 @@
         <div class="flex items-center gap-3">
           <button @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-indigo-500 transition-colors" title="View Details">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-          </button>
-          <button v-if="authStore.hasPermission('company_edit')" @click="openBranchModal(row)" class="p-1 text-slate-400 hover:text-emerald-500 transition-colors" title="Manage Branches">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
           <button v-if="authStore.hasPermission('company_edit')" @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Company">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -143,6 +144,22 @@
                        :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
                        class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Secondary contact">
+            </div>
+
+            <div>
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Name</label>
+                <input v-model="form.branch_name" type="text" :disabled="viewMode"
+                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
+                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       placeholder="Branch location/name">
+            </div>
+
+            <div>
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Number</label>
+                <input v-model="form.branch_number" type="text" :disabled="viewMode"
+                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
+                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       placeholder="Branch ID (e.g. 001)">
             </div>
 
         </div>
@@ -308,6 +325,8 @@ const form = ref({
     contact_person: '',
     phone_number: '',
     alternative_phone_number: '',
+    branch_name: '',
+    branch_number: '',
     is_active: true
 });
 
@@ -357,6 +376,8 @@ const openModal = (company = null, isView = false) => {
             contact_person: '',
             phone_number: '',
             alternative_phone_number: '',
+            branch_name: '',
+            branch_number: '',
             is_active: true
         };
     }

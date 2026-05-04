@@ -185,17 +185,27 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mobile Number</label>
-                <input v-model="form.mobile" type="text" :disabled="viewMode" 
-                  @input="form.mobile = form.mobile.replace(/[^0-9]/g, '')"
-                  :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-15 digit number">
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 flex items-center pl-4 pr-2 border-r border-slate-200 dark:border-slate-700/50 text-slate-400 font-bold text-xs pointer-events-none group-focus-within:text-blue-500 transition-colors">
+                    +974
+                  </div>
+                  <input v-model="form.mobile" type="text" :disabled="viewMode" 
+                    @input="form.mobile = form.mobile.replace(/[^0-9]/g, '').slice(0, 8)"
+                    :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
+                    class="w-full pl-16 pr-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-digit number">
+                </div>
                 <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.mobile }}</p>
               </div>
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Alt. Mobile (Optional)</label>
-                <input v-model="form.alternative_mobile" type="text" :disabled="viewMode" 
-                  @input="form.alternative_mobile = form.alternative_mobile.replace(/[^0-9]/g, '')"
-                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Alternative contact">
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 flex items-center pl-4 pr-2 border-r border-slate-200 dark:border-slate-700/50 text-slate-400 font-bold text-xs pointer-events-none group-focus-within:text-blue-500 transition-colors">
+                    +974
+                  </div>
+                  <input v-model="form.alternative_mobile" type="text" :disabled="viewMode" 
+                    @input="form.alternative_mobile = form.alternative_mobile.replace(/[^0-9]/g, '').slice(0, 8)"
+                    class="w-full pl-16 pr-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-digit number">
+                </div>
               </div>
             </div>
 
@@ -610,8 +620,8 @@ const validate = () => {
     
     if (!form.value.mobile) {
         errors.value.mobile = 'Mobile number is required';
-    } else if (!/^[0-9]{8,15}$/.test(form.value.mobile)) {
-        errors.value.mobile = 'Mobile number must be 8-15 digits';
+    } else if (!/^[0-9]{8}$/.test(form.value.mobile)) {
+        errors.value.mobile = 'Mobile number must be exactly 8 digits';
     }
 
     if (!form.value.company_id) {

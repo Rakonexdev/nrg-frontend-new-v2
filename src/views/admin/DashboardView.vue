@@ -128,6 +128,84 @@
           <router-link to="/admin/staff?filter=expiring_qid" class="block w-full mt-6 py-2 text-center text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 transition-colors bg-slate-50 dark:bg-slate-700 rounded-lg">View All Alerts</router-link>
       </div>
     </div>
+    
+    <!-- In-Progress Renewals Row -->
+    <div class="mt-8 bg-white dark:bg-slate-800 p-0 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden mb-8">
+      <div class="flex items-center justify-between p-6 pb-2">
+        <div>
+          <h3 class="text-lg font-bold text-slate-800 dark:text-white">In-Progress Renewals</h3>
+          <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-0.5">Fees paid, but system record pending update</p>
+        </div>
+      </div>
+      
+      <div v-if="pendingUpdates.length > 0" class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="text-[10px] uppercase tracking-widest text-slate-500 border-b border-slate-50 dark:border-slate-700/50">
+              <th class="px-6 py-4 font-black">Staff Member</th>
+              <th class="px-6 py-4 font-black">Document Type</th>
+              <th class="px-6 py-4 font-black">Payment Date</th>
+              <th class="px-6 py-4 font-black">Current System Expiry</th>
+              <th class="px-6 py-4 font-black text-center">Status</th>
+              <th class="px-6 py-4 font-black text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
+            <tr v-for="update in pendingUpdates" :key="update.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+              <td class="px-6 py-4">
+                <span class="text-sm font-black text-slate-800 dark:text-white">{{ update.staff_name }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-0.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+                  {{ update.type }} Renewal
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ update.expense_date }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex flex-col">
+                  <span class="text-xs font-black text-rose-500">{{ update.current_expiry }}</span>
+                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Target: {{ update.new_expiry }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <span :class="{
+                  'bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400': update.renewal_status === 'processing',
+                  'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400': update.renewal_status === 'medical' || update.renewal_status === 'fingerprints',
+                  'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400': update.renewal_status === 'submitted',
+                  'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400': update.renewal_status === 'delayed',
+                  'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400': update.renewal_status === 'completed'
+                }" class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest">
+                  {{ update.renewal_status }}
+                </span>
+                <p v-if="update.renewal_notes" class="text-[9px] text-slate-400 mt-1 max-w-[150px] truncate mx-auto" :title="update.renewal_notes">
+                  {{ update.renewal_notes }}
+                </p>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button @click="openTrackingModal(update)" class="p-1.5 text-slate-400 hover:text-blue-600 transition-colors" title="Update Status">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </button>
+                  <router-link :to="`/admin/staff?search=${update.staff_name}`" class="text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg transition-all">
+                    Update System
+                  </router-link>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-else class="p-12 text-center">
+        <div class="w-12 h-12 bg-slate-50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">All documentation records are currently up to date</p>
+      </div>
+    </div>
 
     <!-- Collection Details Modal -->
     <Modal :show="showCollectionModal" title="Collection & Company Details" @close="showCollectionModal = false" maxWidth="4xl">
@@ -246,6 +324,54 @@
         </div>
       </template>
     </Modal>
+
+    <!-- Renewal Tracking Modal -->
+    <Modal :show="showTrackingModal" title="Update Renewal Status" @close="showTrackingModal = false">
+      <div v-if="selectedRenewal" class="p-6 space-y-6">
+        <div class="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+          <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 font-black">{{ selectedRenewal.staff_name[0] }}</div>
+          <div>
+            <p class="text-sm font-black text-slate-800 dark:text-white">{{ selectedRenewal.staff_name }}</p>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ selectedRenewal.type }} Renewal Tracking</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Process Status</label>
+            <select v-model="trackingForm.renewal_status" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all">
+              <option value="processing">🔄 Initial Processing</option>
+              <option value="medical">🏥 Medical Test Pending</option>
+              <option value="fingerprints">☝️ Fingerprints / Biometrics</option>
+              <option value="submitted">📤 Submitted to Gov</option>
+              <option value="delayed">⚠️ Delayed / Pending Requirement</option>
+              <option value="completed">✅ Completed</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Internal Notes / Progress Remarks</label>
+            <textarea v-model="trackingForm.renewal_notes" rows="4" placeholder="Enter details about why it's taking time, missing documents, etc." class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex items-center justify-between w-full p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+          <div>
+            <button v-if="selectedRenewal?.renewal_status === 'completed'" @click="finalizeRenewal" :disabled="finalizing" class="px-6 py-2 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50 flex items-center gap-2">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+               {{ finalizing ? 'Finalizing...' : 'Finalize & Update Staff' }}
+            </button>
+          </div>
+          <div class="flex items-center gap-3">
+            <button @click="showTrackingModal = false" class="px-6 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-800">Cancel</button>
+            <button @click="updateRenewalTracking" :disabled="savingTracking" class="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50">
+              {{ savingTracking ? 'Saving...' : 'Save Tracking Info' }}
+            </button>
+          </div>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -265,12 +391,15 @@ const stats = ref({
 
 const recentCollections = ref([]);
 const upcomingExpirations = ref([]);
-
-const showCollectionModal = ref(false);
-const loadingDetails = ref(false);
-const selectedCollection = ref(null);
-const companyInfo = ref(null);
-const pendingCollections = ref([]);
+const pendingUpdates = ref([]);
+const showTrackingModal = ref(false);
+const savingTracking = ref(false);
+const finalizing = ref(false);
+const selectedRenewal = ref(null);
+const trackingForm = ref({
+    renewal_status: 'processing',
+    renewal_notes: ''
+});
 
 const icons = {
     users: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
@@ -293,6 +422,7 @@ const fetchDashboardData = async () => {
         stats.value = res.data.stats;
         recentCollections.value = res.data.recentCollections;
         upcomingExpirations.value = res.data.upcomingExpirations || [];
+        pendingUpdates.value = res.data.pendingUpdates || [];
         lastSync.value = new Date().toLocaleTimeString();
     } catch (err) {
         console.error('Failed to load dashboard data', err);
@@ -319,6 +449,52 @@ const viewCollectionDetails = async (collection) => {
     } else {
         companyInfo.value = null;
         pendingCollections.value = [];
+    }
+};
+
+const openTrackingModal = (renewal) => {
+    selectedRenewal.value = renewal;
+    trackingForm.value = {
+        renewal_status: renewal.renewal_status || 'processing',
+        renewal_notes: renewal.renewal_notes || ''
+    };
+    showTrackingModal.value = true;
+};
+
+const updateRenewalTracking = async () => {
+    if (!selectedRenewal.value) return;
+    
+    savingTracking.value = true;
+    try {
+        await api.put(`/expenses/${selectedRenewal.value.id}`, {
+            renewal_status: trackingForm.value.renewal_status,
+            renewal_notes: trackingForm.value.renewal_notes
+        });
+        showTrackingModal.value = false;
+        await fetchDashboardData();
+    } catch (err) {
+        console.error('Failed to update renewal tracking', err);
+        alert('Failed to update status. Please ensure you have run the latest database migrations.');
+    } finally {
+        savingTracking.value = false;
+    }
+};
+
+const finalizeRenewal = async () => {
+    if (!selectedRenewal.value) return;
+    if (!confirm('This will automatically update the staff record expiry date. Continue?')) return;
+    
+    finalizing.value = true;
+    try {
+        await api.post(`/expenses/${selectedRenewal.value.id}/finalize`);
+        showTrackingModal.value = false;
+        // Redirect to staff detail
+        router.push(`/admin/staff/${selectedRenewal.value.staff_id}`);
+    } catch (err) {
+        console.error('Finalization failed', err);
+        alert('Failed to finalize renewal');
+    } finally {
+        finalizing.value = false;
     }
 };
 

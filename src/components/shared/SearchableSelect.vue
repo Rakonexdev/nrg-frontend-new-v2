@@ -62,7 +62,11 @@
              :class="{ 'bg-blue-50/50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400 font-bold': modelValue == option.id, 'text-slate-700 dark:text-slate-300': modelValue != option.id }"
              @click="selectOption(option)"
            >
-             <span class="truncate">{{ option.name }}</span>
+             <div class="flex-1 min-w-0">
+               <slot name="option" :option="option">
+                 <span class="truncate block">{{ option.name }}</span>
+               </slot>
+             </div>
              <svg 
                v-if="modelValue == option.id" 
                class="w-4 h-4 text-blue-500" 
@@ -134,9 +138,13 @@
    let results = props.options;
    if (search.value) {
      const q = search.value.toLowerCase();
-     results = results.filter(opt => 
-       opt.name.toLowerCase().includes(q)
-     );
+     results = results.filter(opt => {
+        const nameMatch = opt.name?.toLowerCase().includes(q);
+        const qidMatch = opt.qid_number?.toString().toLowerCase().includes(q);
+        const mobileMatch = opt.mobile?.toString().toLowerCase().includes(q);
+        const companyMatch = opt.company_name?.toLowerCase().includes(q);
+        return nameMatch || qidMatch || mobileMatch || companyMatch;
+     });
    }
    // Limit to 100 results to maintain performance with 2000+ items
    return results.slice(0, 100);
