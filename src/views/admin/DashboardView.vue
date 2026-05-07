@@ -16,7 +16,7 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <router-link to="/admin/staff" class="block group h-full">
         <KpiCard 
           title="Total Staff" 
@@ -28,22 +28,60 @@
       </router-link>
       <router-link to="/admin/staff?filter=expiring_qid" class="block group h-full">
         <KpiCard 
-          title="QID Expiry (This Month)" 
+          title="QID Expiry" 
           :value="stats.expiring_qid" 
           :icon="icons.alert" 
           color-class="bg-amber-500" 
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
-      <router-link to="/admin/staff?filter=expired_passport" class="block group h-full">
+      <router-link to="/admin/staff?filter=expiring_passport" class="block group h-full">
         <KpiCard 
-          title="Passport Expiry (This Month)" 
+          title="Passport Expiry" 
           :value="stats.expired_passport" 
           :icon="icons.document" 
           color-class="bg-rose-500" 
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
+      <div @click="showRenewingModal = true" class="block group h-full">
+        <KpiCard 
+          title="Renewing This Month" 
+          :value="stats.renewing_contracts" 
+          :icon="icons.clock" 
+          color-class="bg-indigo-600" 
+          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+        />
+      </div>
+    </div>
+    
+    <!-- Financial Metrics Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="block h-full">
+        <KpiCard 
+          title="Total Collected" 
+          :value="`QAR ${formatCurrency(stats.total_collected)}`" 
+          :icon="icons.currency" 
+          color-class="bg-emerald-600" 
+        />
+      </div>
+      <router-link to="/admin/staff?filter=pending_collection" class="block group h-full">
+        <KpiCard 
+          title="Pending Collection" 
+          :value="`QAR ${formatCurrency(stats.total_pending)}`" 
+          :icon="icons.clock" 
+          color-class="bg-amber-600" 
+          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+        />
+      </router-link>
+      <div class="block h-full">
+        <KpiCard 
+          title="Contract Profit" 
+          :value="`QAR ${formatCurrency(stats.total_profit)}`" 
+          :icon="icons.trending" 
+          color-class="bg-blue-600" 
+        />
+      </div>
     </div>
 
     <!-- Data Tables Section -->
@@ -105,107 +143,43 @@
         </div>
       </div>
 
-        <!-- Upcoming Expirations -->
-      <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden relative">
-          <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-6">Upcoming Expirations</h3>
-          <div class="space-y-4">
-              <div v-for="staff in upcomingExpirations" :key="staff.id" class="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
-                  <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
-                      <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <!-- Column for Alerts -->
+        <div class="space-y-8">
+          <!-- Upcoming Expirations -->
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden relative h-fit">
+              <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-6">Upcoming Expirations</h3>
+              <div class="space-y-4">
+                  <div v-for="staff in upcomingExpirations" :key="staff.id" class="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
+                      <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
+                          <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      </div>
+                      <div class="min-w-0 flex-1">
+                          <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ staff.name }}</p>
+                          <p class="text-xs" :class="staff.status === 'critical' ? 'text-red-500 font-bold' : (staff.status === 'warning' ? 'text-amber-500 font-medium' : 'text-slate-500')">
+                            <template v-if="staff.days < 0">
+                              {{ staff.type }} expired {{ Math.abs(staff.days) }} days ago
+                            </template>
+                            <template v-else-if="staff.days === 0">
+                              {{ staff.type }} expires today
+                            </template>
+                            <template v-else>
+                              {{ staff.type }} expires in {{ staff.days }} days
+                            </template>
+                          </p>
+                      </div>
+                      <router-link :to="`/admin/staff?search=${staff.name}`" class="text-xs font-bold text-blue-600 hover:text-blue-700">View</router-link>
                   </div>
-                  <div class="min-w-0 flex-1">
-                      <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ staff.name }}</p>
-                      <p class="text-xs" :class="staff.status === 'critical' ? 'text-red-500 font-bold' : (staff.status === 'warning' ? 'text-amber-500 font-medium' : 'text-slate-500')">
-                        {{ staff.type }} expires in {{ staff.days }} days
-                      </p>
+                  <div v-if="!upcomingExpirations.length" class="py-10 text-center text-slate-400 italic text-sm">
+                      No expirations in the next 30 days.
                   </div>
-                  <router-link :to="`/admin/staff?search=${staff.name}`" class="text-xs font-bold text-blue-600 hover:text-blue-700">View</router-link>
               </div>
-              <div v-if="!upcomingExpirations.length" class="py-10 text-center text-slate-400 italic text-sm">
-                  No expirations in the next 30 days.
-              </div>
+              <router-link to="/admin/staff?filter=expiring_qid" class="block w-full mt-6 py-2 text-center text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 transition-colors bg-slate-50 dark:bg-slate-700 rounded-lg">View All Expiry Alerts</router-link>
           </div>
-          <router-link to="/admin/staff?filter=expiring_qid" class="block w-full mt-6 py-2 text-center text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 transition-colors bg-slate-50 dark:bg-slate-700 rounded-lg">View All Alerts</router-link>
+
+        </div>
       </div>
-    </div>
     
-    <!-- In-Progress Renewals Row -->
-    <div class="mt-8 bg-white dark:bg-slate-800 p-0 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden mb-8">
-      <div class="flex items-center justify-between p-6 pb-2">
-        <div>
-          <h3 class="text-lg font-bold text-slate-800 dark:text-white">In-Progress Renewals</h3>
-          <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-0.5">Fees paid, but system record pending update</p>
-        </div>
-      </div>
-      
-      <div v-if="pendingUpdates.length > 0" class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead>
-            <tr class="text-[10px] uppercase tracking-widest text-slate-500 border-b border-slate-50 dark:border-slate-700/50">
-              <th class="px-6 py-4 font-black">Staff Member</th>
-              <th class="px-6 py-4 font-black">Document Type</th>
-              <th class="px-6 py-4 font-black">Payment Date</th>
-              <th class="px-6 py-4 font-black">Current System Expiry</th>
-              <th class="px-6 py-4 font-black text-center">Status</th>
-              <th class="px-6 py-4 font-black text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
-            <tr v-for="update in pendingUpdates" :key="update.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-              <td class="px-6 py-4">
-                <span class="text-sm font-black text-slate-800 dark:text-white">{{ update.staff_name }}</span>
-              </td>
-              <td class="px-6 py-4">
-                <span class="px-2 py-0.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
-                  {{ update.type }} Renewal
-                </span>
-              </td>
-              <td class="px-6 py-4">
-                <span class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ update.expense_date }}</span>
-              </td>
-              <td class="px-6 py-4">
-                <div class="flex flex-col">
-                  <span class="text-xs font-black text-rose-500">{{ update.current_expiry }}</span>
-                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Target: {{ update.new_expiry }}</span>
-                </div>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <span :class="{
-                  'bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400': update.renewal_status === 'processing',
-                  'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400': update.renewal_status === 'medical' || update.renewal_status === 'fingerprints',
-                  'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400': update.renewal_status === 'submitted',
-                  'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400': update.renewal_status === 'delayed',
-                  'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400': update.renewal_status === 'completed'
-                }" class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest">
-                  {{ update.renewal_status }}
-                </span>
-                <p v-if="update.renewal_notes" class="text-[9px] text-slate-400 mt-1 max-w-[150px] truncate mx-auto" :title="update.renewal_notes">
-                  {{ update.renewal_notes }}
-                </p>
-              </td>
-              <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <button @click="openTrackingModal(update)" class="p-1.5 text-slate-400 hover:text-blue-600 transition-colors" title="Update Status">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                  </button>
-                  <router-link :to="`/admin/staff?search=${update.staff_name}`" class="text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg transition-all">
-                    Update System
-                  </router-link>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div v-else class="p-12 text-center">
-        <div class="w-12 h-12 bg-slate-50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-3">
-          <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        </div>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">All documentation records are currently up to date</p>
-      </div>
-    </div>
+
 
     <!-- Collection Details Modal -->
     <Modal :show="showCollectionModal" title="Collection & Company Details" @close="showCollectionModal = false" maxWidth="4xl">
@@ -325,52 +299,52 @@
       </template>
     </Modal>
 
-    <!-- Renewal Tracking Modal -->
-    <Modal :show="showTrackingModal" title="Update Renewal Status" @close="showTrackingModal = false">
-      <div v-if="selectedRenewal" class="p-6 space-y-6">
-        <div class="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-          <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 font-black">{{ selectedRenewal.staff_name[0] }}</div>
-          <div>
-            <p class="text-sm font-black text-slate-800 dark:text-white">{{ selectedRenewal.staff_name }}</p>
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ selectedRenewal.type }} Renewal Tracking</p>
-          </div>
-        </div>
 
-        <div class="space-y-4">
-          <div>
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Process Status</label>
-            <select v-model="trackingForm.renewal_status" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all">
-              <option value="processing">🔄 Initial Processing</option>
-              <option value="medical">🏥 Medical Test Pending</option>
-              <option value="fingerprints">☝️ Fingerprints / Biometrics</option>
-              <option value="submitted">📤 Submitted to Gov</option>
-              <option value="delayed">⚠️ Delayed / Pending Requirement</option>
-              <option value="completed">✅ Completed</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Internal Notes / Progress Remarks</label>
-            <textarea v-model="trackingForm.renewal_notes" rows="4" placeholder="Enter details about why it's taking time, missing documents, etc." class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
-          </div>
+    <!-- Renewing Contracts Modal -->
+    <Modal :show="showRenewingModal" @close="showRenewingModal = false" title="Contracts Renewing Soon" max-width="2xl">
+      <div class="p-6">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-separate border-spacing-0">
+            <thead>
+              <tr class="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                <th class="px-4 py-3 font-black border-b border-slate-50 dark:border-slate-700/50">Staff Name</th>
+                <th class="px-4 py-3 font-black border-b border-slate-50 dark:border-slate-700/50">Company</th>
+                <th class="px-4 py-3 font-black border-b border-slate-50 dark:border-slate-700/50">Renewal Date</th>
+                <th class="px-4 py-3 font-black border-b border-slate-50 dark:border-slate-700/50 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
+              <tr v-for="contract in renewingContracts" :key="contract.id" class="group hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors">
+                <td class="px-4 py-4">
+                  <div class="font-bold text-slate-800 dark:text-white">{{ contract.staff_name }}</div>
+                </td>
+                <td class="px-4 py-4">
+                  <div class="text-xs text-slate-500 dark:text-slate-400">{{ contract.staff?.company?.name || 'N/A' }}</div>
+                </td>
+                <td class="px-4 py-4">
+                  <div class="flex flex-col">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ formatDate(contract.end_date) }}</span>
+                    <span class="text-[10px] text-slate-400">{{ contract.days }} days remaining</span>
+                  </div>
+                </td>
+                <td class="px-4 py-4 text-right">
+                  <span :class="getStatusClass(contract.status)" class="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                    {{ contract.status }}
+                  </span>
+                </td>
+              </tr>
+              <tr v-if="renewingContracts.length === 0">
+                <td colspan="4" class="px-4 py-12 text-center">
+                  <div class="flex flex-col items-center justify-center space-y-2">
+                    <svg class="w-8 h-8 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span class="text-sm text-slate-400 italic">No contracts renewing this month</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <template #footer>
-        <div class="flex items-center justify-between w-full p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-          <div>
-            <button v-if="selectedRenewal?.renewal_status === 'completed'" @click="finalizeRenewal" :disabled="finalizing" class="px-6 py-2 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50 flex items-center gap-2">
-               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-               {{ finalizing ? 'Finalizing...' : 'Finalize & Update Staff' }}
-            </button>
-          </div>
-          <div class="flex items-center gap-3">
-            <button @click="showTrackingModal = false" class="px-6 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-800">Cancel</button>
-            <button @click="updateRenewalTracking" :disabled="savingTracking" class="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50">
-              {{ savingTracking ? 'Saving...' : 'Save Tracking Info' }}
-            </button>
-          </div>
-        </div>
-      </template>
     </Modal>
   </div>
 </template>
@@ -386,26 +360,28 @@ const lastSync = ref(new Date().toLocaleTimeString());
 const stats = ref({
     total_staff: 0,
     expiring_qid: 0,
-    expired_passport: 0
+    expired_passport: 0,
+    renewing_contracts: 0,
+    total_collected: 0,
+    total_pending: 0,
+    total_profit: 0
 });
 
 const recentCollections = ref([]);
 const upcomingExpirations = ref([]);
+const renewingContracts = ref([]);
 const pendingUpdates = ref([]);
-const showTrackingModal = ref(false);
-const savingTracking = ref(false);
-const finalizing = ref(false);
+const showRenewingModal = ref(false);
 const selectedRenewal = ref(null);
-const trackingForm = ref({
-    renewal_status: 'processing',
-    renewal_notes: ''
-});
 
 const icons = {
     users: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
     briefcase: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
     alert: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
-    document: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
+    document: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
+    currency: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
+    clock: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
+    trending: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
 };
 
 const formatCurrency = (val) => {
@@ -415,6 +391,22 @@ const formatCurrency = (val) => {
   });
 }
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return 'N/A';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+const getStatusClass = (status) => {
+  switch (status) {
+    case 'critical': return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
+    case 'warning': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+    case 'expired': return 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400';
+    case 'info': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+    default: return 'bg-slate-100 text-slate-500';
+  }
+};
+
 const fetchDashboardData = async () => {
     loading.value = true;
     try {
@@ -422,6 +414,7 @@ const fetchDashboardData = async () => {
         stats.value = res.data.stats;
         recentCollections.value = res.data.recentCollections;
         upcomingExpirations.value = res.data.upcomingExpirations || [];
+        renewingContracts.value = res.data.renewingContracts || [];
         pendingUpdates.value = res.data.pendingUpdates || [];
         lastSync.value = new Date().toLocaleTimeString();
     } catch (err) {
@@ -452,51 +445,7 @@ const viewCollectionDetails = async (collection) => {
     }
 };
 
-const openTrackingModal = (renewal) => {
-    selectedRenewal.value = renewal;
-    trackingForm.value = {
-        renewal_status: renewal.renewal_status || 'processing',
-        renewal_notes: renewal.renewal_notes || ''
-    };
-    showTrackingModal.value = true;
-};
 
-const updateRenewalTracking = async () => {
-    if (!selectedRenewal.value) return;
-    
-    savingTracking.value = true;
-    try {
-        await api.put(`/expenses/${selectedRenewal.value.id}`, {
-            renewal_status: trackingForm.value.renewal_status,
-            renewal_notes: trackingForm.value.renewal_notes
-        });
-        showTrackingModal.value = false;
-        await fetchDashboardData();
-    } catch (err) {
-        console.error('Failed to update renewal tracking', err);
-        alert('Failed to update status. Please ensure you have run the latest database migrations.');
-    } finally {
-        savingTracking.value = false;
-    }
-};
-
-const finalizeRenewal = async () => {
-    if (!selectedRenewal.value) return;
-    if (!confirm('This will automatically update the staff record expiry date. Continue?')) return;
-    
-    finalizing.value = true;
-    try {
-        await api.post(`/expenses/${selectedRenewal.value.id}/finalize`);
-        showTrackingModal.value = false;
-        // Redirect to staff detail
-        router.push(`/admin/staff/${selectedRenewal.value.staff_id}`);
-    } catch (err) {
-        console.error('Finalization failed', err);
-        alert('Failed to finalize renewal');
-    } finally {
-        finalizing.value = false;
-    }
-};
 
 onMounted(() => fetchDashboardData());
 </script>

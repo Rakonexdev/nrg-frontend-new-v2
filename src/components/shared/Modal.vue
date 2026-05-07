@@ -1,10 +1,10 @@
 <template>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="show" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-        <div :class="['bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl w-full overflow-hidden transform transition-all scale-100 border border-white/20', maxWidthClass]">
+      <div v-if="show" class="fixed inset-0 z-[100] flex justify-center items-start p-4 md:p-10 bg-slate-900/60 backdrop-blur-md overflow-y-auto">
+        <div :class="['bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl w-full my-auto md:my-0 overflow-hidden transform transition-all scale-100 border border-white/20', maxWidthClass]">
           <!-- Header -->
-          <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
+          <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-800 z-10">
             <h3 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">{{ title }}</h3>
             <button @click="$emit('close')" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all hover:rotate-90">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -12,7 +12,7 @@
           </div>
           
           <!-- Content -->
-          <div class="px-8 py-8 overflow-y-auto max-h-[85vh] custom-scrollbar">
+          <div class="px-8 py-8 overflow-y-auto max-h-[70vh] custom-scrollbar">
             <slot></slot>
           </div>
           

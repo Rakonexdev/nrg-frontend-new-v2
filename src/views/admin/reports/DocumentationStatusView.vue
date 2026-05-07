@@ -36,7 +36,7 @@
           <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </span>
-          <input v-model="search" type="text" placeholder="Search staff or document type..." class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all" />
+          <input v-model="search" type="text" placeholder="Search staff, QID, phone or document type..." class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all" />
         </div>
       </div>
 
@@ -57,7 +57,12 @@
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black text-slate-500">{{ item.staff_name[0] }}</div>
-                  <span class="text-sm font-black text-slate-800 dark:text-white">{{ item.staff_name }}</span>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-black text-slate-800 dark:text-white">{{ item.staff_name }}</span>
+                    <span v-if="item.staff?.branch_name" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                        {{ item.staff.branch_name }}<span v-if="item.staff.branch_number">-{{ item.staff.branch_number }}</span>
+                    </span>
+                  </div>
                 </div>
               </td>
               <td class="px-6 py-4">
@@ -99,12 +104,12 @@
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
-                  <button @click="openTrackingModal(item)" class="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg hover:bg-blue-100 transition-all shadow-sm" title="Update Status">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                  </button>
-                  <router-link :to="`/admin/staff?search=${item.staff_name}`" class="p-2 bg-slate-50 dark:bg-slate-700/50 text-slate-500 rounded-lg hover:bg-slate-100 transition-all shadow-sm" title="View Staff">
+                  <router-link :to="{ name: 'admin-staff', query: { edit: item.staff_id, search: item.staff?.name } }" class="p-2 bg-slate-50 dark:bg-slate-800 text-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-sm" title="Update Documents">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                   </router-link>
+                  <button @click="openTrackingModal(item)" class="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg hover:bg-blue-100 transition-all shadow-sm" title="Update Status">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -132,31 +137,57 @@
               <option value="medical">🏥 Medical Test Pending</option>
               <option value="fingerprints">☝️ Fingerprints / Biometrics</option>
               <option value="submitted">📤 Submitted to Gov</option>
+              <option value="qid_upload">🪪 QID Document Upload</option>
+              <option value="passport_upload">🛂 Passport Document Upload</option>
               <option value="delayed">⚠️ Delayed / Pending Requirement</option>
               <option value="completed">✅ Completed</option>
             </select>
+          </div>
+
+          <!-- Conditional File Uploads based on Status -->
+          <div v-if="form.renewal_status === 'qid_upload' || (form.renewal_status === 'completed' && selectedItem.type === 'QID')" class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800/50 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+            <label class="block text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest ml-1">
+              Select New QID Scan
+            </label>
+            <input 
+              type="file" 
+              @change="e => handleFileChange(e, 'qid')" 
+              accept=".jpg,.jpeg,.png,.pdf"
+              class="w-full text-[10px] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition-all cursor-pointer" 
+            />
+          </div>
+
+          <div v-if="form.renewal_status === 'passport_upload' || (form.renewal_status === 'completed' && selectedItem.type === 'Passport')" class="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-800/50 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+            <label class="block text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest ml-1">
+              Select New Passport Scan
+            </label>
+            <input 
+              type="file" 
+              @change="e => handleFileChange(e, 'passport')" 
+              accept=".jpg,.jpeg,.png,.pdf"
+              class="w-full text-[10px] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-rose-600 file:text-white hover:file:bg-rose-700 transition-all cursor-pointer" 
+            />
           </div>
 
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Internal Notes / Progress Remarks</label>
             <textarea v-model="form.renewal_notes" rows="4" placeholder="Enter details about why it's taking time, missing documents, etc." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"></textarea>
           </div>
+
         </div>
       </div>
       <template #footer>
-        <div class="flex items-center justify-between w-full p-6 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800">
-          <div>
-            <button v-if="selectedItem?.renewal_status === 'completed'" @click="finalize" :disabled="finalizing" class="px-6 py-3 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-500/30 disabled:opacity-50 flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-              {{ finalizing ? 'Finalizing...' : 'Finalize & Update Staff Record' }}
-            </button>
-          </div>
-          <div class="flex items-center gap-3">
-            <button @click="showModal = false" class="px-6 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors">Cancel</button>
-            <button @click="save" :disabled="saving" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/30 disabled:opacity-50">
-              {{ saving ? 'Saving...' : 'Update Tracking' }}
-            </button>
-          </div>
+        <div class="flex items-center justify-end w-full p-6 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 gap-3">
+          <button @click="showModal = false" class="px-6 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors">Cancel</button>
+          
+          <button @click="save" :disabled="saving" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/30 disabled:opacity-50">
+            {{ saving ? 'Saving...' : 'Update Progress' }}
+          </button>
+
+          <button v-if="form.renewal_status === 'completed'" @click="finalize" :disabled="finalizing" class="px-8 py-3 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-500/30 disabled:opacity-50 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            {{ finalizing ? 'Finalizing...' : 'Finalize & Update Staff Record' }}
+          </button>
         </div>
       </template>
     </Modal>
@@ -182,6 +213,14 @@ const form = ref({
   renewal_notes: ''
 });
 
+const qid_files = ref([]);
+const passport_files = ref([]);
+
+const handleFileChange = (e, type) => {
+    if (type === 'qid') qid_files.value = Array.from(e.target.files);
+    else passport_files.value = Array.from(e.target.files);
+};
+
 const stats = computed(() => {
   return {
     processing: items.value.filter(i => i.renewal_status === 'processing').length,
@@ -193,9 +232,13 @@ const filteredItems = computed(() => {
   if (!search.value) return items.value;
   const s = search.value.toLowerCase();
   return items.value.filter(i => 
-    i.staff_name.toLowerCase().includes(s) || 
-    i.type.toLowerCase().includes(s) ||
-    (i.renewal_notes && i.renewal_notes.toLowerCase().includes(s))
+    (i.staff_name && String(i.staff_name).toLowerCase().includes(s)) || 
+    (i.type && String(i.type).toLowerCase().includes(s)) ||
+    (i.renewal_notes && String(i.renewal_notes).toLowerCase().includes(s)) ||
+    (i.staff?.qid_number && String(i.staff.qid_number).toLowerCase().includes(s)) ||
+    (i.staff?.phone && String(i.staff.phone).toLowerCase().includes(s)) ||
+    (i.staff?.branch_name && String(i.staff.branch_name).toLowerCase().includes(s)) ||
+    (i.staff?.branch_number && String(i.staff.branch_number).toLowerCase().includes(s))
   );
 });
 
@@ -217,6 +260,8 @@ const openTrackingModal = (item) => {
     renewal_status: item.renewal_status || 'processing',
     renewal_notes: item.renewal_notes || ''
   };
+  qid_files.value = [];
+  passport_files.value = [];
   showModal.value = true;
 };
 
@@ -224,12 +269,25 @@ const save = async () => {
   if (!selectedItem.value) return;
   saving.value = true;
   try {
-    await api.put(`/expenses/${selectedItem.value.id}`, form.value);
+    const formData = new FormData();
+    formData.append('_method', 'PUT');
+    formData.append('renewal_status', form.value.renewal_status);
+    formData.append('renewal_notes', form.value.renewal_notes || '');
+    
+    qid_files.value.forEach(file => formData.append('qid_files[]', file));
+    passport_files.value.forEach(file => formData.append('passport_files[]', file));
+
+    await api.post(`/expenses/${selectedItem.value.id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    
     showModal.value = false;
     await fetchData();
+    qid_files.value = [];
+    passport_files.value = [];
   } catch (err) {
     console.error('Save failed', err);
-    alert('Failed to save tracking info. Please ensure you have run the latest database migrations.');
+    alert('Failed to save tracking info.');
   } finally {
     saving.value = false;
   }

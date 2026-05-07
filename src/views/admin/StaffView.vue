@@ -76,16 +76,28 @@
       <template #company_name="{ row }">
         <div class="flex flex-col">
           <span class="font-semibold text-slate-700 dark:text-slate-300">{{ row.company?.name || 'N/A' }}</span>
-          <span v-if="row.branch" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{{ row.branch.name }}</span>
+          <span v-if="row.branch" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+            {{ row.branch.name }}<span v-if="row.branch.branch_number">-{{ row.branch.branch_number }}</span>
+          </span>
         </div>
       </template>
 
-      <template #qid_expiry="{ value }">
-        <span :class="expiryClass(value)">{{ formatDate(value) }}</span>
+      <template #qid_expiry="{ value, row }">
+        <div class="flex flex-col">
+          <span :class="expiryClass(value)">{{ formatDate(value) }}</span>
+          <span v-if="row.qid_days_left !== null" class="text-[10px] font-bold" :class="row.qid_days_left <= 0 ? 'text-red-500' : 'text-slate-400'">
+            {{ row.qid_days_left > 0 ? '+' : '' }}{{ row.qid_days_left }} Days
+          </span>
+        </div>
       </template>
 
-      <template #passport_expiry="{ value }">
-        <span :class="expiryClass(value)">{{ formatDate(value) }}</span>
+      <template #passport_expiry="{ value, row }">
+        <div class="flex flex-col">
+          <span :class="expiryClass(value)">{{ formatDate(value) }}</span>
+          <span v-if="row.passport_days_left !== null" class="text-[10px] font-bold" :class="row.passport_days_left <= 0 ? 'text-red-500' : 'text-slate-400'">
+            {{ row.passport_days_left > 0 ? '+' : '' }}{{ row.passport_days_left }} Days
+          </span>
+        </div>
       </template>
 
       <template #status="{ value }">
@@ -102,9 +114,11 @@
           <button @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-indigo-500 transition-colors" title="View Details">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
+
           <button v-if="authStore.hasPermission('staff_edit')" @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Staff">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
+
           <button v-if="authStore.hasPermission('staff_status')" @click="toggleStatus(row)" class="p-1 transition-colors" :class="row.status === 'active' ? 'text-green-500 hover:text-red-500' : 'text-slate-400 hover:text-green-500'" :title="row.status === 'active' ? 'Deactivate Staff' : 'Activate Staff'">
             <svg v-if="row.status === 'active'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -175,7 +189,7 @@
                     v-model="form.branch_id"
                     :options="modalBranchOptions"
                     :disabled="viewMode || !form.company_id"
-                    placeholder="Select Branch"
+                    :placeholder="loadingBranches ? 'Loading branches...' : 'Select Branch'"
                   />
                   <p class="mt-1 ml-1 text-[10px] text-slate-400 italic">Optional: Defaults to Main</p>
                 </div>
@@ -216,12 +230,23 @@
                 :disabled="viewMode"
                 :error="errors.date_of_birth"
               />
-              <DateInput 
-                label="Joining Date"
-                v-model="form.joining_date"
-                :disabled="viewMode"
-                :error="errors.joining_date"
-              />
+              <div class="relative group">
+                <DateInput 
+                  label="Start Contract Date"
+                  v-model="form.joining_date"
+                  :disabled="viewMode"
+                  :error="errors.joining_date"
+                />
+                <div v-if="contractEndPreview && !viewMode" class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                  <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </div>
+                  <div>
+                    <p class="text-[9px] font-black text-blue-500 uppercase tracking-[0.2em] leading-none mb-1">Estimated Contract End</p>
+                    <p class="text-xs font-black text-slate-800 dark:text-white tracking-tight">{{ contractEndPreview }}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -460,7 +485,10 @@ const modalCompanyOptions = computed(() => {
 const branches = ref([]);
 const modalBranchOptions = computed(() => {
   if (!Array.isArray(branches.value)) return [];
-  return branches.value.map(b => ({ id: b.id, name: b.name }));
+  return branches.value.map(b => ({ 
+    id: b.id, 
+    name: b.branch_number ? `${b.name}-${b.branch_number}` : b.name 
+  }));
 });
 
 const nationalities = [
@@ -485,7 +513,6 @@ const form = ref({
   qid_expiry: '',
   joining_date: '',
   status: 'active',
-  company_id: null,
   qid_documents: [],
   passport_documents: [],
   qid_files: [],
@@ -494,6 +521,24 @@ const form = ref({
   passport_previews: [],
   delete_document_ids: []
 });
+
+const contractEndPreview = computed(() => {
+  if (!form.value.joining_date) return null;
+  try {
+    const d = new Date(form.value.joining_date);
+    d.setFullYear(d.getFullYear() + 1);
+    d.setDate(d.getDate() - 1);
+    
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = d.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  } catch (e) {
+    return null;
+  }
+});
+
+const loadingBranches = ref(false);
 
 const columns = [
   { key: 'name', label: 'Name & Contact', sortable: true },
@@ -699,7 +744,6 @@ const openModal = async (staff = null, isView = false) => {
       branch_id: null,
       date_of_birth: '', passport_number: '', passport_expiry: '',
       qid_number: '', qid_expiry: '', joining_date: '', status: 'active',
-      company_id: null,
       qid_documents: [], passport_documents: [],
       qid_files: [], passport_files: [],
       qid_previews: [], passport_previews: [],
@@ -786,13 +830,35 @@ const handleCompanyChange = (companyId) => {
 };
 
 const fetchBranches = async (companyId) => {
+    if (!companyId) {
+        branches.value = [];
+        return;
+    }
+    loadingBranches.value = true;
     try {
         const res = await branchService.getAll(companyId);
-        branches.value = res.data;
+        branches.value = Array.isArray(res.data) ? res.data : (res.data.data || []);
+        
+        // Auto-select if only one branch exists
+        if (branches.value.length === 1 && !form.value.branch_id) {
+            form.value.branch_id = branches.value[0].id;
+        }
     } catch (err) {
         console.error('Failed to fetch branches', err);
+        branches.value = [];
+    } finally {
+        loadingBranches.value = false;
     }
 };
+
+// Sync branches if company_id changes externally (e.g. on load)
+watch(() => form.value.company_id, (newId, oldId) => {
+    if (newId !== oldId && newId) {
+        fetchBranches(newId);
+    } else if (!newId) {
+        branches.value = [];
+    }
+});
 
 // Utilities
 const formatDate = (date) => {
@@ -815,12 +881,29 @@ const expiryClass = (date) => {
     return 'text-slate-600';
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (route.query.filter) {
     filter.value = route.query.filter;
   }
-  fetchStaff();
-  fetchCompanies(); // Populate filter dropdown
+  if (route.query.search) {
+    search.value = route.query.search;
+  }
+  await Promise.all([
+    fetchStaff(),
+    fetchCompanies()
+  ]);
+
+  // Handle auto-edit from query params
+  if (route.query.edit) {
+    try {
+        const res = await staffService.getById(route.query.edit);
+        if (res.data.success) {
+            openModal(res.data.data);
+        }
+    } catch (err) {
+        console.error('Failed to auto-open edit modal', err);
+    }
+  }
 });
 
 onUnmounted(() => {

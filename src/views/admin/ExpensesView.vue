@@ -118,7 +118,12 @@
       <template #contract="{ row }">
         <div v-if="row.contract" class="flex flex-col">
             <span class="text-sm font-black text-slate-800 dark:text-white tracking-tight">{{ row.contract.staff?.name }} Contract</span>
-            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ row.contract.company?.name || 'Individual' }}</span>
+            <div class="flex items-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                <span>{{ row.contract.company?.name || 'Individual' }}</span>
+                <span v-if="row.contract.staff?.branch" class="text-blue-500 opacity-80">
+                    ({{ row.contract.staff.branch.name }}<span v-if="row.contract.staff.branch.branch_number">-{{ row.contract.staff.branch.branch_number }}</span>)
+                </span>
+            </div>
         </div>
         <span v-else class="text-[10px] font-black text-slate-300 uppercase tracking-widest">General Expense</span>
       </template>
@@ -154,7 +159,7 @@
 
     <!-- Expense Modal -->
     <Modal :show="showModal" :title="viewMode ? `${currentType} Expense Details` : (editMode ? `Edit ${currentType} Expense` : `Record ${currentType} Expense`)" @close="showModal = false" maxWidth="4xl">
-      <form @submit.prevent="saveExpense" class="p-8 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col gap-8">
+      <form @submit.prevent="saveExpense" class="p-6 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col gap-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Date -->
           <DateInput 
@@ -165,16 +170,39 @@
 
           <!-- Contract Linking (Only for Employee type) -->
           <div v-if="currentType === 'Employee'">
-            <SearchableSelect 
-              label="Link to Staff Contract"
-              v-model="form.contract_id"
-              :options="contractsList"
-              placeholder="Select Staff Member's Contract"
-              required
-            />
+              <SearchableSelect 
+                label="Link to Staff Contract"
+                v-model="form.contract_id"
+                :options="contractsList"
+                placeholder="Select Staff Member's Contract"
+                required
+              />
+
+              <!-- Expiry Warnings moved here for better visibility -->
+              <div v-if="selectedContractStaff" class="mt-2 flex flex-wrap gap-2">
+                  <!-- QID Expiry Warning -->
+                  <div v-if="selectedContractStaff?.qid_expiry" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border shadow-sm animate-in zoom-in-95 duration-300" 
+                       :class="getDaysDiff(selectedContractStaff.qid_expiry) <= 30 ? 'border-rose-200 text-rose-600' : 'border-slate-200 text-slate-500'">
+                      <svg class="w-3.5 h-3.5" :class="getDaysDiff(selectedContractStaff.qid_expiry) <= 30 ? 'animate-pulse' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      <span class="text-[10px] font-black uppercase tracking-tight">QID Expiry: {{ formatDate(selectedContractStaff.qid_expiry) }}</span>
+                      <span v-if="getDaysDiff(selectedContractStaff.qid_expiry) <= 30" class="text-[9px] font-black px-1.5 py-0.5 bg-rose-100 dark:bg-rose-900/30 rounded-lg ml-1">
+                          {{ getDaysDiff(selectedContractStaff.qid_expiry) <= 0 ? 'Expired' : getDaysDiff(selectedContractStaff.qid_expiry) + ' Days Left' }}
+                      </span>
+                  </div>
+
+                  <!-- Passport Expiry Warning -->
+                  <div v-if="selectedContractStaff?.passport_expiry" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border shadow-sm animate-in zoom-in-95 duration-300 delay-75"
+                       :class="getDaysDiff(selectedContractStaff.passport_expiry) <= 90 ? 'border-amber-200 text-amber-600' : 'border-slate-200 text-slate-500'">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      <span class="text-[10px] font-black uppercase tracking-tight">Passport Expiry: {{ formatDate(selectedContractStaff.passport_expiry) }}</span>
+                      <span v-if="getDaysDiff(selectedContractStaff.passport_expiry) <= 90" class="text-[9px] font-black px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 rounded-lg ml-1">
+                          {{ getDaysDiff(selectedContractStaff.passport_expiry) <= 0 ? 'Expired' : getDaysDiff(selectedContractStaff.passport_expiry) + ' Days Left' }}
+                      </span>
+                  </div>
+              </div>
             
             <!-- Prefilled Company Confirmation -->
-            <div v-if="selectedContractCompany" class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-2xl animate-in fade-in slide-in-from-top-1">
+            <div v-if="selectedContractCompany" class="mt-2 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-2xl animate-in fade-in slide-in-from-top-1">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-lg">
                         {{ selectedContractCompany.charAt(0) }}
@@ -185,12 +213,10 @@
                             <span v-if="selectedContractCompany !== 'Individual'" class="px-1.5 py-0.5 bg-blue-600 text-white text-[8px] font-black rounded uppercase tracking-tight">Active Assignment</span>
                         </div>
                         <p class="text-base font-black text-slate-800 dark:text-white leading-tight uppercase tracking-tight">{{ selectedContractCompany }}</p>
-                        <div class="flex flex-wrap items-center gap-x-3 mt-1">
-                            <p v-if="selectedContractProfession" class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                                Staff Profession: {{ selectedContractProfession }}
-                            </p>
-                        </div>
+                        <p v-if="selectedContractProfession" class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                            <svg class="w-3.5 h-3.5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            Profession: {{ selectedContractProfession }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -211,9 +237,9 @@
 
           <!-- Subcategory -->
           <div>
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Sub Category</label>
-            <select v-model="form.subcategory_id" :disabled="!availableSubcategories.length" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold disabled:opacity-50">
-                <option value="">No Subcategory</option>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Sub Category <span class="text-rose-500">*</span></label>
+            <select v-model="form.subcategory_id" :disabled="!availableSubcategories.length" @change="handleSubcategoryChange" required class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold disabled:opacity-50">
+                <option value="">Select Subcategory</option>
                 <option v-for="sub in availableSubcategories" :key="sub.id" :value="sub.id">{{ sub.name }}</option>
             </select>
           </div>
@@ -229,22 +255,23 @@
           
           <!-- Reason -->
           <div class="md:col-span-2">
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason / Expense Name</label>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason / Expense Name <span class="text-rose-500">*</span></label>
             <input v-model="form.description" type="text" required class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold tracking-tight placeholder:font-medium" placeholder="e.g., Office Supplies, Staff Transport, etc.">
           </div>
 
           <!-- Amount & Method -->
           <div class="grid grid-cols-2 gap-4 md:col-span-2">
             <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount (QAR)</label>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount (QAR) <span class="text-rose-500">*</span></label>
                 <div class="relative">
                     <span class="absolute left-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">QAR</span>
                     <input v-model="form.amount" type="number" step="0.01" required class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-2xl" placeholder="0.00">
                 </div>
             </div>
             <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment Method</label>
-                <select v-model="form.payment_method" class="w-full px-5 py-[22px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment Method <span class="text-rose-500">*</span></label>
+                <select v-model="form.payment_method" required class="w-full px-5 py-[22px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold">
+                    <option value="">Select Method</option>
                     <option value="Cash">Cash</option>
                     <option value="Bank Transfer">Bank Transfer</option>
                     <option value="Card">Card</option>
@@ -347,35 +374,32 @@ const availableSubcategories = computed(() => {
 const contractsList = ref([]);
 const rawContracts = ref([]);
 
-const selectedContractStaffName = computed(() => {
-    if (!form.value.contract_id) return '';
+const selectedContractStaff = computed(() => {
+    if (!form.value.contract_id) return null;
     const contract = rawContracts.value.find(c => c.id == form.value.contract_id);
-    return contract?.staff?.name || '';
+    return contract?.staff || null;
 });
+
+const selectedContractStaffName = computed(() => selectedContractStaff.value?.name || '');
 
 const selectedContractCompany = computed(() => {
-    if (!form.value.contract_id) return '';
-    const contract = rawContracts.value.find(c => c.id == form.value.contract_id);
-    // Use company name from staff if available, otherwise Individual
-    return contract?.staff?.company?.name || contract?.staff?.company_name || 'Individual';
+    if (!selectedContractStaff.value) return '';
+    return selectedContractStaff.value.company?.name || selectedContractStaff.value.company_name || 'Individual';
 });
 
-const selectedContractProfession = computed(() => {
-    if (!form.value.contract_id) return '';
-    const contract = rawContracts.value.find(c => c.id == form.value.contract_id);
-    return contract?.staff?.profession || '';
-});
+const selectedContractProfession = computed(() => selectedContractStaff.value?.profession || '');
 
-// Auto-suggest description based on selection
-watch([() => form.value.contract_id, () => form.value.category_id], ([newContractId, newCatId]) => {
-    if (currentType.value === 'Employee' && newContractId && newCatId && !editMode.value) {
-        const staffName = selectedContractStaffName.value;
-        const category = allCategories.value.find(c => c.id == newCatId);
-        if (staffName && category && !form.value.description) {
-            form.value.description = `${staffName} - ${category.name}`;
-        }
-    }
-});
+const getDaysDiff = (date) => {
+    if (!date) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiry = new Date(date);
+    expiry.setHours(0, 0, 0, 0);
+    const diffTime = expiry - today;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
+
 
 const columns = [
   { key: 'expense_date', label: 'Date', sortable: true },
@@ -396,7 +420,44 @@ const showValidationDateField = computed(() => {
 
 const handleCategoryChange = () => {
     form.value.subcategory_id = '';
+    updateAutomaticDescription();
 };
+
+const handleSubcategoryChange = () => {
+    updateAutomaticDescription();
+};
+
+const updateAutomaticDescription = () => {
+    if (!form.value.category_id) {
+        form.value.description = '';
+        return;
+    }
+
+    const cat = allCategories.value.find(c => c.id == form.value.category_id);
+    const sub = form.value.subcategory_id ? allCategories.value.find(s => s.id == form.value.subcategory_id) : null;
+    
+    if (sub) {
+        const name = sub.name.toLowerCase();
+        if (name.includes('qid')) {
+            const dateStr = selectedContractStaff.value?.qid_expiry ? ` (${formatDate(selectedContractStaff.value.qid_expiry)})` : '';
+            form.value.description = `QID Expenses${dateStr}`;
+        } else if (name.includes('passport') || name.includes('pp')) {
+            const dateStr = selectedContractStaff.value?.passport_expiry ? ` (${formatDate(selectedContractStaff.value.passport_expiry)})` : '';
+            form.value.description = `Passport Expenses${dateStr}`;
+        } else {
+            form.value.description = `${sub.name} Expenses`;
+        }
+    } else if (cat) {
+        form.value.description = `${cat.name} Expenses`;
+    }
+};
+
+// Re-update description when contract/staff changes to catch the correct expiry dates
+watch(() => form.value.contract_id, () => {
+    if (!editMode.value) { // Only auto-fill in create mode
+        updateAutomaticDescription();
+    }
+});
 
 const fetchResources = async () => {
     try {
@@ -512,7 +573,7 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
         amount: 0,
         expense_date: new Date().toISOString().split('T')[0],
         validation_date: null,
-        payment_method: 'Cash',
+        payment_method: '',
         description: '',
         contract_id: null,
         staff_id: null,

@@ -50,22 +50,7 @@
                 </div>
             </div>
 
-            <div class="glass p-8 rounded-[2.5rem] space-y-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 font-bold text-xs">!</div>
-                    <h3 class="text-xs font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em]">Emergency Information</h3>
-                </div>
-                <div class="space-y-4">
-                    <div class="flex flex-col gap-1 p-4 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-700/50">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contact Person</span>
-                        <span class="text-sm font-black text-slate-700 dark:text-white capitalize">{{ staff.emergency_contact_name || 'Relative' }}</span>
-                    </div>
-                    <div class="flex flex-col gap-1 p-4 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-700/50">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contact Phone</span>
-                        <span class="text-sm font-black text-slate-700 dark:text-white">{{ staff.emergency_contact_number || 'N/A' }}</span>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
         <!-- Right Column: Details & Actions -->
@@ -81,7 +66,6 @@
                             <p class="text-xs font-bold text-slate-400 tracking-wide uppercase mt-0.5">Comprehensive Identity & Work History</p>
                         </div>
                     </div>
-                    <button class="px-8 py-3 bg-slate-800 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-black text-xs shadow-xl transition-all hover:-translate-y-1 active:scale-95">Edit Profile</button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -100,28 +84,34 @@
                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                        </div>
                        <div>
-                           <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Joining Date</p>
+                           <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Start Contract Date</p>
                            <p class="text-lg font-black text-slate-800 dark:text-white">{{ formatDate(staff.joining_date || staff.created_at) }}</p>
                        </div>
                     </div>
 
                     <div class="p-6 rounded-3xl bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 flex items-center gap-5">
-                       <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-teal-500">
-                           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                       <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-rose-500">
+                           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                        </div>
                        <div>
-                           <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Passport Number</p>
-                           <p class="text-lg font-black text-slate-800 dark:text-white">{{ staff.passport_number || 'N/A' }}</p>
+                           <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">QID Expiry</p>
+                           <p class="text-lg font-black text-slate-800 dark:text-white">{{ formatDate(staff.qid_expiry) }}</p>
+                           <span v-if="staff.qid_expiry" class="text-[8px] font-bold text-rose-500 uppercase tracking-tight">
+                               {{ getDaysDiff(staff.qid_expiry) }} Days Left
+                           </span>
                        </div>
                     </div>
 
                     <div class="p-6 rounded-3xl bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 flex items-center gap-5">
                        <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-amber-500">
-                           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                        </div>
                        <div>
-                           <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Employee Status</p>
-                           <p class="text-lg font-black text-slate-800 dark:text-white capitalize">{{ staff.status || 'Verified' }}</p>
+                           <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Passport Expiry</p>
+                           <p class="text-lg font-black text-slate-800 dark:text-white">{{ formatDate(staff.passport_expiry) }}</p>
+                           <span v-if="staff.passport_expiry" class="text-[8px] font-bold text-amber-500 uppercase tracking-tight">
+                               {{ getDaysDiff(staff.passport_expiry) }} Days Left
+                           </span>
                        </div>
                     </div>
                 </div>
@@ -136,6 +126,13 @@
                             <p class="text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest mb-1">Company Name</p>
                             <p class="text-sm font-black text-slate-800 dark:text-white">{{ staff.company_name }}</p>
                         </div>
+                        <div v-if="staff.branch_name">
+                            <p class="text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest mb-1">Assigned Branch</p>
+                            <p class="text-sm font-black text-slate-800 dark:text-white">
+                                {{ staff.branch_name }}
+                                <span v-if="staff.branch_number" class="text-blue-500 ml-1">#{{ staff.branch_number }}</span>
+                            </p>
+                        </div>
                         <div v-if="staff.company_contact_person">
                             <p class="text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest mb-1">Contact Person</p>
                             <p class="text-sm font-black text-slate-800 dark:text-white">{{ staff.company_contact_person }}</p>
@@ -147,9 +144,65 @@
                     </div>
                 </div>
 
-                <div class="mt-8 p-8 bg-blue-50 dark:bg-blue-900/20 rounded-[2rem] border-2 border-dashed border-blue-200 dark:border-blue-800/50">
-                    <h4 class="text-xs font-black text-blue-800 dark:text-blue-300 uppercase tracking-[0.2em] mb-4">Internal System Notes</h4>
-                    <p class="text-sm text-blue-600 dark:text-blue-400 font-bold leading-relaxed italic">"Premium profile verification completed. All identity documents are currently up to date. Security clearance approved for site operations."</p>
+                <!-- Digital Document Repository -->
+                <div class="mt-8 space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-800 dark:text-white tracking-tight">Digital Document Repository</h4>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Latest uploaded QID & Passport scans</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- QID Preview -->
+                        <div class="group relative bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden aspect-[4/3] flex items-center justify-center">
+                            <template v-if="getLatestDoc('qid')">
+                                <img v-if="isImage(getLatestDoc('qid').url)" :src="getFileUrl(getLatestDoc('qid').url)" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="QID Scan">
+                                <div v-else class="text-center space-y-3">
+                                    <div class="w-16 h-16 mx-auto bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                    </div>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-blue-600">PDF Document</p>
+                                </div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                                    <a :href="getFileUrl(getLatestDoc('qid').url)" target="_blank" class="w-full py-3 bg-white/20 backdrop-blur-md rounded-xl text-white font-black text-[10px] uppercase tracking-widest text-center hover:bg-white/30 transition-colors">View Document</a>
+                                </div>
+                            </template>
+                            <div v-else class="text-center space-y-3 opacity-40">
+                                <svg class="w-12 h-12 mx-auto text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                <p class="text-[10px] font-black uppercase tracking-widest">No QID Scan Uploaded</p>
+                            </div>
+                            <div class="absolute top-4 left-4 px-3 py-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
+                                <span class="text-[9px] font-black text-slate-800 dark:text-white uppercase tracking-widest">QID Document</span>
+                            </div>
+                        </div>
+
+                        <!-- Passport Preview -->
+                        <div class="group relative bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden aspect-[4/3] flex items-center justify-center">
+                            <template v-if="getLatestDoc('passport')">
+                                <img v-if="isImage(getLatestDoc('passport').url)" :src="getFileUrl(getLatestDoc('passport').url)" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Passport Scan">
+                                <div v-else class="text-center space-y-3">
+                                    <div class="w-16 h-16 mx-auto bg-rose-100 dark:bg-rose-900/30 rounded-2xl flex items-center justify-center text-rose-600">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                    </div>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-rose-600">PDF Document</p>
+                                </div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                                    <a :href="getFileUrl(getLatestDoc('passport').url)" target="_blank" class="w-full py-3 bg-white/20 backdrop-blur-md rounded-xl text-white font-black text-[10px] uppercase tracking-widest text-center hover:bg-white/30 transition-colors">View Document</a>
+                                </div>
+                            </template>
+                            <div v-else class="text-center space-y-3 opacity-40">
+                                <svg class="w-12 h-12 mx-auto text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                <p class="text-[10px] font-black uppercase tracking-widest">No Passport Scan Uploaded</p>
+                            </div>
+                            <div class="absolute top-4 left-4 px-3 py-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
+                                <span class="text-[9px] font-black text-slate-800 dark:text-white uppercase tracking-widest">Passport Document</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
         </div>
     </div>
@@ -176,9 +229,41 @@ const fetchStaff = async () => {
     }
 };
 
+const getLatestDoc = (type) => {
+    if (!staff.value) return null;
+    const docs = type === 'qid' ? staff.value.qid_documents : staff.value.passport_documents;
+    if (!docs || docs.length === 0) return null;
+    // They are usually returned in order, so pick the last one
+    return docs[docs.length - 1];
+};
+
+const getFileUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `http://localhost:8000${url}`;
+};
+
+const isImage = (path) => {
+    if (!path) return false;
+    const cleanPath = path.split('?')[0]; // Remove query params if any
+    const ext = cleanPath.split('.').pop().toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+};
+
 const formatDate = (date) => {
     if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString();
+    const d = new Date(date);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const getDaysDiff = (date) => {
+    if (!date) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiry = new Date(date);
+    expiry.setHours(0, 0, 0, 0);
+    const diffTime = expiry - today;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
 onMounted(fetchStaff);

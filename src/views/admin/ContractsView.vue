@@ -11,7 +11,7 @@
       </button>
     </div>
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <KpiCard 
         title="Total Collected" 
         :value="formatCurrencyValue(contractSummary.total_paid)" 
@@ -38,13 +38,6 @@
         :icon="summaryIcons.overhead" 
         color-class="bg-rose-500" 
         subtitle="Fuel, Rent, Utilities, etc."
-      />
-      <KpiCard 
-        title="Net Enterprise Profit" 
-        :value="formatCurrencyValue(contractSummary.net_company_profit)" 
-        :icon="summaryIcons.enterprise" 
-        color-class="bg-indigo-600" 
-        subtitle="Final Business Profit"
       />
     </div>
     <!-- Filters & Search -->
@@ -84,7 +77,9 @@
                         <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">{{ selectedViewContract.staff?.name || 'N/A' }}</h2>
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mt-1 border border-blue-100 dark:border-blue-800/50">
                             {{ selectedViewContract.staff?.company_name || 'Individual' }} 
-                            <span v-if="selectedViewContract.staff?.branch_name" class="ml-1 opacity-60">({{ selectedViewContract.staff.branch_name }})</span>
+                            <span v-if="selectedViewContract.staff?.branch_name" class="ml-1 opacity-60">
+                                ({{ selectedViewContract.staff.branch_name }}<span v-if="selectedViewContract.staff.branch_number">-{{ selectedViewContract.staff.branch_number }}</span>)
+                            </span>
                         </span>
                     </div>
                 </div>
@@ -439,7 +434,7 @@
             <div class="flex items-center gap-3 px-1">
               <div class="w-1 h-6 rounded-full bg-indigo-500"></div>
               <h3 class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Add Additional Amount</h3>
-              <p class="text-[10px] text-slate-400 font-bold italic ml-auto">This increases the total value of the contract.</p>
+              <p class="text-[10px] text-slate-400 font-bold italic ml-auto">This records extra payments that do not affect the main contract balance.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
               <DateInput 
@@ -681,8 +676,7 @@ const contractSummary = ref({
     total_paid: 0,
     total_pending: 0,
     total_contract_profit: 0,
-    total_overheads: 0,
-    net_company_profit: 0
+    total_overheads: 0
 });
 
 const summaryIcons = {
@@ -691,8 +685,7 @@ const summaryIcons = {
     paid: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
     pending: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
     profit: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
-    overhead: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
-    enterprise: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
+    overhead: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
 };
 
 const fetchSummary = async () => {
