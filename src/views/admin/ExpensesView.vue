@@ -22,7 +22,7 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <!-- Total Expenses -->
       <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex items-center gap-6 group transition-all hover:shadow-md hover:-translate-y-1">
         <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm font-black text-xl">∑</div>
@@ -35,13 +35,25 @@
 
       <!-- Employee Related -->
       <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex items-center gap-6 group transition-all hover:shadow-md hover:-translate-y-1">
-        <div class="w-16 h-16 bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+        <div class="w-16 h-16 bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </div>
         <div>
-          <p class="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-1">Employee Related</p>
+          <p class="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] mb-1">Employee Expenses</p>
           <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month_employee?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
           <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Deducted from profit</p>
+        </div>
+      </div>
+
+      <!-- Personal Recoverable -->
+      <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex items-center gap-6 group transition-all hover:shadow-md hover:-translate-y-1">
+        <div class="w-16 h-16 bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-1">Personal Recoverable</p>
+          <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month_recoverable?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
+          <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Paid on behalf</p>
         </div>
       </div>
 
@@ -135,10 +147,13 @@
         </div>
       </template>
 
-      <template #amount="{ value }">
-        <div class="flex items-baseline gap-1">
-            <span class="text-[10px] font-black text-slate-400">QAR</span>
-            <span class="text-lg font-black text-rose-600 dark:text-rose-400 tracking-tight">{{ parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</span>
+      <template #amount="{ value, row }">
+        <div class="flex flex-col items-end gap-1">
+            <div class="flex items-baseline gap-1">
+                <span class="text-[10px] font-black text-slate-400">QAR</span>
+                <span class="text-lg font-black text-rose-600 dark:text-rose-400 tracking-tight">{{ parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</span>
+            </div>
+            <span v-if="row.is_recoverable" class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[8px] font-black rounded-lg uppercase tracking-widest border border-amber-200/50">Personal Expense</span>
         </div>
       </template>
 
@@ -259,6 +274,28 @@
             <input v-model="form.description" type="text" required class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold tracking-tight placeholder:font-medium" placeholder="e.g., Office Supplies, Staff Transport, etc.">
           </div>
 
+          <!-- Recoverable Toggle (Only for Employee type) -->
+          <div v-if="currentType === 'Employee'" class="md:col-span-2">
+            <div @click="form.is_recoverable = !form.is_recoverable" 
+                 class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-2 rounded-2xl cursor-pointer transition-all hover:shadow-md"
+                 :class="form.is_recoverable ? 'border-amber-500 bg-amber-50/30 dark:bg-amber-900/10' : 'border-slate-200 dark:border-slate-800'">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
+                         :class="form.is_recoverable ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-black uppercase tracking-tight" :class="form.is_recoverable ? 'text-amber-600 dark:text-amber-400' : 'text-slate-700 dark:text-slate-300'">Recoverable from Staff (Personal Expense)</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">If enabled, this expense will not be deducted from contract profit.</p>
+                    </div>
+                </div>
+                <div class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" v-model="form.is_recoverable" class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"></div>
+                </div>
+            </div>
+          </div>
+
           <!-- Amount & Method -->
           <div class="grid grid-cols-2 gap-4 md:col-span-2">
             <div>
@@ -353,6 +390,7 @@ const form = ref({
   amount: 0,
   expense_date: new Date().toISOString().split('T')[0],
   validation_date: null,
+  is_recoverable: false,
   payment_method: 'Cash',
   description: '',
   contract_id: null,
@@ -562,6 +600,7 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
         category_id: expense.category_id || null,
         subcategory_id: expense.subcategory_id || null,
         contract_id: expense.contract_id || null,
+        is_recoverable: !!expense.is_recoverable,
         payment_method: expense.payment_method || 'Cash'
     };
   } else {
@@ -573,6 +612,7 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
         amount: 0,
         expense_date: new Date().toISOString().split('T')[0],
         validation_date: null,
+        is_recoverable: false,
         payment_method: '',
         description: '',
         contract_id: null,

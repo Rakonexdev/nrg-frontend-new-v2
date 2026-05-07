@@ -25,22 +25,28 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group transition-all hover:shadow-md">
         <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
         <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Income</p>
         <h3 class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">QAR {{ summary.total_income?.toLocaleString() }}</h3>
       </div>
 
-      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group transition-all hover:shadow-md">
         <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-all"></div>
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Expenditure</p>
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Operations Cost</p>
         <h3 class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">QAR {{ summary.total_expenditure?.toLocaleString() }}</h3>
       </div>
 
-      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group transition-all hover:shadow-md">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all"></div>
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Recoverable (Debt)</p>
+        <h3 class="text-2xl font-black text-amber-600 dark:text-amber-500 mt-1">QAR {{ summary.total_recoverable?.toLocaleString() }}</h3>
+      </div>
+
+      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group transition-all hover:shadow-md border-b-blue-500 border-b-2">
         <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Net Balance</p>
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Net Profit</p>
         <h3 class="text-2xl font-black mt-1" :class="summary.net_balance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-rose-600'">
           QAR {{ summary.net_balance?.toLocaleString() }}
         </h3>
@@ -88,6 +94,7 @@ const pagination = ref({});
 const summary = ref({
     total_income: 0,
     total_expenditure: 0,
+    total_recoverable: 0,
     net_balance: 0
 });
 

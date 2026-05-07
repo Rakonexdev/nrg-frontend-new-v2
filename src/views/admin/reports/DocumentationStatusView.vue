@@ -144,30 +144,7 @@
             </select>
           </div>
 
-          <!-- Conditional File Uploads based on Status -->
-          <div v-if="form.renewal_status === 'qid_upload' || (form.renewal_status === 'completed' && selectedItem.type === 'QID')" class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800/50 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-            <label class="block text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest ml-1">
-              Select New QID Scan
-            </label>
-            <input 
-              type="file" 
-              @change="e => handleFileChange(e, 'qid')" 
-              accept=".jpg,.jpeg,.png,.pdf"
-              class="w-full text-[10px] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition-all cursor-pointer" 
-            />
-          </div>
-
-          <div v-if="form.renewal_status === 'passport_upload' || (form.renewal_status === 'completed' && selectedItem.type === 'Passport')" class="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-800/50 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-            <label class="block text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest ml-1">
-              Select New Passport Scan
-            </label>
-            <input 
-              type="file" 
-              @change="e => handleFileChange(e, 'passport')" 
-              accept=".jpg,.jpeg,.png,.pdf"
-              class="w-full text-[10px] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-rose-600 file:text-white hover:file:bg-rose-700 transition-all cursor-pointer" 
-            />
-          </div>
+          <!-- Removed file upload sections as per user request -->
 
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Internal Notes / Progress Remarks</label>
@@ -213,14 +190,6 @@ const form = ref({
   renewal_notes: ''
 });
 
-const qid_files = ref([]);
-const passport_files = ref([]);
-
-const handleFileChange = (e, type) => {
-    if (type === 'qid') qid_files.value = Array.from(e.target.files);
-    else passport_files.value = Array.from(e.target.files);
-};
-
 const stats = computed(() => {
   return {
     processing: items.value.filter(i => i.renewal_status === 'processing').length,
@@ -260,8 +229,6 @@ const openTrackingModal = (item) => {
     renewal_status: item.renewal_status || 'processing',
     renewal_notes: item.renewal_notes || ''
   };
-  qid_files.value = [];
-  passport_files.value = [];
   showModal.value = true;
 };
 
@@ -269,22 +236,13 @@ const save = async () => {
   if (!selectedItem.value) return;
   saving.value = true;
   try {
-    const formData = new FormData();
-    formData.append('_method', 'PUT');
-    formData.append('renewal_status', form.value.renewal_status);
-    formData.append('renewal_notes', form.value.renewal_notes || '');
-    
-    qid_files.value.forEach(file => formData.append('qid_files[]', file));
-    passport_files.value.forEach(file => formData.append('passport_files[]', file));
-
-    await api.post(`/expenses/${selectedItem.value.id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+    await api.put(`/expenses/${selectedItem.value.id}`, {
+        renewal_status: form.value.renewal_status,
+        renewal_notes: form.value.renewal_notes || ''
     });
     
     showModal.value = false;
     await fetchData();
-    qid_files.value = [];
-    passport_files.value = [];
   } catch (err) {
     console.error('Save failed', err);
     alert('Failed to save tracking info.');
@@ -301,8 +259,9 @@ const finalize = async () => {
   try {
     await api.post(`/expenses/${selectedItem.value.id}/finalize`);
     showModal.value = false;
-    // Redirect to staff detail
-    router.push(`/admin/staff/${selectedItem.value.staff_id}`);
+    await fetchData();
+    // Removed redirect to staff detail as per user request
+
   } catch (err) {
     console.error('Finalization failed', err);
     alert('Failed to finalize renewal');

@@ -212,7 +212,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import api from '@/services/api';
+import api, { BASE_URL } from '@/services/api';
 
 const route = useRoute();
 const staff = ref(null);
@@ -240,7 +240,9 @@ const getLatestDoc = (type) => {
 const getFileUrl = (url) => {
     if (!url) return '';
     if (url.startsWith('http')) return url;
-    return `http://localhost:8000${url}`;
+    // Ensure we don't double slash
+    const path = url.startsWith('/') ? url : `/${url}`;
+    return `${BASE_URL}${path}`;
 };
 
 const isImage = (path) => {

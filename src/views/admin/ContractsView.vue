@@ -123,8 +123,8 @@
             <!-- Daily Expenses Log -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between px-2">
-                    <h3 class="text-sm font-black text-rose-500 uppercase tracking-widest">Daily Expenses Log</h3>
-                    <span class="text-[10px] font-black text-slate-400 uppercase">{{ selectedViewContract.daily_expenses?.length || 0 }} Entries</span>
+                    <h3 class="text-sm font-black text-rose-500 uppercase tracking-widest">Daily Expenses Log (Company)</h3>
+                    <span class="text-[10px] font-black text-slate-400 uppercase">{{ (selectedViewContract.daily_expenses?.filter(e => !e.is_recoverable) || []).length }} Entries</span>
                 </div>
                 <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                     <table class="w-full text-left">
@@ -136,7 +136,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                            <tr v-for="expense in selectedViewContract.daily_expenses" :key="expense.id" class="hover:bg-rose-50/30 transition-colors">
+                            <tr v-for="expense in (selectedViewContract.daily_expenses?.filter(e => !e.is_recoverable) || [])" :key="expense.id" class="hover:bg-rose-50/30 transition-colors">
                                 <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(expense.expense_date) }}</td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm font-black text-slate-800 dark:text-white">
@@ -147,36 +147,61 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm font-black text-rose-500 text-right">QAR {{ formatCurrency(expense.amount) }}</td>
                             </tr>
-                            <tr v-if="!selectedViewContract.daily_expenses?.length">
-                                <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic text-xs font-bold">No daily expenses recorded for this contract.</td>
+                            <tr v-if="!(selectedViewContract.daily_expenses?.filter(e => !e.is_recoverable) || []).length">
+                                <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic text-xs font-bold">No operational daily expenses recorded.</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Additional Amounts History -->
-            <div v-if="selectedViewContract.adjustments?.length" class="space-y-4">
+            <!-- Additional Amounts & Recoverable History -->
+            <div class="space-y-4">
                 <div class="flex items-center justify-between px-2">
-                    <h3 class="text-sm font-black text-indigo-500 uppercase tracking-widest">Additional Amounts History</h3>
-                    <span class="text-[10px] font-black text-slate-400 uppercase">{{ selectedViewContract.adjustments.length }} Entries</span>
+                    <h3 class="text-sm font-black text-indigo-500 uppercase tracking-widest">Additional & Recoverable History</h3>
+                    <span class="text-[10px] font-black text-slate-400 uppercase">{{ (selectedViewContract.adjustments?.length || 0) + (selectedViewContract.recoverable_expenses?.length || 0) }} Entries</span>
                 </div>
                 <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                     <table class="w-full text-left">
                         <thead>
                             <tr class="bg-indigo-50 dark:bg-indigo-900/10">
                                 <th class="px-6 py-4 text-[10px] font-black text-indigo-400 uppercase tracking-widest">Date</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-indigo-400 uppercase tracking-widest">Reason</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-indigo-400 uppercase tracking-widest">Type / Reason</th>
                                 <th class="px-6 py-4 text-[10px] font-black text-indigo-400 uppercase tracking-widest text-right">Amount</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                            <tr v-for="adj in selectedViewContract.adjustments" :key="adj.id" class="hover:bg-indigo-50/30 transition-colors">
+                            <!-- Show Adjustments (Positive) -->
+                            <tr v-for="adj in selectedViewContract.adjustments" :key="'adj-'+adj.id" class="hover:bg-indigo-50/30 transition-colors">
                                 <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(adj.adjustment_date) }}</td>
-                                <td class="px-6 py-4 text-sm font-black text-slate-800 dark:text-white">{{ adj.reason }}</td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex px-1.5 py-0.5 rounded bg-blue-100 text-[8px] font-black text-blue-600 uppercase tracking-tighter mr-2">Addition</span>
+                                    <span class="text-sm font-black text-slate-800 dark:text-white">{{ adj.reason }}</span>
+                                </td>
                                 <td class="px-6 py-4 text-sm font-black text-indigo-600 text-right">QAR {{ formatCurrency(adj.amount) }}</td>
                             </tr>
+                            <!-- Show Recoverable Expenses (Negative) -->
+                            <tr v-for="expense in selectedViewContract.recoverable_expenses" :key="'rec-'+expense.id" class="hover:bg-rose-50/30 transition-colors">
+                                <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(expense.expense_date) }}</td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex px-1.5 py-0.5 rounded bg-rose-100 text-[8px] font-black text-rose-600 uppercase tracking-tighter mr-2">Personal Expense</span>
+                                    <div class="inline-block">
+                                        <div class="text-sm font-black text-slate-800 dark:text-white">{{ expense.category?.name }}</div>
+                                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{{ expense.description || expense.reason }}</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm font-black text-rose-500 text-right">- QAR {{ formatCurrency(expense.amount) }}</td>
+                            </tr>
+                            <tr v-if="!selectedViewContract.adjustments?.length && !selectedViewContract.recoverable_expenses?.length">
+                                <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic text-xs font-bold">No additional amounts or personal expenses recorded.</td>
+                            </tr>
                         </tbody>
+                        <tfoot v-if="selectedViewContract.adjustments?.length || selectedViewContract.recoverable_expenses?.length">
+                            <tr class="bg-slate-50 dark:bg-slate-800/50 border-t-2 border-slate-200 dark:border-slate-700">
+                                <td colspan="2" class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Net Additional Amount</td>
+                                <td class="px-6 py-4 text-sm font-black text-indigo-600 dark:text-indigo-400 text-right">QAR {{ formatCurrency(selectedViewContract.adjustment_total) }}</td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
