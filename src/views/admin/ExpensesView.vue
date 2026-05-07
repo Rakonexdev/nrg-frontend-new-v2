@@ -276,9 +276,18 @@
 
           <!-- Recoverable Toggle (Only for Employee type) -->
           <div v-if="currentType === 'Employee'" class="md:col-span-2">
-            <div @click="form.is_recoverable = !form.is_recoverable" 
-                 class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-2 rounded-2xl cursor-pointer transition-all hover:shadow-md"
-                 :class="form.is_recoverable ? 'border-amber-500 bg-amber-50/30 dark:bg-amber-900/10' : 'border-slate-200 dark:border-slate-800'">
+            <!-- Balance Warning Message -->
+            <div v-if="form.contract_id && selectedContractFunds <= 0" class="mb-3 p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/50 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
+                <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <p class="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest">This employee doesn't have an additional amount balance to recover from.</p>
+            </div>
+
+            <div @click="selectedContractFunds > 0 ? (form.is_recoverable = !form.is_recoverable) : null" 
+                 class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-2 rounded-2xl transition-all"
+                 :class="[
+                    form.is_recoverable ? 'border-amber-500 bg-amber-50/30 dark:bg-amber-900/10' : 'border-slate-200 dark:border-slate-800',
+                    (selectedContractFunds <= 0 && form.contract_id) ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:shadow-md'
+                 ]">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
                          :class="form.is_recoverable ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'">
@@ -289,8 +298,8 @@
                         <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">If enabled, this expense will not be deducted from contract profit.</p>
                     </div>
                 </div>
-                <div class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" v-model="form.is_recoverable" class="sr-only peer">
+                <div class="relative inline-flex items-center" :class="selectedContractFunds <= 0 ? 'pointer-events-none' : ''">
+                    <input type="checkbox" v-model="form.is_recoverable" :disabled="selectedContractFunds <= 0" class="sr-only peer">
                     <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"></div>
                 </div>
             </div>
@@ -427,6 +436,12 @@ const selectedContractCompany = computed(() => {
 
 const selectedContractProfession = computed(() => selectedContractStaff.value?.profession || '');
 
+const selectedContractFunds = computed(() => {
+    if (!form.value.contract_id) return 0;
+    const contract = rawContracts.value.find(c => c.id == form.value.contract_id);
+    return parseFloat(contract?.adjustment_total || 0);
+});
+
 const getDaysDiff = (date) => {
     if (!date) return null;
     const today = new Date();
@@ -491,7 +506,17 @@ const updateAutomaticDescription = () => {
 };
 
 // Re-update description when contract/staff changes to catch the correct expiry dates
-watch(() => form.value.contract_id, () => {
+watch(() => form.value.contract_id, (newVal) => {
+    if (newVal) {
+        const contract = rawContracts.value.find(c => c.id == newVal);
+        const fund = parseFloat(contract?.adjustment_total || 0);
+        if (fund <= 0) {
+            form.value.is_recoverable = false;
+        }
+    } else {
+        form.value.is_recoverable = false;
+    }
+    
     if (!editMode.value) { // Only auto-fill in create mode
         updateAutomaticDescription();
     }
