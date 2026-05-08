@@ -349,40 +349,6 @@
                 </div>
                 <p v-if="errors.total_income" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ Array.isArray(errors.total_income) ? errors.total_income[0] : errors.total_income }}</p>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:col-span-2">
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">QID Renewal Fee *</label>
-                    <input v-model="form.qid_renewal_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.qid_renewal_fee}">
-                    <p v-if="errors.qid_renewal_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.qid_renewal_fee[0] }}</p>
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Passport Renewal Fee *</label>
-                    <input v-model="form.passport_renewal_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.passport_renewal_fee}">
-                    <p v-if="errors.passport_renewal_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.passport_renewal_fee[0] }}</p>
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Profession Change Fee *</label>
-                    <input v-model="form.profession_change_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.profession_change_fee}">
-                    <p v-if="errors.profession_change_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.profession_change_fee[0] }}</p>
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Sponsorship Change Fee *</label>
-                    <input v-model="form.sponsorship_change_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.sponsorship_change_fee}">
-                    <p v-if="errors.sponsorship_change_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.sponsorship_change_fee[0] }}</p>
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Health Card Fee *</label>
-                    <input v-model="form.health_card_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.health_card_fee}">
-                    <p v-if="errors.health_card_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.health_card_fee[0] }}</p>
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Others Fee *</label>
-                    <input v-model="form.others_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.others_fee}">
-                    <p v-if="errors.others_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.others_fee[0] }}</p>
-                </div>
-            </div>
-
         </div>
 
 <div class="hidden">
