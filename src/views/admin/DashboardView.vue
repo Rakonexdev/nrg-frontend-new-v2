@@ -16,7 +16,7 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
       <router-link to="/admin/staff" class="block group h-full">
         <KpiCard 
           title="Total Staff" 
@@ -53,6 +53,15 @@
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </div>
+      <router-link to="/admin/reports/documentation-status" class="block group h-full">
+        <KpiCard 
+          title="Doc Status" 
+          :value="stats.pending_docs_count" 
+          :icon="icons.document" 
+          color-class="bg-rose-600" 
+          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+        />
+      </router-link>
     </div>
     
     <!-- Financial Metrics Grid -->
@@ -364,7 +373,8 @@ const stats = ref({
     renewing_contracts: 0,
     total_collected: 0,
     total_pending: 0,
-    total_profit: 0
+    total_profit: 0,
+    pending_docs_count: 0
 });
 
 const recentCollections = ref([]);

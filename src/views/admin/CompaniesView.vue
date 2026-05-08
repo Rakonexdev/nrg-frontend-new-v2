@@ -105,7 +105,7 @@
       <form @submit.prevent="saveCompany" class="p-8 space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="md:col-span-2">
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Company Name</label>
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Company Name <span class="text-red-500">*</span></label>
                 <input v-model="form.name" type="text" required :disabled="viewMode"
                        :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
                        class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
@@ -113,24 +113,24 @@
             </div>
 
             <div>
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Computer Card</label>
-                <input v-model="form.computer_card" type="text" :disabled="viewMode"
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Computer Card <span class="text-red-500">*</span></label>
+                <input v-model="form.computer_card" type="text" required :disabled="viewMode"
                        :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
                        class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="ID number">
             </div>
 
             <div>
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Contact Person</label>
-                <input v-model="form.contact_person" type="text" :disabled="viewMode"
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Contact Person <span class="text-red-500">*</span></label>
+                <input v-model="form.contact_person" type="text" required :disabled="viewMode"
                        :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
                        class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Full name">
             </div>
 
             <div>
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone Number</label>
-                <input v-model="form.phone_number" type="text" :disabled="viewMode"
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone Number <span class="text-red-500">*</span></label>
+                <input v-model="form.phone_number" type="text" required :disabled="viewMode"
                        @input="form.phone_number = form.phone_number.replace(/[^0-9]/g, '')"
                        :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
                        class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
@@ -138,7 +138,7 @@
             </div>
 
             <div>
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Alternative Number</label>
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Alternative Number <span class="text-slate-400 font-normal italic">(Optional)</span></label>
                 <input v-model="form.alternative_phone_number" type="text" :disabled="viewMode"
                        @input="form.alternative_phone_number = form.alternative_phone_number.replace(/[^0-9]/g, '')"
                        :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
@@ -147,16 +147,16 @@
             </div>
 
             <div>
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Name</label>
-                <input v-model="form.branch_name" type="text" :disabled="viewMode"
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Name <span class="text-red-500">*</span></label>
+                <input v-model="form.branch_name" type="text" required :disabled="viewMode"
                        :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
                        class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Branch location/name">
             </div>
 
             <div>
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Number</label>
-                <input v-model="form.branch_number" type="text" :disabled="viewMode"
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Number <span class="text-red-500">*</span></label>
+                <input v-model="form.branch_number" type="text" required :disabled="viewMode"
                        :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
                        class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Branch ID (e.g. 001)">

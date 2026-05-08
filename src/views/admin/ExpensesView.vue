@@ -178,7 +178,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Date -->
           <DateInput 
-            label="Expense Date"
+            label="Expense Date *"
             v-model="form.expense_date"
             required
           />
@@ -186,7 +186,7 @@
           <!-- Contract Linking (Only for Employee type) -->
           <div v-if="currentType === 'Employee'">
               <SearchableSelect 
-                label="Link to Staff Contract"
+                label="Link to Staff Contract *"
                 v-model="form.contract_id"
                 :options="contractsList"
                 placeholder="Select Staff Member's Contract"
@@ -243,7 +243,7 @@
 
           <!-- Category -->
           <div>
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Main Category</label>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Main Category <span class="text-rose-500">*</span></label>
             <select v-model="form.category_id" required @change="handleCategoryChange" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold">
                 <option value="">Select Category</option>
                 <option v-for="cat in mainCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
@@ -262,7 +262,7 @@
           <!-- Validation Date (Only for QID/PP Renewal) -->
           <div v-if="showValidationDateField" class="animate-in fade-in slide-in-from-top-2 duration-300">
             <DateInput 
-              label="New Validation/Expiry Date"
+              label="New Validation/Expiry Date *"
               v-model="form.validation_date"
               required
             />

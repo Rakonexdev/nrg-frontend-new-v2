@@ -317,8 +317,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <SearchableSelect 
-                  label="Staff Member"
+                  label="Staff Member *"
                   v-model="form.staff_id"
+                  required
                   :options="staffList"
                   placeholder="Select Staff"
                 />
@@ -338,10 +339,10 @@
         <h3 class="text-sm font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 pb-2">Contract Financials</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Contract Value</label>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Contract Value *</label>
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
-                    <input v-model="form.total_income" type="number" step="0.01" class="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-sm" placeholder="Ex: 5000.00">
+                    <input v-model="form.total_income" type="number" step="0.01" required class="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-sm" placeholder="Ex: 5000.00">
                 </div>
             </div>
 
@@ -935,6 +936,17 @@ const openViewModal = async (contract) => {
 };
 
 const handleInitialSave = () => {
+    // Basic validation before showing confirm modal
+    if (!form.value.staff_id || !form.value.total_income || parseFloat(form.value.total_income) <= 0) {
+        alertConfig.value = {
+            type: 'error',
+            title: 'Missing Information',
+            message: 'Please select a staff member and enter a valid contract value.'
+        };
+        showAlertModal.value = true;
+        return;
+    }
+
     if (editMode.value) {
         saveContract();
     } else {

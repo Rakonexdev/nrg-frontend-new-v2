@@ -99,7 +99,7 @@ export const collectorService = {
     // Operations for collector mobile app
     getPendingCollections: () => api.get('/collections/pending'),
     recordPayment: (contractId, data) => api.post(`/contracts/${contractId}/payments`, data),
-    
+
     // CRUD operations for admin management
     getAll: (params) => api.get('/collectors', { params }),
     getById: (id) => api.get(`/collectors/${id}`),

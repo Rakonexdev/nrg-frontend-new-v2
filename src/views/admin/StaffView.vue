@@ -143,8 +143,8 @@
           
           <div class="space-y-4">
             <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Full Name</label>
-              <input v-model="form.name" type="text" :disabled="viewMode" 
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Full Name <span class="text-red-500">*</span></label>
+              <input v-model="form.name" type="text" required :disabled="viewMode" 
                 :class="[errors.name ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
                 class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Employee Name">
               <p v-if="errors.name" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.name }}</p>
@@ -152,8 +152,8 @@
             
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nationality</label>
-                <select v-model="form.nationality" :disabled="viewMode"
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nationality <span class="text-red-500">*</span></label>
+                <select v-model="form.nationality" required :disabled="viewMode"
                   :class="[errors.nationality ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
                   class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed appearance-none">
                   <option value="">Select Country</option>
@@ -162,8 +162,8 @@
                 <p v-if="errors.nationality" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.nationality }}</p>
               </div>
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Profession</label>
-                <input v-model="form.profession" type="text" :disabled="viewMode" 
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Profession <span class="text-red-500">*</span></label>
+                <input v-model="form.profession" type="text" required :disabled="viewMode" 
                   :class="[errors.profession ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
                   class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Job Title">
                 <p v-if="errors.profession" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.profession }}</p>
@@ -174,8 +174,9 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <SearchableSelect 
-                    label="Assigned Company"
+                    label="Assigned Company *"
                     v-model="form.company_id"
+                    required
                     :options="modalCompanyOptions"
                     :disabled="viewMode"
                     placeholder="Select Assigned Company"
@@ -198,12 +199,12 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mobile Number</label>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mobile Number <span class="text-red-500">*</span></label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 flex items-center pl-4 pr-2 border-r border-slate-200 dark:border-slate-700/50 text-slate-400 font-bold text-xs pointer-events-none group-focus-within:text-blue-500 transition-colors">
                     +974
                   </div>
-                  <input v-model="form.mobile" type="text" :disabled="viewMode" 
+                  <input v-model="form.mobile" type="text" required :disabled="viewMode" 
                     @input="form.mobile = form.mobile.replace(/[^0-9]/g, '').slice(0, 8)"
                     :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
                     class="w-full pl-16 pr-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-digit number">
@@ -211,7 +212,7 @@
                 <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.mobile }}</p>
               </div>
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Alt. Mobile (Optional)</label>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Alt. Mobile <span class="text-slate-400 font-normal italic">(Optional)</span></label>
                 <div class="relative group">
                   <div class="absolute inset-y-0 left-0 flex items-center pl-4 pr-2 border-r border-slate-200 dark:border-slate-700/50 text-slate-400 font-bold text-xs pointer-events-none group-focus-within:text-blue-500 transition-colors">
                     +974
@@ -225,15 +226,17 @@
 
             <div class="grid grid-cols-2 gap-4">
               <DateInput 
-                label="Date of Birth"
+                label="Date of Birth *"
                 v-model="form.date_of_birth"
+                required
                 :disabled="viewMode"
                 :error="errors.date_of_birth"
               />
               <div class="relative group">
                 <DateInput 
-                  label="Start Contract Date"
+                  label="Start Contract Date *"
                   v-model="form.joining_date"
+                  required
                   :disabled="viewMode"
                   :error="errors.joining_date"
                 />
@@ -265,15 +268,16 @@
           <div class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Passport Number</label>
-                <input v-model="form.passport_number" type="text" :disabled="viewMode" 
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Passport Number <span class="text-red-500">*</span></label>
+                <input v-model="form.passport_number" type="text" required :disabled="viewMode" 
                   :class="[errors.passport_number ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
                   class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
                 <p v-if="errors.passport_number" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.passport_number }}</p>
               </div>
               <DateInput 
-                label="Passport Expiry"
+                label="Passport Expiry *"
                 v-model="form.passport_expiry"
+                required
                 :disabled="viewMode"
                 :error="errors.passport_expiry"
               />
@@ -281,15 +285,16 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Qatar ID (QID) Number</label>
-                <input v-model="form.qid_number" type="text" :disabled="viewMode" maxlength="11"
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Qatar ID (QID) Number <span class="text-red-500">*</span></label>
+                <input v-model="form.qid_number" type="text" required :disabled="viewMode" maxlength="11"
                   :class="[errors.qid_number ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
                   class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="11-digit QID">
                 <p v-if="errors.qid_number" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.qid_number }}</p>
               </div>
               <DateInput 
-                label="QID Expiry"
+                label="QID Expiry *"
                 v-model="form.qid_expiry"
+                required
                 :disabled="viewMode"
                 :error="errors.qid_expiry"
               />
@@ -297,7 +302,7 @@
             
             <div class="space-y-4 pt-2">
               <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">QID Documents</label>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">QID Documents <span class="text-slate-400 font-normal italic">(Optional)</span></label>
                 
                 <div class="flex flex-wrap gap-3 mb-3">
                   <!-- Existing Documents -->
@@ -340,7 +345,7 @@
                 <p v-if="!form.qid_documents?.length && !form.qid_files?.length" class="text-xs text-slate-400 italic py-2">No documents attached</p>
               </div>
               <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Passport Documents</label>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Passport Documents <span class="text-slate-400 font-normal italic">(Optional)</span></label>
                 
                 <div class="flex flex-wrap gap-3 mb-3">
                   <!-- Existing Documents -->
@@ -692,6 +697,8 @@ const validate = () => {
     }
     
     if (!form.value.qid_expiry) errors.value.qid_expiry = 'QID expiry is required';
+    
+    if (!form.value.joining_date) errors.value.joining_date = 'Start contract date is required';
 
     return Object.keys(errors.value).length === 0;
 };
