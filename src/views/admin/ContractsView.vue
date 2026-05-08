@@ -321,6 +321,7 @@
                   v-model="form.staff_id"
                   required
                   :options="staffList"
+                  :error="errors.staff_id"
                   placeholder="Select Staff"
                 />
             </div>
@@ -342,7 +343,43 @@
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Contract Value *</label>
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
-                    <input v-model="form.total_income" type="number" step="0.01" required class="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-sm" placeholder="Ex: 5000.00">
+                    <input v-model="form.total_income" type="number" step="0.01" required 
+                           :class="[errors.total_income ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-slate-200 dark:border-slate-700']"
+                           class="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-900 border rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-sm" placeholder="Ex: 5000.00">
+                </div>
+                <p v-if="errors.total_income" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ Array.isArray(errors.total_income) ? errors.total_income[0] : errors.total_income }}</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:col-span-2">
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">QID Renewal Fee *</label>
+                    <input v-model="form.qid_renewal_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.qid_renewal_fee}">
+                    <p v-if="errors.qid_renewal_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.qid_renewal_fee[0] }}</p>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Passport Renewal Fee *</label>
+                    <input v-model="form.passport_renewal_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.passport_renewal_fee}">
+                    <p v-if="errors.passport_renewal_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.passport_renewal_fee[0] }}</p>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Profession Change Fee *</label>
+                    <input v-model="form.profession_change_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.profession_change_fee}">
+                    <p v-if="errors.profession_change_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.profession_change_fee[0] }}</p>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Sponsorship Change Fee *</label>
+                    <input v-model="form.sponsorship_change_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.sponsorship_change_fee}">
+                    <p v-if="errors.sponsorship_change_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.sponsorship_change_fee[0] }}</p>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Health Card Fee *</label>
+                    <input v-model="form.health_card_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.health_card_fee}">
+                    <p v-if="errors.health_card_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.health_card_fee[0] }}</p>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Others Fee *</label>
+                    <input v-model="form.others_fee" type="number" step="0.01" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold text-sm" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.others_fee}">
+                    <p v-if="errors.others_fee" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold">{{ errors.others_fee[0] }}</p>
                 </div>
             </div>
 
@@ -768,6 +805,7 @@ const alertConfig = ref({
 const itemToDelete = ref(null);
 const deleting = ref(false);
 const editMode = ref(false);
+const errors = ref({});
 const form = ref({
   id: null,
   staff_id: '',
@@ -898,27 +936,29 @@ const resetMainFilters = () => {
 };
 
 const openModal = (contract = null) => {
+  errors.value = {};
   activeCategories.value = [];
   if (contract) {
     editMode.value = true;
     syncFormWithContract(contract);
   } else {
     editMode.value = false;
-    form.value = { 
-        id: null, 
-        staff_id: '', 
-        qid_renewal_fee: '',
-        qid_next_renewal_date: '',
-        passport_renewal_fee: '',
-        profession_change_fee: '',
-        sponsorship_change_fee: '',
-        health_card_fee: '',
-        others_fee: '',
-        others_reason: '',
-        paid_amount: 0,
-        pending_amount: 0,
-        payment_status: 'Payment Not Initialized',
-        payment_type: 'Cash'
+    form.value = {
+      id: null,
+      staff_id: '',
+      qid_renewal_fee: '',
+      qid_next_renewal_date: '',
+      passport_renewal_fee: '',
+      profession_change_fee: '',
+      sponsorship_change_fee: '',
+      health_card_fee: '',
+      others_fee: '',
+      others_reason: '',
+      total_income: '',
+      paid_amount: 0,
+      pending_amount: 0,
+      payment_status: 'Payment Not Initialized',
+      payment_type: 'Cash'
     };
   }
   selectedExpenseCategory.value = '';
@@ -936,14 +976,20 @@ const openViewModal = async (contract) => {
 };
 
 const handleInitialSave = () => {
-    // Basic validation before showing confirm modal
-    if (!form.value.staff_id || !form.value.total_income || parseFloat(form.value.total_income) <= 0) {
-        alertConfig.value = {
-            type: 'error',
-            title: 'Missing Information',
-            message: 'Please select a staff member and enter a valid contract value.'
-        };
-        showAlertModal.value = true;
+    errors.value = {};
+    let hasError = false;
+
+    if (!form.value.staff_id) {
+        errors.value.staff_id = 'Staff member is required';
+        hasError = true;
+    }
+    if (!form.value.total_income || parseFloat(form.value.total_income) <= 0) {
+        errors.value.total_income = 'Valid contract value is required';
+        hasError = true;
+    }
+
+    if (hasError) {
+        notificationStore.error('Please fix the validation errors.');
         return;
     }
 
@@ -962,9 +1008,11 @@ const saveContract = async () => {
     // Normalize format strings
     const fields = ['total_income', 'qid_renewal_fee', 'passport_renewal_fee', 'profession_change_fee', 'sponsorship_change_fee', 'health_card_fee', 'others_fee'];
     fields.forEach(f => {
-        if (typeof payload[f] === 'string') payload[f] = payload[f].replace(/[^0-9.]/g, '');
-        if (payload[f] === '' || payload[f] === null || payload[f] === undefined) {
-            payload[f] = 0;
+        if (typeof payload[f] === 'string' && payload[f] !== '') {
+            payload[f] = payload[f].replace(/[^0-9.]/g, '');
+            payload[f] = parseFloat(payload[f]);
+        } else if (payload[f] === '' || payload[f] === null) {
+            payload[f] = null;
         }
     });
     delete payload.paid_amount;
@@ -983,12 +1031,17 @@ const saveContract = async () => {
     fetchContracts(pagination.value.current_page || 1);
     fetchSummary();
   } catch (err) {
-    alertConfig.value = {
-        type: 'error',
-        title: 'Validation Error',
-        message: err.response?.data?.message || Object.values(err.response?.data?.errors || {}).flat()[0] || 'Failed to save contract'
-    };
-    showAlertModal.value = true;
+    if (err.response?.status === 422) {
+        errors.value = err.response.data.errors;
+        notificationStore.error('Validation error. Please check the fields.');
+    } else {
+        alertConfig.value = {
+            type: 'error',
+            title: 'Error',
+            message: err.response?.data?.message || 'Failed to save contract'
+        };
+        showAlertModal.value = true;
+    }
   } finally {
     saving.value = false;
   }
@@ -1124,12 +1177,12 @@ const formatCurrencyValue = (value) => {
 
 const parseAmount = (value) => {
     if (value === null || value === undefined || value === '') {
-        return 0;
+        return null;
     }
 
     const normalized = typeof value === 'string' ? value.replace(/[^0-9.]/g, '') : value;
     const parsed = parseFloat(normalized);
-    return Number.isFinite(parsed) ? parsed : 0;
+    return Number.isFinite(parsed) ? parsed : null;
 };
 
 const syncFormWithContract = (contract) => {

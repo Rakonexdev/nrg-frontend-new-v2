@@ -180,6 +180,7 @@
           <DateInput 
             label="Expense Date *"
             v-model="form.expense_date"
+            :error="errors.expense_date?.[0]"
             required
           />
 
@@ -189,9 +190,11 @@
                 label="Link to Staff Contract *"
                 v-model="form.contract_id"
                 :options="contractsList"
+                :error="errors.contract_id?.[0]"
                 placeholder="Select Staff Member's Contract"
                 required
               />
+              <p v-if="errors.contract_id" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.contract_id[0] }}</p>
 
               <!-- Expiry Warnings moved here for better visibility -->
               <div v-if="selectedContractStaff" class="mt-2 flex flex-wrap gap-2">
@@ -244,19 +247,21 @@
           <!-- Category -->
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Main Category <span class="text-rose-500">*</span></label>
-            <select v-model="form.category_id" required @change="handleCategoryChange" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold">
+            <select v-model="form.category_id" required @change="handleCategoryChange" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.category_id}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold">
                 <option value="">Select Category</option>
                 <option v-for="cat in mainCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
+            <p v-if="errors.category_id" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.category_id[0] }}</p>
           </div>
 
           <!-- Subcategory -->
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Sub Category <span class="text-rose-500">*</span></label>
-            <select v-model="form.subcategory_id" :disabled="!availableSubcategories.length" @change="handleSubcategoryChange" required class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold disabled:opacity-50">
+            <select v-model="form.subcategory_id" :disabled="!availableSubcategories.length" @change="handleSubcategoryChange" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.subcategory_id}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold disabled:opacity-50">
                 <option value="">Select Subcategory</option>
                 <option v-for="sub in availableSubcategories" :key="sub.id" :value="sub.id">{{ sub.name }}</option>
             </select>
+            <p v-if="errors.subcategory_id" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.subcategory_id[0] }}</p>
           </div>
 
           <!-- Validation Date (Only for QID/PP Renewal) -->
@@ -264,6 +269,7 @@
             <DateInput 
               label="New Validation/Expiry Date *"
               v-model="form.validation_date"
+              :error="errors.validation_date?.[0]"
               required
             />
           </div>
@@ -271,7 +277,8 @@
           <!-- Reason -->
           <div class="md:col-span-2">
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason / Expense Name <span class="text-rose-500">*</span></label>
-            <input v-model="form.description" type="text" required class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold tracking-tight placeholder:font-medium" placeholder="e.g., Office Supplies, Staff Transport, etc.">
+            <input v-model="form.description" type="text" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.description}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold tracking-tight placeholder:font-medium" placeholder="e.g., Office Supplies, Staff Transport, etc.">
+            <p v-if="errors.description" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.description[0] }}</p>
           </div>
 
           <!-- Recoverable Toggle (Only for Employee type) -->
@@ -311,18 +318,20 @@
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount (QAR) <span class="text-rose-500">*</span></label>
                 <div class="relative">
                     <span class="absolute left-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">QAR</span>
-                    <input v-model="form.amount" type="number" step="0.01" required class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-2xl" placeholder="0.00">
+                    <input v-model="form.amount" type="number" step="0.01" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.amount}" class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-2xl" placeholder="0.00">
                 </div>
+                <p v-if="errors.amount" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.amount[0] }}</p>
             </div>
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment Method <span class="text-rose-500">*</span></label>
-                <select v-model="form.payment_method" required class="w-full px-5 py-[22px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold">
+                <select v-model="form.payment_method" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.payment_method}" class="w-full px-5 py-[22px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold">
                     <option value="">Select Method</option>
                     <option value="Cash">Cash</option>
                     <option value="Bank Transfer">Bank Transfer</option>
                     <option value="Card">Card</option>
                     <option value="Check">Check</option>
                 </select>
+                <p v-if="errors.payment_method" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.payment_method[0] }}</p>
             </div>
           </div>
         </div>
@@ -383,6 +392,7 @@ const showModal = ref(false);
 const showConfirmModal = ref(false);
 const itemToDelete = ref(null);
 const deleting = ref(false);
+const errors = ref({});
 
 watch(() => route.query.filter, (newFilter) => {
     filterType.value = newFilter || '';
@@ -396,7 +406,7 @@ const form = ref({
   id: null,
   category_id: null,
   subcategory_id: null,
-  amount: 0,
+  amount: '',
   expense_date: new Date().toISOString().split('T')[0],
   validation_date: null,
   is_recoverable: false,
@@ -610,6 +620,7 @@ const handleDownload = async () => {
 };
 
 const openModal = async (expense = null, type = 'Company', isView = false) => {
+  errors.value = {};
   viewMode.value = isView;
   currentType.value = type;
   if (expense) {
@@ -634,7 +645,7 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
         id: null, 
         category_id: null,
         subcategory_id: null,
-        amount: 0,
+        amount: '',
         expense_date: new Date().toISOString().split('T')[0],
         validation_date: null,
         is_recoverable: false,
@@ -654,7 +665,7 @@ const saveExpense = async () => {
     const payload = { ...form.value };
     
     // Sanitize payload: convert empty strings/values to null for backend validation
-    payload.amount = parseFloat(payload.amount) || 0;
+    payload.amount = payload.amount === '' ? null : parseFloat(payload.amount);
     payload.category_id = payload.category_id || null;
     payload.subcategory_id = payload.subcategory_id || null;
     payload.validation_date = payload.validation_date || null;
@@ -673,8 +684,13 @@ const saveExpense = async () => {
     fetchExpenses(pagination.value?.current_page || 1);
   } catch (err) {
     console.error('Save error:', err.response?.data);
-    const msg = err.response?.data?.message || 'Failed to save expense';
-    notificationStore.error(msg);
+    if (err.response?.status === 422) {
+      errors.value = err.response.data.errors;
+      notificationStore.error('Validation error. Please check the fields.');
+    } else {
+      const msg = err.response?.data?.message || 'Failed to save expense';
+      notificationStore.error(msg);
+    }
   } finally {
     saving.value = false;
   }

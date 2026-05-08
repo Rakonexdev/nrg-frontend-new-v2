@@ -107,59 +107,87 @@
             <div class="md:col-span-2">
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Company Name <span class="text-red-500">*</span></label>
                 <input v-model="form.name" type="text" required :disabled="viewMode"
-                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
-                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       :class="[
+                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                           errors.name ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
+                       ]"
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Enter full company name">
+                <p v-if="errors.name" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.name[0] }}</p>
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Computer Card <span class="text-red-500">*</span></label>
                 <input v-model="form.computer_card" type="text" required :disabled="viewMode"
-                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
-                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       :class="[
+                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                           errors.computer_card ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
+                       ]"
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="ID number">
+                <p v-if="errors.computer_card" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.computer_card[0] }}</p>
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Contact Person <span class="text-red-500">*</span></label>
                 <input v-model="form.contact_person" type="text" required :disabled="viewMode"
-                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
-                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       :class="[
+                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                           errors.contact_person ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
+                       ]"
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Full name">
+                <p v-if="errors.contact_person" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.contact_person[0] }}</p>
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone Number <span class="text-red-500">*</span></label>
                 <input v-model="form.phone_number" type="text" required :disabled="viewMode"
                        @input="form.phone_number = form.phone_number.replace(/[^0-9]/g, '')"
-                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
-                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       :class="[
+                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                           errors.phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
+                       ]"
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Primary contact">
+                <p v-if="errors.phone_number" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.phone_number[0] }}</p>
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Alternative Number <span class="text-slate-400 font-normal italic">(Optional)</span></label>
                 <input v-model="form.alternative_phone_number" type="text" :disabled="viewMode"
                        @input="form.alternative_phone_number = form.alternative_phone_number.replace(/[^0-9]/g, '')"
-                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
-                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       :class="[
+                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                           errors.alternative_phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
+                       ]"
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Secondary contact">
+                <p v-if="errors.alternative_phone_number" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.alternative_phone_number[0] }}</p>
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Name <span class="text-red-500">*</span></label>
                 <input v-model="form.branch_name" type="text" required :disabled="viewMode"
-                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
-                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       :class="[
+                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                           errors.branch_name ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
+                       ]"
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Branch location/name">
+                <p v-if="errors.branch_name" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.branch_name[0] }}</p>
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Number <span class="text-red-500">*</span></label>
                 <input v-model="form.branch_number" type="text" required :disabled="viewMode"
-                       :class="viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900'"
-                       class="w-full px-5 py-4 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       :class="[
+                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                           errors.branch_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
+                       ]"
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
                        placeholder="Branch ID (e.g. 001)">
+                <p v-if="errors.branch_number" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.branch_number[0] }}</p>
             </div>
 
         </div>
@@ -291,6 +319,7 @@ const showStatusModal = ref(false);
 const showBranchModal = ref(false);
 const editMode = ref(false);
 const viewMode = ref(false);
+const errors = ref({});
 const searchQuery = ref('');
 const statusFilter = ref('');
 const perPage = ref(10);
@@ -362,6 +391,7 @@ const fetchCompanies = async (page = 1) => {
 };
 
 const openModal = (company = null, isView = false) => {
+    errors.value = {};
     viewMode.value = isView;
     if (company) {
         editMode.value = !isView;
@@ -397,7 +427,12 @@ const saveCompany = async () => {
         showModal.value = false;
         fetchCompanies(editMode.value ? pagination.value.current_page : 1);
     } catch (error) {
-        notificationStore.addNotification(error.response?.data?.message || 'Failed to save company', 'error');
+        if (error.response?.status === 422) {
+            errors.value = error.response.data.errors;
+            notificationStore.error('Validation error. Please check the fields.');
+        } else {
+            notificationStore.addNotification(error.response?.data?.message || 'Failed to save company', 'error');
+        }
     } finally {
         saving.value = false;
     }

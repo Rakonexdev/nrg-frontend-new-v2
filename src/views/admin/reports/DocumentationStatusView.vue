@@ -132,7 +132,7 @@
         <div class="space-y-4">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Process Status</label>
-            <select v-model="form.renewal_status" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+            <select v-model="form.renewal_status" :class="{'border-rose-500 ring-2 ring-rose-500/10': errors.renewal_status}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none">
               <option value="processing">🔄 Initial Processing</option>
               <option value="medical">🏥 Medical Test Pending</option>
               <option value="fingerprints">☝️ Fingerprints / Biometrics</option>
@@ -142,13 +142,15 @@
               <option value="delayed">⚠️ Delayed / Pending Requirement</option>
               <option value="completed">✅ Completed</option>
             </select>
+            <p v-if="errors.renewal_status" class="text-[10px] font-bold text-rose-500 mt-1 pl-1">{{ errors.renewal_status[0] }}</p>
           </div>
 
           <!-- Removed file upload sections as per user request -->
 
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Internal Notes / Progress Remarks</label>
-            <textarea v-model="form.renewal_notes" rows="4" placeholder="Enter details about why it's taking time, missing documents, etc." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"></textarea>
+            <textarea v-model="form.renewal_notes" rows="4" :class="{'border-rose-500 ring-2 ring-rose-500/10': errors.renewal_notes}" placeholder="Enter details about why it's taking time, missing documents, etc." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"></textarea>
+            <p v-if="errors.renewal_notes" class="text-[10px] font-bold text-rose-500 mt-1 pl-1">{{ errors.renewal_notes[0] }}</p>
           </div>
 
         </div>
@@ -181,6 +183,7 @@ const router = useRouter();
 const loading = ref(false);
 const saving = ref(false);
 const finalizing = ref(false);
+const errors = ref({});
 const search = ref('');
 const items = ref([]);
 const showModal = ref(false);
@@ -224,6 +227,7 @@ const fetchData = async () => {
 };
 
 const openTrackingModal = (item) => {
+  errors.value = {};
   selectedItem.value = item;
   form.value = {
     renewal_status: item.renewal_status || 'processing',
@@ -235,6 +239,7 @@ const openTrackingModal = (item) => {
 const save = async () => {
   if (!selectedItem.value) return;
   saving.value = true;
+  errors.value = {};
   try {
     await api.put(`/expenses/${selectedItem.value.id}`, {
         renewal_status: form.value.renewal_status,
@@ -244,8 +249,12 @@ const save = async () => {
     showModal.value = false;
     await fetchData();
   } catch (err) {
-    console.error('Save failed', err);
-    alert('Failed to save tracking info.');
+    if (err.response?.status === 422) {
+      errors.value = err.response.data.errors;
+    } else {
+      console.error('Save failed', err);
+      alert('Failed to save tracking info.');
+    }
   } finally {
     saving.value = false;
   }
@@ -256,6 +265,7 @@ const finalize = async () => {
   if (!confirm('This will automatically update the staff record expiry date. Continue?')) return;
 
   finalizing.value = true;
+  errors.value = {};
   try {
     await api.post(`/expenses/${selectedItem.value.id}/finalize`);
     showModal.value = false;
@@ -263,8 +273,12 @@ const finalize = async () => {
     // Removed redirect to staff detail as per user request
 
   } catch (err) {
-    console.error('Finalization failed', err);
-    alert('Failed to finalize renewal');
+    if (err.response?.status === 422) {
+      errors.value = err.response.data.errors;
+    } else {
+      console.error('Finalization failed', err);
+      alert('Failed to finalize renewal');
+    }
   } finally {
     finalizing.value = false;
   }

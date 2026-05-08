@@ -145,28 +145,37 @@
             <div>
               <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Full Name <span class="text-red-500">*</span></label>
               <input v-model="form.name" type="text" required :disabled="viewMode" 
-                :class="[errors.name ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Employee Name">
-              <p v-if="errors.name" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.name }}</p>
+                :class="[
+                  errors.name ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
+                  viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
+                ]"
+                class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Employee Name">
+              <p v-if="errors.name" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.name) ? errors.name[0] : errors.name }}</p>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nationality <span class="text-red-500">*</span></label>
                 <select v-model="form.nationality" required :disabled="viewMode"
-                  :class="[errors.nationality ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed appearance-none">
+                  :class="[
+                    errors.nationality ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
+                    viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
+                  ]"
+                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed appearance-none">
                   <option value="">Select Country</option>
                   <option v-for="c in nationalities" :key="c" :value="c">{{ c }}</option>
                 </select>
-                <p v-if="errors.nationality" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.nationality }}</p>
+                <p v-if="errors.nationality" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.nationality) ? errors.nationality[0] : errors.nationality }}</p>
               </div>
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Profession <span class="text-red-500">*</span></label>
                 <input v-model="form.profession" type="text" required :disabled="viewMode" 
-                  :class="[errors.profession ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Job Title">
-                <p v-if="errors.profession" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.profession }}</p>
+                  :class="[
+                    errors.profession ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
+                    viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
+                  ]"
+                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Job Title">
+                <p v-if="errors.profession" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.profession) ? errors.profession[0] : errors.profession }}</p>
               </div>
             </div>
 
@@ -179,10 +188,10 @@
                     required
                     :options="modalCompanyOptions"
                     :disabled="viewMode"
+                    :error="errors.company_id"
                     placeholder="Select Assigned Company"
                     @change="handleCompanyChange"
                   />
-                  <p v-if="errors.company_id" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.company_id }}</p>
                 </div>
                 <div>
                   <SearchableSelect 
@@ -204,12 +213,15 @@
                   <div class="absolute inset-y-0 left-0 flex items-center pl-4 pr-2 border-r border-slate-200 dark:border-slate-700/50 text-slate-400 font-bold text-xs pointer-events-none group-focus-within:text-blue-500 transition-colors">
                     +974
                   </div>
-                  <input v-model="form.mobile" type="text" required :disabled="viewMode" 
-                    @input="form.mobile = form.mobile.replace(/[^0-9]/g, '').slice(0, 8)"
-                    :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                    class="w-full pl-16 pr-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-digit number">
+                    <input v-model="form.mobile" type="text" required :disabled="viewMode" 
+                      @input="form.mobile = form.mobile.replace(/[^0-9]/g, '').slice(0, 8)"
+                      :class="[
+                        errors.mobile ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
+                        viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
+                      ]"
+                      class="w-full pl-16 pr-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-digit number">
                 </div>
-                <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.mobile }}</p>
+                <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.mobile) ? errors.mobile[0] : errors.mobile }}</p>
               </div>
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Alt. Mobile <span class="text-slate-400 font-normal italic">(Optional)</span></label>
@@ -270,9 +282,12 @@
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Passport Number <span class="text-red-500">*</span></label>
                 <input v-model="form.passport_number" type="text" required :disabled="viewMode" 
-                  :class="[errors.passport_number ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
-                <p v-if="errors.passport_number" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.passport_number }}</p>
+                  :class="[
+                    errors.passport_number ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
+                    viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
+                  ]"
+                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
+                <p v-if="errors.passport_number" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.passport_number) ? errors.passport_number[0] : errors.passport_number }}</p>
               </div>
               <DateInput 
                 label="Passport Expiry *"
@@ -287,9 +302,12 @@
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Qatar ID (QID) Number <span class="text-red-500">*</span></label>
                 <input v-model="form.qid_number" type="text" required :disabled="viewMode" maxlength="11"
-                  :class="[errors.qid_number ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50']"
-                  class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="11-digit QID">
-                <p v-if="errors.qid_number" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.qid_number }}</p>
+                  :class="[
+                    errors.qid_number ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
+                    viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
+                  ]"
+                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="11-digit QID">
+                <p v-if="errors.qid_number" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.qid_number) ? errors.qid_number[0] : errors.qid_number }}</p>
               </div>
               <DateInput 
                 label="QID Expiry *"
@@ -795,7 +813,12 @@ const saveStaff = async () => {
         showModal.value = false;
         fetchStaff(pagination.value.current_page || 1);
     } catch (err) {
-        alert(err.response?.data?.message || 'Validation error. Please check all fields.');
+        if (err.response?.status === 422) {
+            errors.value = err.response.data.errors;
+            notificationStore.error('Validation error. Please check the fields.');
+        } else {
+            notificationStore.error(err.response?.data?.message || 'Failed to save staff member');
+        }
     } finally {
         saving.value = false;
     }

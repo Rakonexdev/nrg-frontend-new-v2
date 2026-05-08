@@ -5,7 +5,11 @@
     <div 
       @click="toggleDropdown"
       class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all cursor-pointer flex items-center justify-between"
-      :class="{ 'opacity-50 cursor-not-allowed': disabled, 'border-blue-500 ring-2 ring-blue-500/20': isOpen }"
+      :class="{ 
+        'opacity-50 cursor-not-allowed': disabled, 
+        'border-blue-500 ring-2 ring-blue-500/20': isOpen,
+        'border-rose-500 ring-4 ring-rose-500/10': error 
+      }"
     >
       <span class="truncate dark:text-white font-medium" :class="{ 'text-slate-400': !selectedOption }">
         {{ selectedOption ? selectedOption.name : placeholder }}
@@ -14,6 +18,10 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
       </svg>
     </div>
+
+    <p v-if="error" class="mt-1.5 ml-1 text-[10px] font-black text-rose-500 uppercase tracking-widest animate-in fade-in slide-in-from-top-1">
+      {{ error }}
+    </p>
 
     <!-- Dropdown -->
     <Transition
@@ -120,7 +128,8 @@
    allowCustom: {
      type: Boolean,
      default: false
-   }
+   },
+   error: String
  });
  
  const emit = defineEmits(['update:modelValue', 'change', 'custom-select']);
@@ -192,20 +201,20 @@ onUnmounted(() => {
 watch(isOpen, (val) => {
   if (!val) search.value = '';
 });
-</script>
-
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
-  border-radius: 10px;
-}
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
-}
-</style>
+ </script>
+ 
+ <style scoped>
+ .custom-scrollbar::-webkit-scrollbar {
+   width: 4px;
+ }
+ .custom-scrollbar::-webkit-scrollbar-track {
+   background: transparent;
+ }
+ .custom-scrollbar::-webkit-scrollbar-thumb {
+   background: #e2e8f0;
+   border-radius: 10px;
+ }
+ .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+   background: #334155;
+ }
+ </style>
