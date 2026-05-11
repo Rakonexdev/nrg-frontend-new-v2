@@ -68,8 +68,8 @@
       
       <template #name="{ row }">
         <div class="flex flex-col">
-          <span class="text-base font-black text-slate-900 dark:text-white leading-none">{{ formatMobile(row.mobile) }}</span>
-          <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">{{ row.name }}</span>
+          <span class="text-sm font-black text-slate-800 dark:text-white leading-tight uppercase">{{ row.name }}</span>
+          <span class="text-[11px] font-black text-slate-700 dark:text-slate-300 tracking-wider mt-1">{{ formatMobile(row.mobile) }}</span>
         </div>
       </template>
 
@@ -184,7 +184,7 @@
                 <div>
                   <SearchableSelect 
                     label="Assigned Company *"
-                    v-model="form.company_id"
+                    v-model="selectedCompanyName"
                     required
                     :options="modalCompanyOptions"
                     :disabled="viewMode"
@@ -252,15 +252,6 @@
                   :disabled="viewMode"
                   :error="errors.joining_date"
                 />
-                <div v-if="contractEndPreview && !viewMode" class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                  <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                  </div>
-                  <div>
-                    <p class="text-[9px] font-black text-blue-500 uppercase tracking-[0.2em] leading-none mb-1">Estimated Contract End</p>
-                    <p class="text-xs font-black text-slate-800 dark:text-white tracking-tight">{{ contractEndPreview }}</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -408,6 +399,17 @@
             </div>
           </div>
         </div>
+
+        <!-- Full Width Notes -->
+        <div class="md:col-span-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Important Notes <span class="text-slate-400 font-normal italic">(Internal Use Only)</span></label>
+          <textarea v-model="form.notes" :disabled="viewMode"
+            :class="[
+              viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
+            ]"
+            class="w-full px-6 py-5 border border-slate-200 dark:border-slate-700/50 rounded-[2.5rem] outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed resize-none h-28 shadow-inner" 
+            placeholder="Enter any additional details, special instructions, or performance notes about this staff member..."></textarea>
+        </div>
       </form>
       <template #footer>
         <button @click="showModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">
@@ -502,16 +504,23 @@ const companyOptions = computed(() => {
 
 const modalCompanyOptions = computed(() => {
   if (!Array.isArray(companies.value)) return [];
-  return companies.value.map(c => ({ id: c.id, name: c.name }));
+  // Group by name to show each company name only once
+  const uniqueNames = new Set();
+  companies.value.forEach(c => uniqueNames.add(c.name));
+  
+  return Array.from(uniqueNames).sort().map(name => ({ id: name, name: name }));
 });
 
 const branches = ref([]);
 const modalBranchOptions = computed(() => {
   if (!Array.isArray(branches.value)) return [];
-  return branches.value.map(b => ({ 
-    id: b.id, 
-    name: b.branch_number ? `${b.name}-${b.branch_number}` : b.name 
-  }));
+  return branches.value.map(b => {
+    let name = b.name;
+    if (b.branch_number && !name.includes(b.branch_number)) {
+      name = `${name} (${b.branch_number})`;
+    }
+    return { id: b.id, name };
+  });
 });
 
 const nationalities = [
@@ -542,23 +551,8 @@ const form = ref({
   passport_files: [],
   qid_previews: [],
   passport_previews: [],
-  delete_document_ids: []
-});
-
-const contractEndPreview = computed(() => {
-  if (!form.value.joining_date) return null;
-  try {
-    const d = new Date(form.value.joining_date);
-    d.setFullYear(d.getFullYear() + 1);
-    d.setDate(d.getDate() - 1);
-    
-    const day = d.getDate().toString().padStart(2, '0');
-    const month = d.toLocaleString('en-US', { month: 'short' }).toLowerCase();
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
-  } catch (e) {
-    return null;
-  }
+  delete_document_ids: [],
+  notes: ''
 });
 
 const loadingBranches = ref(false);
@@ -721,17 +715,31 @@ const validate = () => {
     return Object.keys(errors.value).length === 0;
 };
 
+const selectedCompanyName = ref('');
+
 const openModal = async (staff = null, isView = false) => {
   cleanPreviews();
   errors.value = {};
   viewMode.value = isView;
-  fetchCompanies();
+  await fetchCompanies();
   
   if (staff) {
     editMode.value = !isView;
-    if (staff.company_id) {
-        fetchBranches(staff.company_id);
+    
+    // Initialize selectedCompanyName
+    if (staff.company) {
+        selectedCompanyName.value = staff.company.name;
+    } else if (staff.company_id) {
+        const company = companies.value.find(c => c.id === staff.company_id);
+        if (company) selectedCompanyName.value = company.name;
+    } else {
+        selectedCompanyName.value = '';
     }
+
+    if (selectedCompanyName.value) {
+        await fetchBranches(selectedCompanyName.value);
+    }
+
     try {
         // Fetch full details to ensure documents and other relations are loaded
         const res = await staffService.getById(staff.id);
@@ -762,6 +770,7 @@ const openModal = async (staff = null, isView = false) => {
   } else {
     editMode.value = false;
     branches.value = [];
+    selectedCompanyName.value = '';
     form.value = {
       id: null, name: '', nationality: '', profession: '', mobile: '',
       alternative_mobile: '',
@@ -772,7 +781,8 @@ const openModal = async (staff = null, isView = false) => {
       qid_documents: [], passport_documents: [],
       qid_files: [], passport_files: [],
       qid_previews: [], passport_previews: [],
-      delete_document_ids: []
+      delete_document_ids: [],
+      notes: ''
     };
   }
   showModal.value = true;
@@ -850,45 +860,72 @@ const handleStatusToggle = async () => {
 
 
 
-const handleCompanyChange = (companyId) => {
+const handleCompanyChange = (companyName) => {
     form.value.branch_id = null;
-    if (companyId) {
-        fetchBranches(companyId);
+    if (companyName) {
+        fetchBranches(companyName);
     } else {
         branches.value = [];
+        form.value.company_id = null;
     }
 };
 
-const fetchBranches = async (companyId) => {
-    if (!companyId) {
+const fetchBranches = async (companyName) => {
+    if (!companyName) {
         branches.value = [];
         return;
     }
     loadingBranches.value = true;
     try {
-        const res = await branchService.getAll(companyId);
-        branches.value = Array.isArray(res.data) ? res.data : (res.data.data || []);
+        // Find all company records with this name
+        const matchingCompanies = companies.value.filter(c => c.name === companyName);
+        const companyIds = matchingCompanies.map(c => c.id);
         
-        // Auto-select if only one branch exists
+        if (companyIds.length === 0) {
+            branches.value = [];
+            return;
+        }
+
+        // Set default company_id to the first one found
+        if (!form.value.company_id || !matchingCompanies.find(c => c.id === form.value.company_id)) {
+            form.value.company_id = companyIds[0];
+        }
+
+        // Fetch branches for all these companies
+        const branchPromises = companyIds.map(id => branchService.getAll(id));
+        const results = await Promise.all(branchPromises);
+        
+        // Flatten all branches
+        const allBranches = results.flatMap(res => 
+            Array.isArray(res.data) ? res.data : (res.data.data || [])
+        );
+        
+        branches.value = allBranches;
+        
+        // Auto-select if only one branch exists across all records
         if (branches.value.length === 1 && !form.value.branch_id) {
             form.value.branch_id = branches.value[0].id;
+            form.value.company_id = branches.value[0].company_id;
         }
     } catch (err) {
-        console.error('Failed to fetch branches', err);
+        console.error('Failed to fetch combined branches', err);
         branches.value = [];
     } finally {
         loadingBranches.value = false;
     }
 };
 
-// Sync branches if company_id changes externally (e.g. on load)
-watch(() => form.value.company_id, (newId, oldId) => {
-    if (newId !== oldId && newId) {
-        fetchBranches(newId);
-    } else if (!newId) {
-        branches.value = [];
+// Sync company_id when branch_id is selected
+watch(() => form.value.branch_id, (newBranchId) => {
+    if (newBranchId && branches.value.length > 0) {
+        const branch = branches.value.find(b => b.id === newBranchId);
+        if (branch) {
+            form.value.company_id = branch.company_id;
+        }
     }
 });
+
+// Sync branches is now handled by handleCompanyChange and openModal via selectedCompanyName
 
 // Utilities
 const formatDate = (date) => {

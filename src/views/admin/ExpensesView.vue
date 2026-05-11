@@ -407,7 +407,7 @@ const form = ref({
   category_id: null,
   subcategory_id: null,
   amount: '',
-  expense_date: new Date().toISOString().split('T')[0],
+  expense_date: '',
   validation_date: null,
   is_recoverable: false,
   payment_method: 'Cash',
@@ -540,13 +540,21 @@ const fetchResources = async () => {
         ]);
         allCategories.value = catsRes.data;
         rawContracts.value = contractsRes.data.data;
-        contractsList.value = contractsRes.data.data.map(c => ({
-            id: c.id,
-            name: c.staff?.name,
-            qid_number: c.staff?.qid_number,
-            mobile: c.staff?.mobile,
-            company_name: c.staff?.company?.name || 'Individual'
-        }));
+        
+        // Group by staff_id to show each staff member only once (latest contract)
+        const uniqueStaff = new Map();
+        contractsRes.data.data.forEach(c => {
+            if (c.staff && !uniqueStaff.has(c.staff.id)) {
+                uniqueStaff.set(c.staff.id, {
+                    id: c.id,
+                    name: c.staff.name,
+                    qid_number: c.staff.qid_number,
+                    mobile: c.staff.mobile,
+                    company_name: c.staff.company?.name || 'Individual'
+                });
+            }
+        });
+        contractsList.value = Array.from(uniqueStaff.values());
     } catch (err) {
         console.error('Failed to fetch resources', err);
     }
@@ -646,7 +654,7 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
         category_id: null,
         subcategory_id: null,
         amount: '',
-        expense_date: new Date().toISOString().split('T')[0],
+        expense_date: '',
         validation_date: null,
         is_recoverable: false,
         payment_method: '',

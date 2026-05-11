@@ -104,8 +104,8 @@ const getISODate = (date) => {
 };
 
 const filters = reactive({
-  from_date: getISODate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)),
-  to_date: getISODate(new Date()),
+  from_date: '',
+  to_date: '',
   page: 1
 });
 

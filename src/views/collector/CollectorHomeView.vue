@@ -321,7 +321,7 @@ const modalData = ref({
 
 const form = ref({
   amount: '',
-  payment_date: new Date().toISOString().slice(0, 10),
+  payment_date: '',
   payment_method: 'Cash',
   notes: '',
 });
@@ -396,7 +396,7 @@ const openRecordModal = (client, contract) => {
   };
   form.value = {
     amount: '',
-    payment_date: new Date().toISOString().slice(0, 10),
+    payment_date: '',
     payment_method: 'Cash',
     notes: '',
   };

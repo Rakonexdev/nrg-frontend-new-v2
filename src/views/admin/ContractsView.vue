@@ -119,23 +119,7 @@
                 </div>
             </div>
 
-            <!-- Dates Summary -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="p-4 bg-slate-50 dark:bg-slate-900/20 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-md flex items-center justify-between">
-                    <div>
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Contract Start Date</p>
-                        <p class="text-lg font-black text-slate-800 dark:text-white">{{ formatDate(selectedViewContract.start_date) }}</p>
-                    </div>
-                    <svg class="w-8 h-8 text-slate-200 dark:text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002-2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                </div>
-                <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-3xl border border-blue-100 dark:border-blue-800 shadow-sm transition-all hover:shadow-md flex items-center justify-between">
-                    <div>
-                        <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Next QID Expiry Date</p>
-                        <p class="text-lg font-black text-blue-600 dark:text-blue-400">{{ formatDate(selectedViewContract.qid_next_renewal_date) }}</p>
-                    </div>
-                    <svg class="w-8 h-8 text-blue-100 dark:text-blue-900/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                </div>
-            </div>
+
 
 
 
@@ -301,7 +285,7 @@
                 <span class="font-black text-slate-800 dark:text-white">{{ formatCurrency(row.net_payable) }}</span>
             </template>
 
-            <template #qid_next_renewal_date="{ value }">
+            <template #contract_date="{ value }">
                 <span class="font-black text-slate-700 dark:text-slate-300">{{ formatDate(value) }}</span>
             </template>
 
@@ -369,6 +353,14 @@
                            class="w-full h-[54px] pl-12 pr-4 py-3.5 bg-white dark:bg-slate-900 border rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-sm" placeholder="Ex: 5000.00">
                 </div>
                 <p v-if="errors.total_income" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ Array.isArray(errors.total_income) ? errors.total_income[0] : errors.total_income }}</p>
+            </div>
+            <div>
+                <DateInput 
+                    label="Contract Date *"
+                    v-model="form.contract_date"
+                    required
+                    :error="errors.contract_date"
+                />
             </div>
         </div>
 
@@ -488,19 +480,19 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
               <DateInput 
-                label="Date"
+                label="Date *"
                 v-model="adjustmentForm.adjustment_date"
                 :disabled="adjustmentSaving"
               />
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount</label>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount <span class="text-rose-500">*</span></label>
                 <div class="relative">
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
                   <input v-model="adjustmentForm.amount" :disabled="adjustmentSaving" type="number" step="0.01" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm" placeholder="0.00">
                 </div>
               </div>
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason</label>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason <span class="text-rose-500">*</span></label>
                 <select v-model="adjustmentForm.reason" :disabled="adjustmentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm">
                   <option value="">Select Reason</option>
                   <option value="QID Renewal Fee">QID Renewal Fee</option>
@@ -596,16 +588,16 @@
           <!-- Payment Entry Form -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-x-4 gap-y-5 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount</label>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount <span class="text-rose-500">*</span></label>
               <input v-model="paymentForm.amount" :disabled="paymentSaving" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm" placeholder="Ex: 1,000">
             </div>
             <DateInput 
-              label="Date"
+              label="Date *"
               v-model="paymentForm.payment_date"
               :disabled="paymentSaving"
             />
             <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Method</label>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Method <span class="text-rose-500">*</span></label>
               <select v-model="paymentForm.payment_method" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
                 <option value="Cash">Cash</option>
                 <option value="Online">Online Transaction</option>
@@ -618,8 +610,9 @@
             />
 
             <div class="md:col-span-3">
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Sub Category</label>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason <span class="text-rose-500">*</span></label>
               <select v-model="paymentForm.subcategory" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
+                <option value="">Select Reason</option>
                 <option value="Monthly Installment">Monthly Installment</option>
                 <option value="QID Renewal Fee">QID Renewal Fee</option>
                 <option value="Passport Renewal Fee">Passport Renewal Fee</option>
@@ -836,7 +829,8 @@ const form = ref({
   others_fee: '',
   others_reason: '',
   total_income: '',
-  start_date: new Date().toISOString().slice(0, 10),
+  contract_date: '',
+  start_date: '',
   end_date: '',
   qid_next_renewal_date: '',
   paid_amount: 0,
@@ -850,7 +844,7 @@ const adjustmentContract = ref({ id: null, net_payable: 0 });
 const adjustmentForm = ref({
     amount: '',
     reason: '',
-    adjustment_date: new Date().toISOString().slice(0, 10)
+    adjustment_date: ''
 });
 const paymentContract = ref({
   id: null,
@@ -866,7 +860,7 @@ const paymentContract = ref({
 const payments = ref([]);
 const paymentForm = ref({
   amount: '',
-  payment_date: new Date().toISOString().slice(0, 10),
+  payment_date: '',
   payment_method: 'Cash',
   subcategory: 'Monthly Installment',
   next_payment_date: '',
@@ -906,7 +900,7 @@ const columns = [
   { key: 'staff_name', label: 'Staff Member', sortable: false },
   { key: 'company_name', label: 'Company', sortable: false },
   { key: 'net_payable', label: 'Contract Value', sortable: true },
-  { key: 'qid_next_renewal_date', label: 'Date', sortable: true },
+  { key: 'contract_date', label: 'Date', sortable: true },
 
   { key: 'paid_amount', label: 'Paid', sortable: true },
   { key: 'pending_amount', label: 'Balance', sortable: true },
@@ -996,7 +990,8 @@ const openModal = (contract = null) => {
       others_fee: '',
       others_reason: '',
       total_income: '',
-      start_date: new Date().toISOString().slice(0, 10),
+      contract_date: '',
+      start_date: '',
       end_date: '',
       paid_amount: 0,
       pending_amount: 0,
@@ -1127,6 +1122,28 @@ const closePaymentModal = () => {
 const addPayment = async () => {
   if (!paymentContract.value.id) return;
 
+  // Client-side validation
+  if (!paymentForm.value.amount || parseAmount(paymentForm.value.amount) <= 0) {
+    alertConfig.value = { type: 'error', title: 'Amount Required', message: 'Please enter a valid payment amount.' };
+    showAlertModal.value = true;
+    return;
+  }
+  if (!paymentForm.value.payment_date) {
+    alertConfig.value = { type: 'error', title: 'Date Required', message: 'Please select the payment date.' };
+    showAlertModal.value = true;
+    return;
+  }
+  if (!paymentForm.value.payment_method) {
+    alertConfig.value = { type: 'error', title: 'Method Required', message: 'Please select a payment method.' };
+    showAlertModal.value = true;
+    return;
+  }
+  if (!paymentForm.value.subcategory) {
+    alertConfig.value = { type: 'error', title: 'Reason Required', message: 'Please select a reason for this payment.' };
+    showAlertModal.value = true;
+    return;
+  }
+
   paymentSaving.value = true;
   try {
     const payload = {
@@ -1234,6 +1251,7 @@ const syncFormWithContract = (contract) => {
         staff_id: contract.staff?.id || contract.staff_id,
         paid_amount: contract.paid_amount ?? 0,
         pending_amount: contract.pending_amount ?? 0,
+        contract_date: contract.contract_date || '',
         payment_status: contract.payment_status || 'Payment Not Initialized',
         payment_type: contract.payment_type || 'Cash'
     };
@@ -1262,9 +1280,9 @@ const syncPaymentContract = (contract) => {
 const resetPaymentForm = () => {
     paymentForm.value = {
         amount: '',
-        payment_date: new Date().toISOString().slice(0, 10),
+        payment_date: '',
         payment_method: paymentContract.value.payment_type || 'Cash',
-        subcategory: 'Monthly Installment',
+        subcategory: '',
         next_payment_date: '',
         notes: ''
     };
@@ -1276,7 +1294,7 @@ const openAdjustmentModal = (contract) => {
     adjustmentForm.value = {
         amount: '',
         reason: '',
-        adjustment_date: new Date().toISOString().slice(0, 10)
+        adjustment_date: ''
     };
     showAdjustmentModal.value = true;
 };
@@ -1318,6 +1336,12 @@ const submitAdjustment = async () => {
 
 const submitAdjustmentFromModal = async () => {
     if (!paymentContract.value.id) return;
+
+    if (!adjustmentForm.value.adjustment_date) {
+        alertConfig.value = { type: 'error', title: 'Date Required', message: 'Please select a date for the additional amount.' };
+        showAlertModal.value = true;
+        return;
+    }
     if (!adjustmentForm.value.amount || parseFloat(adjustmentForm.value.amount) <= 0) {
         alertConfig.value = { type: 'error', title: 'Invalid Amount', message: 'Please enter a valid additional amount.' };
         showAlertModal.value = true;
@@ -1341,7 +1365,7 @@ const submitAdjustmentFromModal = async () => {
         adjustmentForm.value = {
             amount: '',
             reason: '',
-            adjustment_date: new Date().toISOString().slice(0, 10)
+            adjustment_date: ''
         };
         // Refresh contract data in modal
         await fetchContractPayments(paymentContract.value.id);
