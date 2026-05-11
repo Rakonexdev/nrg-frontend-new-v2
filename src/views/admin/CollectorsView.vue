@@ -47,8 +47,8 @@
       
       <template #name="{ row }">
         <div class="flex flex-col">
-          <span class="font-semibold text-slate-900 dark:text-white">{{ row.name }}</span>
-          <span class="text-xs text-slate-500">{{ row.mobile }}</span>
+          <span class="font-bold text-slate-800 dark:text-white">{{ row.name }}</span>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ formatMobile(row.mobile) }}</span>
         </div>
       </template>
 
@@ -98,9 +98,15 @@
 
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mobile Number</label>
-            <input v-model="form.mobile" type="text" :disabled="viewMode"
-              :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50', viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900/50']"
-              class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" placeholder="+974 ...">
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pr-2 border-r border-slate-200 dark:border-slate-700/50 text-slate-400 font-bold text-xs pointer-events-none group-focus-within:text-blue-500 transition-colors">
+                    +974
+                </div>
+                <input v-model="form.mobile" type="text" :disabled="viewMode"
+                  @input="form.mobile = form.mobile.replace(/[^0-9]/g, '').slice(0, 8)"
+                  :class="[errors.mobile ? 'border-red-500 ring-4 ring-red-500/10' : 'border-slate-200 dark:border-slate-700/50', viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900/50']"
+                  class="w-full pl-16 pr-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" placeholder="8-digit number">
+            </div>
             <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-red-500 uppercase tracking-wider">{{ errors.mobile }}</p>
           </div>
 
@@ -354,6 +360,15 @@ const deleteCollector = async () => {
   } finally {
     deleting.value = false;
   }
+};
+
+const formatMobile = (val) => {
+  if (!val) return '—';
+  const s = String(val).replace(/[^0-9]/g, '');
+  if (s.length === 8) {
+    return s.slice(0, 4) + ' ' + s.slice(4);
+  }
+  return val;
 };
 
 onMounted(() => {

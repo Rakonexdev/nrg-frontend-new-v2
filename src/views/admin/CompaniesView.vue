@@ -57,15 +57,15 @@
             <span class="font-bold text-slate-800 dark:text-white">{{ row.name }}</span>
             <span v-if="row.branch_number" class="text-[11px] font-black text-indigo-500">({{ row.branch_number }})</span>
           </div>
-          <span v-if="row.branch_name" class="text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-widest font-black">{{ row.branch_name }}</span>
-          <span v-if="row.computer_card" class="text-[10px] text-slate-400 uppercase tracking-widest font-black">{{ row.computer_card }}</span>
+
+
         </div>
       </template>
 
       <template #phone_number="{ row }">
         <div class="flex flex-col">
-          <span class="font-semibold text-slate-700 dark:text-slate-300">{{ row.phone_number || 'N/A' }}</span>
-          <span v-if="row.alternative_phone_number" class="text-xs text-slate-500">{{ row.alternative_phone_number }}</span>
+          <span class="font-bold text-slate-700 dark:text-slate-300">{{ formatMobile(row.phone_number) }}</span>
+          <span v-if="row.alternative_phone_number" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ formatMobile(row.alternative_phone_number) }}</span>
         </div>
       </template>
 
@@ -116,16 +116,8 @@
                 <p v-if="errors.name" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.name[0] }}</p>
             </div>
 
-            <div>
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Computer Card <span class="text-red-500">*</span></label>
-                <input v-model="form.computer_card" type="text" required :disabled="viewMode"
-                       :class="[
-                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
-                           errors.computer_card ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
-                       ]"
-                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
-                       placeholder="ID number">
-                <p v-if="errors.computer_card" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.computer_card[0] }}</p>
+            <div class="hidden">
+                <input v-model="form.computer_card" type="hidden">
             </div>
 
             <div>
@@ -142,40 +134,40 @@
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone Number <span class="text-red-500">*</span></label>
-                <input v-model="form.phone_number" type="text" required :disabled="viewMode"
-                       @input="form.phone_number = form.phone_number.replace(/[^0-9]/g, '')"
-                       :class="[
-                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
-                           errors.phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
-                       ]"
-                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
-                       placeholder="Primary contact">
+                <div class="flex items-center rounded-2xl overflow-hidden transition-all focus-within:ring-2 focus-within:ring-blue-500/50"
+                     :class="[
+                         viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                         errors.phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
+                     ]">
+                    <div class="px-5 py-4 text-sm font-bold text-slate-400 border-r border-slate-200 dark:border-slate-700 bg-slate-100/50 dark:bg-slate-800/50">
+                        +974
+                    </div>
+                    <input v-model="form.phone_number" type="text" required :disabled="viewMode"
+                           @input="form.phone_number = form.phone_number.replace(/[^0-9]/g, '').slice(0, 8)"
+                           minlength="8" maxlength="8"
+                           class="flex-1 px-5 py-4 bg-transparent border-none text-sm focus:ring-0 outline-none font-bold" 
+                           placeholder="8-digit number">
+                </div>
                 <p v-if="errors.phone_number" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.phone_number[0] }}</p>
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Alternative Number <span class="text-slate-400 font-normal italic">(Optional)</span></label>
-                <input v-model="form.alternative_phone_number" type="text" :disabled="viewMode"
-                       @input="form.alternative_phone_number = form.alternative_phone_number.replace(/[^0-9]/g, '')"
-                       :class="[
-                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
-                           errors.alternative_phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
-                       ]"
-                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
-                       placeholder="Secondary contact">
+                <div class="flex items-center rounded-2xl overflow-hidden transition-all focus-within:ring-2 focus-within:ring-blue-500/50"
+                     :class="[
+                         viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                         errors.alternative_phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
+                     ]">
+                    <div class="px-5 py-4 text-sm font-bold text-slate-400 border-r border-slate-200 dark:border-slate-700 bg-slate-100/50 dark:bg-slate-800/50">
+                        +974
+                    </div>
+                    <input v-model="form.alternative_phone_number" type="text" :disabled="viewMode"
+                           @input="form.alternative_phone_number = form.alternative_phone_number.replace(/[^0-9]/g, '').slice(0, 8)"
+                           minlength="8" maxlength="8"
+                           class="flex-1 px-5 py-4 bg-transparent border-none text-sm focus:ring-0 outline-none font-bold" 
+                           placeholder="8-digit number">
+                </div>
                 <p v-if="errors.alternative_phone_number" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.alternative_phone_number[0] }}</p>
-            </div>
-
-            <div>
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Name <span class="text-red-500">*</span></label>
-                <input v-model="form.branch_name" type="text" required :disabled="viewMode"
-                       :class="[
-                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
-                           errors.branch_name ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
-                       ]"
-                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
-                       placeholder="Branch location/name">
-                <p v-if="errors.branch_name" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.branch_name[0] }}</p>
             </div>
 
             <div>
@@ -189,6 +181,8 @@
                        placeholder="Branch ID (e.g. 001)">
                 <p v-if="errors.branch_number" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.branch_number[0] }}</p>
             </div>
+
+
 
         </div>
 
@@ -526,6 +520,15 @@ const deleteBranch = async (id) => {
     }
 };
 
+
+const formatMobile = (val) => {
+    if (!val) return '—';
+    const s = String(val).replace(/[^0-9]/g, '');
+    if (s.length === 8) {
+        return s.slice(0, 4) + ' ' + s.slice(4);
+    }
+    return val;
+};
 
 onMounted(() => {
     console.log('CompaniesView mounted, fetching data...');

@@ -68,8 +68,8 @@
       
       <template #name="{ row }">
         <div class="flex flex-col">
-          <span class="font-semibold text-slate-900 dark:text-white">{{ row.name }}</span>
-          <span class="text-xs text-slate-500">{{ row.mobile }}</span>
+          <span class="text-base font-black text-slate-900 dark:text-white leading-none">{{ formatMobile(row.mobile) }}</span>
+          <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">{{ row.name }}</span>
         </div>
       </template>
 
@@ -909,6 +909,15 @@ const expiryClass = (date) => {
     if (diff < 0) return 'text-red-600 font-bold';
     if (diff < 30) return 'text-orange-500 font-semibold';
     return 'text-slate-600';
+};
+
+const formatMobile = (val) => {
+  if (!val) return '—';
+  const s = String(val).replace(/[^0-9]/g, '');
+  if (s.length === 8) {
+    return s.slice(0, 4) + ' ' + s.slice(4);
+  }
+  return val;
 };
 
 onMounted(async () => {

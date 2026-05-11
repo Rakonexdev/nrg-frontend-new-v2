@@ -58,7 +58,8 @@
             <option :value="50">50 per page</option>
           </select>
         </div>
-        <button v-if="search" @click="resetMainFilters" class="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Reset Filters">
+        <button v-if="search || paymentStatusFilter || pendingOnly" @click="resetMainFilters" class="p-2 text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1" title="Reset Filters">
+          <span v-if="pendingOnly" class="text-[10px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">Pending Only</span>
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </button>
       </div>
@@ -115,6 +116,24 @@
                     <p class="text-[10px] font-black text-blue-100 uppercase tracking-widest mb-1">Company Profit</p>
                     <p class="text-2xl font-black text-white">QAR {{ formatCurrency(selectedViewContract.profit_amount) }}</p>
                     <p class="text-[9px] font-bold text-blue-200 mt-1 uppercase tracking-widest">(Net Available)</p>
+                </div>
+            </div>
+
+            <!-- Dates Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 bg-slate-50 dark:bg-slate-900/20 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-md flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Contract Start Date</p>
+                        <p class="text-lg font-black text-slate-800 dark:text-white">{{ formatDate(selectedViewContract.start_date) }}</p>
+                    </div>
+                    <svg class="w-8 h-8 text-slate-200 dark:text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002-2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-3xl border border-blue-100 dark:border-blue-800 shadow-sm transition-all hover:shadow-md flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Next QID Expiry Date</p>
+                        <p class="text-lg font-black text-blue-600 dark:text-blue-400">{{ formatDate(selectedViewContract.qid_next_renewal_date) }}</p>
+                    </div>
+                    <svg class="w-8 h-8 text-blue-100 dark:text-blue-900/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </div>
             </div>
 
@@ -282,9 +301,11 @@
                 <span class="font-black text-slate-800 dark:text-white">{{ formatCurrency(row.net_payable) }}</span>
             </template>
 
-            <template #adjustment_total="{ row }">
-                <span class="font-black text-indigo-600 dark:text-indigo-400">{{ formatCurrency(row.adjustment_total || 0) }}</span>
+            <template #qid_next_renewal_date="{ value }">
+                <span class="font-black text-slate-700 dark:text-slate-300">{{ formatDate(value) }}</span>
             </template>
+
+
 
             <template #paid_amount="{ value }">
                 <span class="font-black text-emerald-600">{{ formatCurrency(value) }}</span>
@@ -345,7 +366,7 @@
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
                     <input v-model="form.total_income" type="number" step="0.01" required 
                            :class="[errors.total_income ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-slate-200 dark:border-slate-700']"
-                           class="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-900 border rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-sm" placeholder="Ex: 5000.00">
+                           class="w-full h-[54px] pl-12 pr-4 py-3.5 bg-white dark:bg-slate-900 border rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-sm" placeholder="Ex: 5000.00">
                 </div>
                 <p v-if="errors.total_income" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ Array.isArray(errors.total_income) ? errors.total_income[0] : errors.total_income }}</p>
             </div>
@@ -480,7 +501,16 @@
               </div>
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason</label>
-                <input v-model="adjustmentForm.reason" :disabled="adjustmentSaving" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm" placeholder="Reason for additional amount">
+                <select v-model="adjustmentForm.reason" :disabled="adjustmentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm">
+                  <option value="">Select Reason</option>
+                  <option value="QID Renewal Fee">QID Renewal Fee</option>
+                  <option value="Passport Renewal Fee">Passport Renewal Fee</option>
+                  <option value="Profession Change Fee">Profession Change Fee</option>
+                  <option value="Sponsorship Change Fee">Sponsorship Change Fee</option>
+                  <option value="Health Card Fee">Health Card Fee</option>
+                  <option value="Re-entry Permit">Re-entry Permit</option>
+                  <option value="Others">Others</option>
+                </select>
               </div>
               <div class="flex items-end">
                 <button @click.prevent="submitAdjustmentFromModal" :disabled="adjustmentSaving || !paymentContract.id" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30">
@@ -564,7 +594,7 @@
           </div>
 
           <!-- Payment Entry Form -->
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-x-4 gap-y-5 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <div>
               <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount</label>
               <input v-model="paymentForm.amount" :disabled="paymentSaving" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm" placeholder="Ex: 1,000">
@@ -581,14 +611,30 @@
                 <option value="Online">Online Transaction</option>
               </select>
             </div>
+            <DateInput 
+              label="Next Payment Date"
+              v-model="paymentForm.next_payment_date"
+              :disabled="paymentSaving"
+            />
+
+            <div class="md:col-span-3">
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Sub Category</label>
+              <select v-model="paymentForm.subcategory" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
+                <option value="Monthly Installment">Monthly Installment</option>
+                <option value="QID Renewal Fee">QID Renewal Fee</option>
+                <option value="Passport Renewal Fee">Passport Renewal Fee</option>
+                <option value="Profession Change Fee">Profession Change Fee</option>
+                <option value="Sponsorship Change Fee">Sponsorship Change Fee</option>
+                <option value="Health Card Fee">Health Card Fee</option>
+                <option value="Re-entry Permit">Re-entry Permit</option>
+                <option value="Settlement">Settlement</option>
+                <option value="Others Fee">Others Fee</option>
+              </select>
+            </div>
             <div class="flex items-end">
               <button @click.prevent="addPayment" :disabled="paymentSaving || !paymentContract.id" class="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30">
                 {{ paymentSaving ? 'Saving...' : 'Add Payment' }}
               </button>
-            </div>
-            <div class="md:col-span-4">
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Notes</label>
-              <textarea v-model="paymentForm.notes" :disabled="paymentSaving" rows="2" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-medium text-sm" placeholder="Optional payment note"></textarea>
             </div>
           </div>
 
@@ -612,7 +658,8 @@
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
-                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Notes</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Sub Category</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Pay Date</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Action</th>
                 </tr>
               </thead>
@@ -625,7 +672,8 @@
                       {{ payment.payment_method }}
                     </span>
                   </td>
-                  <td class="px-5 py-3.5 text-xs text-slate-500 dark:text-slate-400 max-w-[200px] truncate">{{ payment.notes || '—' }}</td>
+                  <td class="px-5 py-3.5 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-tight">{{ payment.subcategory || '—' }}</td>
+                  <td class="px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400">{{ formatDate(payment.next_payment_date) }}</td>
                   <td class="px-5 py-3.5 text-center">
                     <button @click="removePayment(payment)" :disabled="paymentDeletingId === payment.id" class="px-3 py-1.5 text-[10px] font-black text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all disabled:opacity-50 uppercase tracking-widest">
                       {{ paymentDeletingId === payment.id ? 'Removing...' : 'Delete' }}
@@ -685,6 +733,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import KpiCard from '@/components/shared/KpiCard.vue';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
@@ -698,6 +747,8 @@ import { useNotificationStore } from '@/stores/notification';
 
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
+const route = useRoute();
+const router = useRouter();
 
 const contractSummary = ref({
     total_contracts: 0,
@@ -749,6 +800,7 @@ const paymentSaving = ref(false);
 const paymentDeletingId = ref(null);
 const search = ref('');
 const paymentStatusFilter = ref('');
+const pendingOnly = ref(false);
 const sortBy = ref('id');
 const sortDir = ref('desc');
 const perPage = ref(10);
@@ -784,6 +836,9 @@ const form = ref({
   others_fee: '',
   others_reason: '',
   total_income: '',
+  start_date: new Date().toISOString().slice(0, 10),
+  end_date: '',
+  qid_next_renewal_date: '',
   paid_amount: 0,
   pending_amount: 0,
   payment_status: 'Payment Not Initialized',
@@ -813,6 +868,8 @@ const paymentForm = ref({
   amount: '',
   payment_date: new Date().toISOString().slice(0, 10),
   payment_method: 'Cash',
+  subcategory: 'Monthly Installment',
+  next_payment_date: '',
   notes: ''
 });
 
@@ -823,6 +880,18 @@ const paymentStatusOptions = ['Payment Not Initialized', 'Partially Paid', 'Full
 const selectedStaff = computed(() => {
     if (!form.value.staff_id) return null;
     return staffList.value.find(s => s.id === form.value.staff_id) || null;
+});
+
+watch(() => form.value.staff_id, (newId) => {
+    if (!editMode.value && newId) {
+        const staff = staffList.value.find(s => s.id === newId);
+        if (staff && staff.qid_expiry) {
+            const currentExpiry = new Date(staff.qid_expiry);
+            const nextExpiry = new Date(currentExpiry);
+            nextExpiry.setFullYear(currentExpiry.getFullYear() + 1);
+            form.value.qid_next_renewal_date = nextExpiry.toISOString().slice(0, 10);
+        }
+    }
 });
 
 const currentExpenseTotal = computed(() => {
@@ -837,7 +906,8 @@ const columns = [
   { key: 'staff_name', label: 'Staff Member', sortable: false },
   { key: 'company_name', label: 'Company', sortable: false },
   { key: 'net_payable', label: 'Contract Value', sortable: true },
-  { key: 'adjustment_total', label: 'Additional', sortable: false },
+  { key: 'qid_next_renewal_date', label: 'Date', sortable: true },
+
   { key: 'paid_amount', label: 'Paid', sortable: true },
   { key: 'pending_amount', label: 'Balance', sortable: true },
   { key: 'actions', label: 'Actions', sortable: false }
@@ -850,6 +920,7 @@ const fetchContracts = async (page = 1) => {
       page,
       search: search.value,
       payment_status: paymentStatusFilter.value,
+      pending_only: pendingOnly.value ? 1 : '',
       staff_id: '',
       sort_by: sortBy.value === 'total_income' ? 'total_income' : sortBy.value,
       sort_direction: sortDir.value,
@@ -896,6 +967,10 @@ const debouncedSearch = () => {
 const resetMainFilters = () => {
     search.value = '';
     paymentStatusFilter.value = '';
+    pendingOnly.value = false;
+    
+    // Clear URL query parameters
+    router.replace({ query: {} });
 
     clearTimeout(searchDebounceTimer.value);
     fetchContracts(1);
@@ -921,6 +996,8 @@ const openModal = (contract = null) => {
       others_fee: '',
       others_reason: '',
       total_income: '',
+      start_date: new Date().toISOString().slice(0, 10),
+      end_date: '',
       paid_amount: 0,
       pending_amount: 0,
       payment_status: 'Payment Not Initialized',
@@ -1187,6 +1264,8 @@ const resetPaymentForm = () => {
         amount: '',
         payment_date: new Date().toISOString().slice(0, 10),
         payment_method: paymentContract.value.payment_type || 'Cash',
+        subcategory: 'Monthly Installment',
+        next_payment_date: '',
         notes: ''
     };
 };
@@ -1297,7 +1376,10 @@ const paymentStatusClass = (value) => {
 };
 
 onMounted(() => {
-    console.log('ContractsView mounted, fetching data...');
+    console.log('ContractsView mounted, checking filters...');
+    if (route.query.filter === 'pending') {
+        pendingOnly.value = true;
+    }
     fetchContracts();
     fetchResources();
     fetchSummary();

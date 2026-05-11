@@ -85,14 +85,14 @@
                     'text-slate-500': item.renewal_status === 'processing',
                     'text-amber-500': item.renewal_status === 'medical' || item.renewal_status === 'fingerprints',
                     'text-rose-500': item.renewal_status === 'delayed',
-                    'text-blue-500': item.renewal_status === 'submitted',
+                    'text-blue-500': item.renewal_status === 'submitted' || item.renewal_status === 'qid_upload' || item.renewal_status === 'passport_upload',
                     'text-emerald-500': item.renewal_status === 'completed'
                   }" class="text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
                     <span class="w-1.5 h-1.5 rounded-full" :class="{
                       'bg-slate-500': item.renewal_status === 'processing',
                       'bg-amber-500': item.renewal_status === 'medical' || item.renewal_status === 'fingerprints',
                       'bg-rose-500': item.renewal_status === 'delayed',
-                      'bg-blue-500': item.renewal_status === 'submitted',
+                      'bg-blue-500': item.renewal_status === 'submitted' || item.renewal_status === 'qid_upload' || item.renewal_status === 'passport_upload',
                       'bg-emerald-500': item.renewal_status === 'completed'
                     }"></span>
                     {{ item.renewal_status }}
