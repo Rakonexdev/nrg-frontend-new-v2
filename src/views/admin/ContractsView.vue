@@ -318,8 +318,15 @@
                 <span class="font-black text-emerald-600">{{ formatCurrency(value) }}</span>
             </template>
 
-            <template #pending_amount="{ value }">
-                <span class="font-black text-rose-500">{{ formatCurrency(value) }}</span>
+            <template #pending_amount="{ row, value }">
+                <div>
+                  <span class="font-black text-rose-500">{{ formatCurrency(value) }}</span>
+                  <div v-if="row.adjustment_pending_total > 0" class="mt-0.5">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-900/20 text-[9px] font-black text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/50 uppercase tracking-tighter">
+                      + {{ formatCurrency(row.adjustment_pending_total) }} additional
+                    </span>
+                  </div>
+                </div>
             </template>
 
 
@@ -466,19 +473,8 @@
             </div>
           </div>
 
-          <!-- Row 2: Total Paid + Linked Expenses + Profit -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Total Paid Card (with pending) -->
-            <div class="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 shadow-sm">
-              <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Total Paid</p>
-              <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400">QAR {{ formatCurrency(paymentContract.paid_amount || 0) }}</p>
-              <div class="flex items-center gap-1.5 mt-2">
-                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-900/30 text-[9px] font-black text-rose-500 uppercase tracking-tighter">
-                  Pending: QAR {{ formatCurrency(paymentContract.pending_amount || 0) }}
-                </span>
-              </div>
-            </div>
-
+          <!-- Row 2: Linked Expenses + Pending Additional Amount -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Linked Expenses Card -->
             <div class="p-5 rounded-2xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 shadow-sm">
               <p class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">Linked Expenses</p>
@@ -486,11 +482,11 @@
               <p class="text-[9px] font-bold text-orange-400 uppercase tracking-tighter mt-1">Fixed Fees + Dynamic</p>
             </div>
 
-            <!-- Profit Card -->
-            <div class="p-5 rounded-2xl bg-teal-600 border border-teal-500 shadow-xl shadow-teal-500/15">
-              <p class="text-[10px] font-black text-teal-100 uppercase tracking-widest mb-1">Profit</p>
-              <p class="text-2xl font-black text-white">QAR {{ formatCurrency(paymentContract.profit_amount || 0) }}</p>
-              <p class="text-[9px] font-bold text-teal-200 uppercase tracking-tighter mt-1">Paid − Expenses</p>
+            <!-- Pending Additional Amount Card -->
+            <div class="p-5 rounded-2xl bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/30 shadow-sm">
+              <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Pending Additional Amount</p>
+              <p class="text-2xl font-black text-rose-500">QAR {{ formatCurrency(totalAdditionalPending) }}</p>
+              <p class="text-[9px] font-bold text-rose-400 uppercase tracking-tighter mt-1">Unpaid from {{ contractAdjustments.length }} adjustment{{ contractAdjustments.length !== 1 ? 's' : '' }}</p>
             </div>
           </div>
 

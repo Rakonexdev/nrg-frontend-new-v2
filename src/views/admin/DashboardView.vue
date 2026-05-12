@@ -38,7 +38,7 @@
       <router-link to="/admin/staff?filter=expiring_passport" class="block group h-full">
         <KpiCard 
           title="Passport Expiry" 
-          :value="stats.expired_passport" 
+          :value="stats.expiring_passport" 
           :icon="icons.document" 
           color-class="bg-rose-500" 
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
@@ -320,7 +320,7 @@ const lastSync = ref(new Date().toLocaleTimeString());
 const stats = ref({
     total_staff: 0,
     expiring_qid: 0,
-    expired_passport: 0,
+    expiring_passport: 0,
     renewing_contracts: 0,
     total_collected: 0,
     total_pending: 0,
