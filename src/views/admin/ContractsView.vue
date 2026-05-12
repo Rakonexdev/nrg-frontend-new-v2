@@ -478,17 +478,24 @@
               <h3 class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Add Additional Amount</h3>
               <p class="text-[10px] text-slate-400 font-bold italic ml-auto">This records extra payments that do not affect the main contract balance.</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
               <DateInput 
                 label="Date *"
                 v-model="adjustmentForm.adjustment_date"
                 :disabled="adjustmentSaving"
               />
               <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount <span class="text-rose-500">*</span></label>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Total Amount <span class="text-rose-500">*</span></label>
                 <div class="relative">
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
                   <input v-model="adjustmentForm.amount" :disabled="adjustmentSaving" type="number" step="0.01" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm" placeholder="0.00">
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Paid Amount</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
+                  <input v-model="adjustmentForm.paid_amount" :disabled="adjustmentSaving" type="number" step="0.01" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm" placeholder="0.00">
                 </div>
               </div>
               <div>
@@ -504,8 +511,14 @@
                   <option value="Others">Others</option>
                 </select>
               </div>
-              <div class="flex items-end">
-                <button @click.prevent="submitAdjustmentFromModal" :disabled="adjustmentSaving || !paymentContract.id" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30">
+              <DateInput 
+                label="Next Pay Date"
+                v-model="adjustmentForm.next_payment_date"
+                :disabled="adjustmentSaving"
+              />
+              <div class="md:col-span-5 flex justify-end mt-2">
+                <button @click.prevent="submitAdjustmentFromModal" :disabled="adjustmentSaving || !paymentContract.id" class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 flex items-center gap-2">
+                  <svg v-if="adjustmentSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                   {{ adjustmentSaving ? 'Adding...' : 'Add Additional Amount' }}
                 </button>
               </div>
@@ -523,20 +536,40 @@
                 <tr class="bg-slate-50/50 dark:bg-slate-800/30">
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reason</th>
-                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Total</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Paid</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Pending</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status / Action</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                 <tr v-for="adj in contractAdjustments" :key="adj.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                   <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(adj.adjustment_date) }}</td>
-                  <td class="px-5 py-3.5 text-sm font-bold text-slate-800 dark:text-white">{{ adj.reason }}</td>
-                  <td class="px-5 py-3.5 text-sm font-black text-indigo-600 dark:text-indigo-400 text-right">QAR {{ formatCurrency(adj.amount) }}</td>
+                  <td class="px-5 py-3.5">
+                    <p class="text-sm font-black text-slate-800 dark:text-white">{{ adj.reason }}</p>
+                  </td>
+                  <td class="px-5 py-3.5 text-sm font-black text-slate-700 dark:text-slate-300 text-right">QAR {{ formatCurrency(adj.amount) }}</td>
+                  <td class="px-5 py-3.5 text-sm font-black text-emerald-600 text-right">QAR {{ formatCurrency(adj.paid_amount || 0) }}</td>
+                  <td class="px-5 py-3.5 text-sm font-black text-rose-500 text-right">QAR {{ formatCurrency(adj.pending_amount || 0) }}</td>
+                  <td class="px-5 py-3.5 text-center">
+                    <button v-if="adj.pending_amount > 0" @click="openPendingPaymentModal(adj)" class="px-3 py-1.5 text-[10px] font-black bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 rounded-lg transition-all uppercase tracking-widest border border-emerald-200 dark:border-emerald-800">
+                      Pay Pending
+                      <span v-if="adj.next_payment_date" class="block text-[8px] text-emerald-500/70 mt-0.5 tracking-tight normal-case">Due: {{ formatDate(adj.next_payment_date) }}</span>
+                    </button>
+                    <span v-else class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700">
+                      <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                      Completed
+                    </span>
+                  </td>
                 </tr>
               </tbody>
               <tfoot>
                 <tr class="bg-indigo-50/50 dark:bg-indigo-900/10 border-t-2 border-indigo-100 dark:border-indigo-900/30">
                   <td colspan="2" class="px-5 py-3 text-[10px] font-black text-indigo-500 uppercase tracking-widest">Total Additional</td>
-                  <td class="px-5 py-3 text-sm font-black text-indigo-600 dark:text-indigo-400 text-right">QAR {{ formatCurrency(paymentContract.adjustment_total || 0) }}</td>
+                  <td class="px-5 py-3 text-sm font-black text-indigo-600 dark:text-indigo-400 text-right">QAR {{ formatCurrency(totalAdditionalAmount) }}</td>
+                  <td class="px-5 py-3 text-sm font-black text-emerald-600 text-right">QAR {{ formatCurrency(totalAdditionalPaid) }}</td>
+                  <td class="px-5 py-3 text-sm font-black text-rose-500 text-right">QAR {{ formatCurrency(totalAdditionalPending) }}</td>
+                  <td></td>
                 </tr>
               </tfoot>
             </table>
@@ -609,7 +642,16 @@
               :disabled="paymentSaving"
             />
 
-            <div class="md:col-span-3">
+            <div class="md:col-span-1">
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Link to Collection</label>
+              <select v-model="paymentForm.contract_adjustment_id" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
+                <option value="">Not Linked (Monthly)</option>
+                <option v-for="adj in contractAdjustments.filter(a => a.pending_amount > 0)" :key="adj.id" :value="adj.id">
+                  {{ adj.reason }} (Pending: {{ formatCurrency(adj.pending_amount) }})
+                </option>
+              </select>
+            </div>
+            <div class="md:col-span-2">
               <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason <span class="text-rose-500">*</span></label>
               <select v-model="paymentForm.subcategory" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
                 <option value="">Select Reason</option>
@@ -690,6 +732,54 @@
       </template>
     </Modal>
  
+    <!-- Pay Pending Payment Modal -->
+    <Modal :show="showPendingPaymentModal" title="Pay Pending Amount" @close="showPendingPaymentModal = false" maxWidth="md">
+        <div class="p-6 space-y-5 bg-white dark:bg-slate-900">
+            <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Paying for</p>
+                    <p class="text-sm font-black text-slate-800 dark:text-white">{{ payingAdjustment?.reason }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Pending</p>
+                    <p class="text-lg font-black text-rose-500">QAR {{ formatCurrency(payingAdjustment?.pending_amount || 0) }}</p>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment Amount <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
+                    <input v-model="pendingPaymentForm.amount" :disabled="pendingPaymentSaving" type="number" step="0.01" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm" placeholder="0.00">
+                </div>
+            </div>
+            <DateInput 
+                label="Payment Date *" 
+                v-model="pendingPaymentForm.payment_date" 
+                :disabled="pendingPaymentSaving" 
+            />
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Method <span class="text-rose-500">*</span></label>
+                <select v-model="pendingPaymentForm.payment_method" :disabled="pendingPaymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
+                    <option value="Cash">Cash</option>
+                    <option value="Online">Online Transaction</option>
+                </select>
+            </div>
+            <DateInput 
+                label="Next Pay Date (Optional)" 
+                v-model="pendingPaymentForm.next_payment_date" 
+                :disabled="pendingPaymentSaving" 
+            />
+        </div>
+        <template #footer>
+            <button @click="showPendingPaymentModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">Cancel</button>
+            <button @click="submitPendingPayment" :disabled="pendingPaymentSaving" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+                <svg v-if="pendingPaymentSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                {{ pendingPaymentSaving ? 'Processing...' : 'Submit Payment' }}
+            </button>
+        </template>
+    </Modal>
+
     <!-- Confirm Add Modal -->
     <ConfirmModal 
       :show="showCreateConfirmModal" 
@@ -805,6 +895,19 @@ const selectedViewContract = ref(null);
 const showPaymentModal = ref(false);
 const paymentModalTab = ref('payments');
 const contractAdjustments = ref([]);
+
+const totalAdditionalAmount = computed(() => {
+    return contractAdjustments.value.reduce((sum, adj) => sum + (parseFloat(adj.amount) || 0), 0);
+});
+
+const totalAdditionalPaid = computed(() => {
+    return contractAdjustments.value.reduce((sum, adj) => sum + (parseFloat(adj.paid_amount) || 0), 0);
+});
+
+const totalAdditionalPending = computed(() => {
+    return contractAdjustments.value.reduce((sum, adj) => sum + (parseFloat(adj.pending_amount) || 0), 0);
+});
+
 const showConfirmModal = ref(false);
 const showCreateConfirmModal = ref(false);
 const showAlertModal = ref(false);
@@ -843,8 +946,11 @@ const adjustmentSaving = ref(false);
 const adjustmentContract = ref({ id: null, net_payable: 0 });
 const adjustmentForm = ref({
     amount: '',
+    paid_amount: '',
     reason: '',
-    adjustment_date: ''
+    adjustment_date: '',
+    next_payment_date: '',
+    payment_method: 'Cash'
 });
 const paymentContract = ref({
   id: null,
@@ -864,8 +970,19 @@ const paymentForm = ref({
   payment_method: 'Cash',
   subcategory: 'Monthly Installment',
   next_payment_date: '',
-  notes: ''
+  notes: '',
+  contract_adjustment_id: ''
 });
+
+const showPendingPaymentModal = ref(false);
+const payingAdjustment = ref(null);
+const pendingPaymentForm = ref({
+    amount: '',
+    payment_date: '',
+    payment_method: 'Cash',
+    next_payment_date: ''
+});
+const pendingPaymentSaving = ref(false);
 
 const paymentStatusOptions = ['Payment Not Initialized', 'Partially Paid', 'Fully Paid'];
 
@@ -1284,7 +1401,8 @@ const resetPaymentForm = () => {
         payment_method: paymentContract.value.payment_type || 'Cash',
         subcategory: '',
         next_payment_date: '',
-        notes: ''
+        notes: '',
+        contract_adjustment_id: ''
     };
 };
 
@@ -1357,15 +1475,19 @@ const submitAdjustmentFromModal = async () => {
     try {
         const payload = {
             ...adjustmentForm.value,
-            amount: parseAmount(adjustmentForm.value.amount)
+            amount: parseAmount(adjustmentForm.value.amount),
+            paid_amount: parseAmount(adjustmentForm.value.paid_amount) || 0,
         };
         await contractService.addAdjustment(paymentContract.value.id, payload);
         notificationStore.success('Additional amount added successfully');
         // Reset adjustment form
         adjustmentForm.value = {
             amount: '',
+            paid_amount: '',
             reason: '',
-            adjustment_date: ''
+            adjustment_date: '',
+            next_payment_date: '',
+            payment_method: 'Cash'
         };
         // Refresh contract data in modal
         await fetchContractPayments(paymentContract.value.id);
@@ -1380,6 +1502,60 @@ const submitAdjustmentFromModal = async () => {
         showAlertModal.value = true;
     } finally {
         adjustmentSaving.value = false;
+    }
+};
+
+const openPendingPaymentModal = (adj) => {
+    payingAdjustment.value = adj;
+    pendingPaymentForm.value = {
+        amount: adj.pending_amount,
+        payment_date: new Date().toISOString().slice(0, 10),
+        payment_method: 'Cash',
+        next_payment_date: ''
+    };
+    showPendingPaymentModal.value = true;
+};
+
+const submitPendingPayment = async () => {
+    if (!payingAdjustment.value || !paymentContract.value.id) return;
+    
+    if (!pendingPaymentForm.value.amount || parseFloat(pendingPaymentForm.value.amount) <= 0) {
+        alertConfig.value = { type: 'error', title: 'Invalid Amount', message: 'Please enter a valid amount.' };
+        showAlertModal.value = true;
+        return;
+    }
+    if (parseFloat(pendingPaymentForm.value.amount) > payingAdjustment.value.pending_amount) {
+        alertConfig.value = { type: 'error', title: 'Invalid Amount', message: 'Payment cannot exceed pending amount.' };
+        showAlertModal.value = true;
+        return;
+    }
+
+    pendingPaymentSaving.value = true;
+    try {
+        const payload = {
+            amount: parseAmount(pendingPaymentForm.value.amount),
+            payment_date: pendingPaymentForm.value.payment_date,
+            payment_method: pendingPaymentForm.value.payment_method,
+            next_payment_date: pendingPaymentForm.value.next_payment_date || null,
+            subcategory: payingAdjustment.value.reason,
+            contract_adjustment_id: payingAdjustment.value.id
+        };
+        await contractService.addPayment(paymentContract.value.id, payload);
+        notificationStore.success('Pending amount paid successfully');
+        showPendingPaymentModal.value = false;
+        
+        await fetchContractPayments(paymentContract.value.id);
+        await fetchContracts(pagination.value.current_page || 1);
+        await fetchSummary();
+    } catch (err) {
+        alertConfig.value = {
+            type: 'error',
+            title: 'Payment Error',
+            message: err.response?.data?.message || 'Failed to pay pending amount'
+        };
+        showAlertModal.value = true;
+    } finally {
+        pendingPaymentSaving.value = false;
     }
 };
 
