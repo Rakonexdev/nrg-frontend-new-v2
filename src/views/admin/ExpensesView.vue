@@ -449,7 +449,7 @@ const selectedContractProfession = computed(() => selectedContractStaff.value?.p
 const selectedContractFunds = computed(() => {
     if (!form.value.contract_id) return 0;
     const contract = rawContracts.value.find(c => c.id == form.value.contract_id);
-    return parseFloat(contract?.adjustment_total || 0);
+    return parseFloat(contract?.adjustment_paid_total || 0);
 });
 
 const getDaysDiff = (date) => {

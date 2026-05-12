@@ -104,10 +104,10 @@
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
-                  <router-link :to="{ name: 'admin-staff', query: { edit: item.staff_id, search: item.staff?.name } }" class="p-2 bg-slate-50 dark:bg-slate-800 text-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-sm" title="Update Documents">
+                  <router-link v-if="authStore.hasPermission('staff_edit') || authStore.hasPermission('report_doc_status_edit')" :to="{ name: 'admin-staff', query: { edit: item.staff_id, search: item.staff?.name } }" class="p-2 bg-slate-50 dark:bg-slate-800 text-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-sm" title="Update Documents">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                   </router-link>
-                  <button @click="openTrackingModal(item)" class="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg hover:bg-blue-100 transition-all shadow-sm" title="Update Status">
+                  <button v-if="authStore.hasPermission('report_doc_status_edit')" @click="openTrackingModal(item)" class="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg hover:bg-blue-100 transition-all shadow-sm" title="Update Status">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                   </button>
                 </div>
@@ -178,7 +178,9 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
 import Modal from '@/components/shared/Modal.vue';
+import { useAuthStore } from '@/stores/auth';
 
+const authStore = useAuthStore();
 const router = useRouter();
 const loading = ref(false);
 const saving = ref(false);

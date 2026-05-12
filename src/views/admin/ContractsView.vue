@@ -605,7 +605,7 @@
           <div v-if="filteredAdjustmentPayments.length > 0" class="space-y-4">
               <div class="flex items-center gap-3 px-1">
                   <div class="w-1 h-5 rounded-full bg-indigo-500"></div>
-                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Additional Payments History</p>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Additional Payments History (Staff to NRG)</p>
               </div>
               <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
                   <table class="w-full text-left">
@@ -643,8 +643,8 @@
           <!-- Payment Status Header -->
           <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Collection / Payment Management</p>
-              <p class="text-[10px] text-emerald-500 font-bold italic">Record payments received against the contract balance.</p>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Admin Collection Management (Company to NRG)</p>
+              <p class="text-[10px] text-emerald-500 font-bold italic">Record payments received from companies against the main contract balance.</p>
             </div>
             <div class="flex items-center gap-3">
               <div class="text-right hidden md:block">
@@ -726,7 +726,7 @@
           <!-- Payment History Table -->
           <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
             <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment History</p>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Admin Collection History (NRG Revenue)</p>
               <span class="text-[10px] font-black text-slate-400 uppercase">{{ filteredContractPayments.length }} Entries</span>
             </div>
             <div v-if="paymentLoading" class="px-6 py-10 text-center">
@@ -768,7 +768,7 @@
               </tbody>
               <tfoot>
                 <tr class="bg-emerald-50/50 dark:bg-emerald-900/10 border-t-2 border-emerald-100 dark:border-emerald-900/30">
-                  <td class="px-5 py-3 text-[10px] font-black text-emerald-600 uppercase tracking-widest">Total Collected</td>
+                  <td class="px-5 py-3 text-[10px] font-black text-emerald-600 uppercase tracking-widest">Total Admin Collected</td>
                   <td class="px-5 py-3 text-sm font-black text-emerald-600 dark:text-emerald-400 text-right">QAR {{ formatCurrency(paymentContract.paid_amount || 0) }}</td>
                   <td colspan="4"></td>
                 </tr>

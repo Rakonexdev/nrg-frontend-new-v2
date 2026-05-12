@@ -189,8 +189,8 @@
       </template>
     </Modal>
 
-    <!-- Create Admin User Modal -->
-    <Modal :show="showCreateUser" title="Add Admin User" @close="showCreateUser = false" maxWidth="lg">
+    <!-- Create/Edit Admin User Modal -->
+    <Modal :show="showCreateUser || showEditUser" :title="showEditUser ? 'Edit Admin User' : 'Add Admin User'" @close="closeUserModal" maxWidth="lg">
       <div class="p-6 space-y-5">
         <div class="space-y-2">
           <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Full Name</label>
@@ -215,12 +215,19 @@
             <option v-for="role in roles" :key="role.id" :value="role.name">{{ role.name.replace('_', ' ') }}</option>
           </select>
         </div>
+        <div v-if="showEditUser" class="space-y-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" v-model="userForm.is_active" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+            <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Account Active</span>
+          </label>
+        </div>
       </div>
       <template #footer>
         <div class="flex items-center justify-end gap-3 w-full p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-          <button @click="showCreateUser = false" class="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors">Cancel</button>
-          <button @click="createAdminUser" :disabled="saving" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-50">
-            Create User
+          <button @click="closeUserModal" class="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors">Cancel</button>
+          <button @click="saveAdminUser" :disabled="saving" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+            <svg v-if="saving" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+            {{ showEditUser ? 'Update User' : 'Create User' }}
           </button>
         </div>
       </template>
@@ -245,10 +252,12 @@ const permissionGroups = ref({});
 const showCreateRole = ref(false);
 const showEditRole = ref(false);
 const showCreateUser = ref(false);
+const showEditUser = ref(false);
 const editingRole = ref(null);
+const editingUser = ref(null);
 
 const roleForm = ref({ name: '', permissions: [] });
-const userForm = ref({ name: '', email: '', password: '', mobile: '', role: '' });
+const userForm = ref({ name: '', email: '', password: '', mobile: '', role: '', is_active: true });
 
 const fetchData = async () => {
   loading.value = true;
@@ -351,9 +360,24 @@ const saveRole = async () => {
   }
 };
 
+const closeUserModal = () => {
+  showCreateUser.value = false;
+  showEditUser.value = false;
+  editingUser.value = null;
+  userForm.value = { name: '', email: '', password: '', mobile: '', role: '', is_active: true };
+};
+
 const editUser = (user) => {
-  // Could implement inline editing or modal — for now log
-  console.log('Edit user', user);
+  editingUser.value = user;
+  userForm.value = {
+    name: user.name,
+    email: user.email,
+    mobile: user.mobile || '',
+    role: user.role || '',
+    is_active: user.is_active,
+    password: '' // Password blank unless changing
+  };
+  showEditUser.value = true;
 };
 
 const deleteUser = async (user) => {
@@ -370,16 +394,24 @@ const deleteUser = async (user) => {
   }
 };
 
-const createAdminUser = async () => {
+const saveAdminUser = async () => {
   saving.value = true;
   try {
-    await adminUserService.create(userForm.value);
-    notify.success('Admin user created successfully.');
-    showCreateUser.value = false;
-    userForm.value = { name: '', email: '', password: '', mobile: '', role: '' };
+    if (showEditUser.value && editingUser.value) {
+      // For update, password is optional
+      const updateData = { ...userForm.value };
+      if (!updateData.password) delete updateData.password;
+      
+      await adminUserService.update(editingUser.value.id, updateData);
+      notify.success('Admin user updated successfully.');
+    } else {
+      await adminUserService.create(userForm.value);
+      notify.success('Admin user created successfully.');
+    }
+    closeUserModal();
     await fetchData();
   } catch (err) {
-    notify.error(err.response?.data?.message || 'Failed to create user.');
+    notify.error(err.response?.data?.message || 'Failed to save user.');
   } finally {
     saving.value = false;
   }
