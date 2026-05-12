@@ -207,13 +207,36 @@
                         </tfoot>
                     </table>
                 </div>
+
+                <!-- Additional Payment History (Inside Recoverable Section) -->
+                <div v-if="selectedViewAdjustmentPayments.length > 0" class="mt-4 space-y-3">
+                    <div class="flex items-center justify-between px-2">
+                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Additional Payments Log</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <table class="w-full text-left">
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr v-for="payment in selectedViewAdjustmentPayments" :key="payment.id" class="hover:bg-indigo-50/20 transition-colors">
+                                    <td class="px-6 py-3 text-[11px] font-bold text-slate-500">{{ formatDate(payment.payment_date) }}</td>
+                                    <td class="px-6 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[11px] font-black text-slate-700 dark:text-slate-300">Adjustment Payment</span>
+                                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold uppercase tracking-tighter">{{ payment.payment_method }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-3 text-right text-[11px] font-black text-indigo-600">QAR {{ formatCurrency(payment.amount) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- Payment History -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between px-2">
                     <h3 class="text-sm font-black text-emerald-500 uppercase tracking-widest">Payment History (Collections)</h3>
-                    <span class="text-[10px] font-black text-slate-400 uppercase">{{ selectedViewContract.payments?.length || 0 }} Entries</span>
+                    <span class="text-[10px] font-black text-slate-400 uppercase">{{ selectedViewAdminPayments.length }} Entries</span>
                 </div>
                 <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                     <table class="w-full text-left">
@@ -225,7 +248,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                            <tr v-for="payment in selectedViewContract.payments" :key="payment.id" class="hover:bg-emerald-50/30 transition-colors">
+                            <tr v-for="payment in selectedViewAdminPayments" :key="payment.id" class="hover:bg-emerald-50/30 transition-colors">
                                 <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</td>
                                 <td class="px-6 py-4">
                                     <div v-if="payment.is_settled" class="space-y-1">
@@ -241,7 +264,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm font-black text-emerald-600 text-right">QAR {{ formatCurrency(payment.amount) }}</td>
                             </tr>
-                            <tr v-if="!selectedViewContract.payments?.length">
+                            <tr v-if="!selectedViewAdminPayments.length">
                                 <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic text-xs font-bold">No payment history found.</td>
                             </tr>
                         </tbody>
@@ -577,6 +600,42 @@
           <div v-else class="rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 px-6 py-8 text-center">
             <p class="text-sm font-bold text-slate-400 dark:text-slate-500 italic">No additional amounts added yet.</p>
           </div>
+
+          <!-- Additional Payment History (Collections for Adjustments) -->
+          <div v-if="filteredAdjustmentPayments.length > 0" class="space-y-4">
+              <div class="flex items-center gap-3 px-1">
+                  <div class="w-1 h-5 rounded-full bg-indigo-500"></div>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Additional Payments History</p>
+              </div>
+              <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
+                  <table class="w-full text-left">
+                      <thead>
+                          <tr class="bg-slate-50/50 dark:bg-slate-800/30">
+                              <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                              <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
+                              <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
+                              <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Action</th>
+                          </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                          <tr v-for="payment in filteredAdjustmentPayments" :key="payment.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                              <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</td>
+                              <td class="px-5 py-3.5 text-sm font-black text-indigo-600 dark:text-indigo-400 text-right">QAR {{ formatCurrency(payment.amount) }}</td>
+                              <td class="px-5 py-3.5">
+                                  <span class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 border border-indigo-200 dark:border-indigo-800">
+                                      {{ payment.payment_method }}
+                                  </span>
+                              </td>
+                              <td class="px-5 py-3.5 text-center">
+                                  <button @click="removePayment(payment)" :disabled="paymentDeletingId === payment.id" class="px-3 py-1.5 text-[10px] font-black text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all disabled:opacity-50 uppercase tracking-widest">
+                                      {{ paymentDeletingId === payment.id ? 'Removing...' : 'Delete' }}
+                                  </button>
+                              </td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+          </div>
         </div>
 
         <!-- ===================== TAB 2: Manage Contract Payment ===================== -->
@@ -642,16 +701,7 @@
               :disabled="paymentSaving"
             />
 
-            <div class="md:col-span-1">
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Link to Collection</label>
-              <select v-model="paymentForm.contract_adjustment_id" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
-                <option value="">Not Linked (Monthly)</option>
-                <option v-for="adj in contractAdjustments.filter(a => a.pending_amount > 0)" :key="adj.id" :value="adj.id">
-                  {{ adj.reason }} (Pending: {{ formatCurrency(adj.pending_amount) }})
-                </option>
-              </select>
-            </div>
-            <div class="md:col-span-2">
+            <div class="md:col-span-3">
               <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason <span class="text-rose-500">*</span></label>
               <select v-model="paymentForm.subcategory" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm">
                 <option value="">Select Reason</option>
@@ -677,13 +727,13 @@
           <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
             <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment History</p>
-              <span class="text-[10px] font-black text-slate-400 uppercase">{{ payments.length }} Entries</span>
+              <span class="text-[10px] font-black text-slate-400 uppercase">{{ filteredContractPayments.length }} Entries</span>
             </div>
             <div v-if="paymentLoading" class="px-6 py-10 text-center">
               <div class="w-8 h-8 border-3 border-blue-600/10 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
               <p class="mt-3 text-sm font-bold text-slate-500 dark:text-slate-400">Loading payment history...</p>
             </div>
-            <div v-else-if="payments.length === 0" class="px-6 py-10 text-center">
+            <div v-else-if="filteredContractPayments.length === 0" class="px-6 py-10 text-center">
               <svg class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
               <p class="text-sm font-bold text-slate-400 dark:text-slate-500 italic">No payment entries yet.</p>
             </div>
@@ -699,7 +749,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                <tr v-for="payment in payments" :key="payment.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                <tr v-for="payment in filteredContractPayments" :key="payment.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                   <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</td>
                   <td class="px-5 py-3.5 text-sm font-black text-emerald-600 dark:text-emerald-400 text-right">QAR {{ formatCurrency(payment.amount) }}</td>
                   <td class="px-5 py-3.5">
@@ -720,7 +770,7 @@
                 <tr class="bg-emerald-50/50 dark:bg-emerald-900/10 border-t-2 border-emerald-100 dark:border-emerald-900/30">
                   <td class="px-5 py-3 text-[10px] font-black text-emerald-600 uppercase tracking-widest">Total Collected</td>
                   <td class="px-5 py-3 text-sm font-black text-emerald-600 dark:text-emerald-400 text-right">QAR {{ formatCurrency(paymentContract.paid_amount || 0) }}</td>
-                  <td colspan="3"></td>
+                  <td colspan="4"></td>
                 </tr>
               </tfoot>
             </table>
@@ -908,6 +958,22 @@ const totalAdditionalPending = computed(() => {
     return contractAdjustments.value.reduce((sum, adj) => sum + (parseFloat(adj.pending_amount) || 0), 0);
 });
 
+const filteredContractPayments = computed(() => {
+    return payments.value.filter(p => !p.contract_adjustment_id);
+});
+
+const filteredAdjustmentPayments = computed(() => {
+    return payments.value.filter(p => p.contract_adjustment_id);
+});
+
+const selectedViewAdminPayments = computed(() => {
+    return (selectedViewContract.value?.payments || []).filter(p => !p.contract_adjustment_id);
+});
+
+const selectedViewAdjustmentPayments = computed(() => {
+    return (selectedViewContract.value?.payments || []).filter(p => p.contract_adjustment_id);
+});
+
 const showConfirmModal = ref(false);
 const showCreateConfirmModal = ref(false);
 const showAlertModal = ref(false);
@@ -935,7 +1001,6 @@ const form = ref({
   contract_date: '',
   start_date: '',
   end_date: '',
-  qid_next_renewal_date: '',
   paid_amount: 0,
   pending_amount: 0,
   payment_status: 'Payment Not Initialized',

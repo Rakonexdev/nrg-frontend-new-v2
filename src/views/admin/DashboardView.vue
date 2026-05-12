@@ -44,7 +44,7 @@
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
-      <div @click="showRenewingModal = true" class="block group h-full">
+      <router-link to="/admin/staff?filter=renewing_contract" class="block group h-full">
         <KpiCard 
           title="Renewing This Month" 
           :value="stats.renewing_contracts" 
@@ -52,7 +52,7 @@
           color-class="bg-indigo-600" 
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
-      </div>
+      </router-link>
       <router-link to="/admin/reports/documentation-status" class="block group h-full">
         <KpiCard 
           title="Doc Status" 
@@ -188,52 +188,6 @@
         </div>
       </div>
     
-    <!-- Renewing Contracts Modal -->
-    <Modal :show="showRenewingModal" @close="showRenewingModal = false" title="Contracts Renewing Soon" max-width="2xl">
-      <div class="p-6">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-separate border-spacing-0">
-            <thead>
-              <tr class="text-[10px] uppercase tracking-[0.2em] text-slate-400">
-                <th class="px-4 py-3 font-black border-b border-slate-50 dark:border-slate-700/50">Staff Name</th>
-                <th class="px-4 py-3 font-black border-b border-slate-50 dark:border-slate-700/50">Company</th>
-                <th class="px-4 py-3 font-black border-b border-slate-50 dark:border-slate-700/50">Renewal Date</th>
-                <th class="px-4 py-3 font-black border-b border-slate-50 dark:border-slate-700/50 text-right">Status</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
-              <tr v-for="contract in renewingContracts" :key="contract.id" class="group hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors">
-                <td class="px-4 py-4">
-                  <div class="font-bold text-slate-800 dark:text-white">{{ contract.staff_name }}</div>
-                </td>
-                <td class="px-4 py-4">
-                  <div class="text-xs text-slate-500 dark:text-slate-400">{{ contract.staff?.company?.name || 'N/A' }}</div>
-                </td>
-                <td class="px-4 py-4">
-                  <div class="flex flex-col">
-                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ formatDate(contract.end_date) }}</span>
-                    <span class="text-[10px] text-slate-400">{{ contract.days }} days remaining</span>
-                  </div>
-                </td>
-                <td class="px-4 py-4 text-right">
-                  <span :class="getStatusClass(contract.status)" class="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest">
-                    {{ contract.status }}
-                  </span>
-                </td>
-              </tr>
-              <tr v-if="renewingContracts.length === 0">
-                <td colspan="4" class="px-4 py-12 text-center">
-                  <div class="flex flex-col items-center justify-center space-y-2">
-                    <svg class="w-8 h-8 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    <span class="text-sm text-slate-400 italic">No contracts renewing this month</span>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </Modal>
 
     <!-- Collection Details Modal -->
     <Modal :show="showCollectionModal" title="Collection & Company Details" @close="showCollectionModal = false" maxWidth="4xl">
@@ -377,7 +331,6 @@ const stats = ref({
 const recentCollections = ref([]);
 const upcomingExpirations = ref([]);
 const renewingContracts = ref([]);
-const showRenewingModal = ref(false);
 
 // Collection Modal State
 const showCollectionModal = ref(false);
