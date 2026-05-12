@@ -69,7 +69,7 @@ const router = createRouter({
         {
           path: 'reports/collections',
           name: 'admin-reports-collections',
-          component: () => import('../views/admin/CollectionsReportView.vue'),
+          component: () => import('../views/admin/reports/CollectionsReportView.vue'),
           meta: { title: 'Collections Report' }
         },
         {

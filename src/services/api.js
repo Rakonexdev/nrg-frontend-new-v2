@@ -110,7 +110,8 @@ export const collectorService = {
 
 export const reportService = {
     getCollections: (params) => api.get('/reports/collections', { params }),
-    getIncomeExpenditure: (params) => api.get('/reports/income-expenditure', { params })
+    getIncomeExpenditure: (params) => api.get('/reports/income-expenditure', { params }),
+    getDocumentationStatus: (params) => api.get('/reports/documentation-status', { params })
 };
 
 export const branchService = {

@@ -16,7 +16,7 @@
           label="To Date"
           v-model="filters.to_date"
         />
-        <button @click="fetchCollections" 
+        <button @click="filters.page = 1; fetchCollections()" 
                 class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Filter
@@ -90,7 +90,8 @@ const filters = reactive({
   from_date: '',
   to_date: '',
   search: '',
-  page: 1
+  page: 1,
+  per_page: 10
 });
 
 const columns = [
