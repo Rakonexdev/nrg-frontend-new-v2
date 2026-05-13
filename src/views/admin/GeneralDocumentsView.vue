@@ -1,0 +1,351 @@
+<template>
+  <div class="space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800 dark:text-white">{{ categoryTitle }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">Manage and upload documents for {{ categoryName }}</p>
+      </div>
+      <button v-if="authStore.hasPermission('documentation_create')" @click="openUploadModal" class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0l-4 4m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        Upload New Document
+      </button>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div class="relative w-full md:w-96 group">
+        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-blue-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </span>
+        <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search documents by name..." 
+               class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white font-medium">
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div v-if="loading" class="flex flex-col items-center justify-center py-32 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div class="w-16 h-16 border-4 border-blue-600/10 border-t-blue-600 rounded-full animate-spin"></div>
+        <p class="mt-6 text-slate-400 font-black uppercase tracking-widest text-[10px]">Loading Documents...</p>
+    </div>
+    
+    <DataTable v-else
+      :columns="columns" 
+      :data="documents" 
+      :pagination="pagination"
+      @page-change="fetchDocuments">
+      
+      <template #document_name="{ value, row }">
+        <div class="flex flex-col">
+            <span class="font-black text-slate-800 dark:text-slate-200 tracking-tight">{{ value }}</span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ row.file_name }}</span>
+        </div>
+      </template>
+
+      <template #created_at="{ value }">
+        <span class="text-sm font-bold text-slate-600 dark:text-slate-400">{{ formatDate(value) }}</span>
+      </template>
+
+      <template #uploader="{ value }">
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-[10px]">
+                {{ value?.name?.charAt(0) || 'U' }}
+            </div>
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ value?.name || 'Unknown' }}</span>
+        </div>
+      </template>
+
+      <template #actions="{ row }">
+        <div class="flex items-center gap-2">
+          <button v-if="authStore.hasPermission('documentation_download')" @click="viewDocument(row)" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all" title="View">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button v-if="authStore.hasPermission('documentation_download')" @click="downloadDocument(row)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all" title="Download">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button v-if="authStore.hasPermission('documentation_edit')" @click="openEditModal(row)" class="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-all" title="Edit">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button v-if="authStore.hasPermission('documentation_delete')" @click="confirmDelete(row)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all" title="Delete">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+        </div>
+      </template>
+    </DataTable>
+
+    <!-- Upload/Edit Modal -->
+    <Modal :show="showModal" :title="isEditing ? 'Edit Document Name' : `Upload Document for ${categoryName}`" @close="showModal = false" maxWidth="lg">
+      <form @submit.prevent="handleSubmit" class="p-6 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col gap-6">
+        <div>
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Document Name <span class="text-rose-500">*</span></label>
+          <input v-model="form.document_name" type="text" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.document_name}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold tracking-tight" placeholder="e.g., Company License, Trade Agreement, etc.">
+          <p v-if="errors.document_name" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.document_name[0] }}</p>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">File <span v-if="!isEditing" class="text-rose-500">*</span></label>
+          <div class="relative group">
+            <input type="file" @change="handleFileChange" :required="!isEditing" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+            <div class="px-5 py-8 bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all group-hover:border-blue-500 group-hover:bg-blue-50/30 dark:group-hover:bg-blue-900/10">
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ selectedFile ? selectedFile.name : 'Click or drag to upload file' }}</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">PDF, DOCX, JPG, PNG (Max 10MB)</p>
+                </div>
+            </div>
+          </div>
+          <p v-if="errors.file" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.file[0] }}</p>
+        </div>
+      </form>
+      <template #footer>
+        <div class="flex items-center justify-between w-full p-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800">
+            <button @click="showModal = false" class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Cancel</button>
+            <button @click="handleSubmit" class="px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl shadow-blue-500/20 transition-all font-black text-[10px] uppercase tracking-[0.2em] transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-3" :disabled="submitting">
+            <svg v-if="!submitting" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            {{ submitting ? (isEditing ? 'Updating...' : 'Uploading...') : (isEditing ? 'Update Name' : 'Confirm & Upload') }}
+            </button>
+        </div>
+      </template>
+    </Modal>
+
+    <!-- Confirm Delete Modal -->
+    <ConfirmModal 
+      :show="showConfirmModal" 
+      title="Delete Document"
+      :message="`Are you sure you want to delete '${itemToDelete?.document_name}'? This action cannot be undone.`"
+      :loading="deleting"
+      @confirm="deleteDocument"
+      @cancel="showConfirmModal = false"
+    />
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import DataTable from '@/components/shared/DataTable.vue';
+import Modal from '@/components/shared/Modal.vue';
+import ConfirmModal from '@/components/shared/ConfirmModal.vue';
+import { generalDocumentService } from '@/services/api';
+import { useNotificationStore } from '@/stores/notification';
+import { useAuthStore } from '@/stores/auth';
+
+const route = useRoute();
+const notificationStore = useNotificationStore();
+const authStore = useAuthStore();
+
+const category = computed(() => route.params.category || 'company');
+const categoryTitle = computed(() => category.value === 'company' ? 'Company Documentation' : 'Other Documentation');
+const categoryName = computed(() => category.value === 'company' ? 'Company' : 'Other');
+
+const documents = ref([]);
+const loading = ref(true);
+const uploading = ref(false);
+const submitting = ref(false);
+const isEditing = ref(false);
+const editingItem = ref(null);
+const search = ref('');
+const pagination = ref({});
+const showModal = ref(false);
+const showConfirmModal = ref(false);
+const itemToDelete = ref(null);
+const deleting = ref(false);
+const errors = ref({});
+const selectedFile = ref(null);
+
+const form = ref({
+    document_name: ''
+});
+
+const columns = [
+  { key: 'document_name', label: 'Document Name', sortable: true },
+  { key: 'created_at', label: 'Upload Date', sortable: true },
+  { key: 'uploader', label: 'Uploaded By', sortable: false },
+  { key: 'actions', label: 'Actions', sortable: false }
+];
+
+const fetchDocuments = async (page = 1) => {
+  loading.value = true;
+  try {
+    const res = await generalDocumentService.getAll({
+      page,
+      search: search.value,
+      category: category.value
+    });
+    documents.value = res.data.data;
+    pagination.value = res.data;
+  } catch (err) {
+    console.error('Failed to fetch documents', err);
+    const message = err.response?.data?.message || 'Failed to load documents';
+    notificationStore.error(message);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const searchDebounceTimer = ref(null);
+const debouncedSearch = () => {
+    clearTimeout(searchDebounceTimer.value);
+    searchDebounceTimer.value = setTimeout(() => {
+        fetchDocuments(1);
+    }, 400);
+};
+
+const openUploadModal = () => {
+    isEditing.value = false;
+    editingItem.value = null;
+    form.value = { document_name: '' };
+    selectedFile.value = null;
+    errors.value = {};
+    showModal.value = true;
+};
+
+const openEditModal = (item) => {
+    isEditing.value = true;
+    editingItem.value = item;
+    form.value = { document_name: item.document_name };
+    selectedFile.value = null;
+    errors.value = {};
+    showModal.value = true;
+};
+
+const handleFileChange = (e) => {
+    selectedFile.value = e.target.files[0];
+};
+
+const handleSubmit = async () => {
+    if (isEditing.value) {
+        handleUpdate();
+    } else {
+        handleUpload();
+    }
+};
+
+const handleUpload = async () => {
+    if (!selectedFile.value) {
+        notificationStore.error('Please select a file');
+        return;
+    }
+
+    submitting.value = true;
+    errors.value = {};
+
+    try {
+        const formData = new FormData();
+        formData.append('document_name', form.value.document_name);
+        formData.append('category', category.value);
+        formData.append('file', selectedFile.value);
+
+        await generalDocumentService.upload(formData);
+        notificationStore.success('Document uploaded successfully');
+        showModal.value = false;
+        fetchDocuments(1);
+    } catch (err) {
+        console.error('Upload error:', err);
+        if (err.response?.status === 422) {
+            errors.value = err.response.data.errors;
+            notificationStore.error('Please fix the validation errors');
+        } else {
+            const message = err.response?.data?.message || 'Failed to upload document';
+            notificationStore.error(message);
+        }
+    } finally {
+        submitting.value = false;
+    }
+};
+
+const handleUpdate = async () => {
+    submitting.value = true;
+    errors.value = {};
+
+    try {
+        const formData = new FormData();
+        formData.append('document_name', form.value.document_name);
+        if (selectedFile.value) {
+            formData.append('file', selectedFile.value);
+        }
+
+        await generalDocumentService.update(editingItem.value.id, formData);
+        notificationStore.success('Document updated successfully');
+        showModal.value = false;
+        fetchDocuments(pagination.value.current_page);
+    } catch (err) {
+        console.error('Update error:', err);
+        if (err.response?.status === 422) {
+            errors.value = err.response.data.errors;
+            notificationStore.error('Please fix the validation errors');
+        } else {
+            const message = err.response?.data?.message || 'Failed to update document';
+            notificationStore.error(message);
+        }
+    } finally {
+        submitting.value = false;
+    }
+};
+
+const confirmDelete = (doc) => {
+    itemToDelete.value = doc;
+    showConfirmModal.value = true;
+};
+
+const deleteDocument = async () => {
+    if (!itemToDelete.value) return;
+    deleting.value = true;
+    try {
+        await generalDocumentService.delete(itemToDelete.value.id);
+        notificationStore.success('Document deleted successfully');
+        showConfirmModal.value = false;
+        fetchDocuments(1);
+    } catch (err) {
+        notificationStore.error('Failed to delete document');
+    } finally {
+        deleting.value = false;
+    }
+};
+
+const downloadDocument = async (doc) => {
+    try {
+        const response = await generalDocumentService.download(doc.id);
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', doc.file_name);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (err) {
+        console.error('Download error:', err);
+        notificationStore.error('Failed to download document');
+    }
+};
+
+const viewDocument = async (doc) => {
+    try {
+        const response = await generalDocumentService.download(doc.id);
+        const contentType = response.headers['content-type'];
+        const blob = new Blob([response.data], { type: contentType });
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => window.URL.revokeObjectURL(url), 100);
+    } catch (err) {
+        console.error('View error:', err);
+        notificationStore.error('Failed to view document');
+    }
+};
+
+const formatDate = (date) => {
+  if (!date) return '-';
+  const d = new Date(date);
+  return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+watch(() => route.params.category, () => {
+    fetchDocuments(1);
+});
+
+onMounted(() => {
+    fetchDocuments();
+});
+</script>

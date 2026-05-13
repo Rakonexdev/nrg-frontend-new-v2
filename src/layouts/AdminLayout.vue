@@ -21,6 +21,18 @@
           <div v-if="$route.path === link.to" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
         </router-link>
 
+        <template v-if="filteredDocLinks.length > 0">
+          <p class="px-4 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-4 mt-8">Documentation</p>
+          
+          <router-link v-for="link in filteredDocLinks" :key="link.to" :to="link.to" 
+                       class="flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative" 
+                       active-class="bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]">
+            <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
+            <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
+            <div v-if="$route.path === link.to" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
+          </router-link>
+        </template>
+
         <!-- Reports Section -->
         <template v-if="authStore.hasPermission('view_reports') || authStore.isSuperAdmin">
           <p class="px-4 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-4 mt-8">Reports</p>
@@ -125,6 +137,11 @@ const allReportLinks = [
     { to: '/admin/role-access', label: 'Role Access', permission: 'view_role_access', superAdminOnly: true, icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' },
 ];
 
+const allDocLinks = [
+    { to: '/admin/documentation/company', label: 'Company Docs', permission: 'view_documentation', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' },
+    { to: '/admin/documentation/other', label: 'Other Docs', permission: 'view_documentation', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' },
+];
+
 // Filter navigation links based on user permissions
 const filteredNavLinks = computed(() => {
     return allNavLinks.filter(link => authStore.hasPermission(link.permission));
@@ -135,6 +152,10 @@ const filteredReportLinks = computed(() => {
         if (link.superAdminOnly && !authStore.isSuperAdmin) return false;
         return authStore.hasPermission(link.permission);
     });
+});
+
+const filteredDocLinks = computed(() => {
+    return allDocLinks.filter(link => authStore.hasPermission(link.permission));
 });
 
 

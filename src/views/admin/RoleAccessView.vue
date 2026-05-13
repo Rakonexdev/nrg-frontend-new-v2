@@ -303,6 +303,22 @@ const deleteRole = async (role) => {
 };
 
 const formatPermissionLabel = (perm) => {
+  // Documentation group overrides
+  if (perm === 'view_documentation') return 'View Documentation';
+  if (perm === 'documentation_create') return 'Upload Document';
+  if (perm === 'documentation_edit') return 'Edit Document';
+  if (perm === 'documentation_delete') return 'Delete Document';
+  if (perm === 'documentation_download') return 'Download Document';
+  
+  if (perm.startsWith('documentation_')) {
+    const action = perm.replace('documentation_', '');
+    return action.charAt(0).toUpperCase() + action.slice(1) + ' Documentation';
+  }
+  
+  // Staff group overrides
+  if (perm === 'staff_status') return 'Update Staff Status';
+  
+  // General formatting
   return perm.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 };
 

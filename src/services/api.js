@@ -136,4 +136,16 @@ export const adminUserService = {
     delete: (id) => api.delete(`/admin-users/${id}`)
 };
 
+export const generalDocumentService = {
+    getAll: (params) => api.get('/general-documents', { params }),
+    upload: (data) => api.post('/general-documents', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    delete: (id) => api.delete(`/general-documents/${id}`),
+    update: (id, data) => api.post(`/general-documents/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    download: (id) => api.get(`/general-documents/${id}/download`, { responseType: 'blob' })
+};
+
 export default api;

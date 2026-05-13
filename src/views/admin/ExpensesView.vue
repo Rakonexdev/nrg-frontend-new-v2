@@ -45,14 +45,14 @@
         </div>
       </div>
 
-      <!-- Personal Recoverable -->
+      <!-- Personal Due -->
       <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex items-center gap-6 group transition-all hover:shadow-md hover:-translate-y-1">
         <div class="w-16 h-16 bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </div>
         <div>
-          <p class="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-1">Personal Recoverable</p>
-          <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month_recoverable?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
+          <p class="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-1">Personal Due</p>
+          <p class="text-3xl font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month_personal_due?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
           <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Paid on behalf</p>
         </div>
       </div>
@@ -153,7 +153,7 @@
                 <span class="text-[10px] font-black text-slate-400">QAR</span>
                 <span class="text-lg font-black text-rose-600 dark:text-rose-400 tracking-tight">{{ parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</span>
             </div>
-            <span v-if="row.is_recoverable" class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[8px] font-black rounded-lg uppercase tracking-widest border border-amber-200/50">Personal Expense</span>
+            <span v-if="row.is_recoverable" class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[8px] font-black rounded-lg uppercase tracking-widest border border-amber-200/50">Personal Due</span>
         </div>
       </template>
 
@@ -286,7 +286,7 @@
             <!-- Balance Warning Message -->
             <div v-if="form.contract_id && selectedContractFunds <= 0" class="mb-3 p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/50 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
                 <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                <p class="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest">This employee doesn't have an additional amount balance to recover from.</p>
+                <p class="text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest">This employee doesn't have a Personal Due balance to recover from.</p>
             </div>
 
             <div @click="selectedContractFunds > 0 ? (form.is_recoverable = !form.is_recoverable) : null" 
@@ -301,8 +301,8 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                     </div>
                     <div>
-                        <p class="text-[11px] font-black uppercase tracking-tight" :class="form.is_recoverable ? 'text-amber-600 dark:text-amber-400' : 'text-slate-700 dark:text-slate-300'">Recoverable from Staff (Personal Expense)</p>
-                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">If enabled, this expense will not be deducted from contract profit.</p>
+                        <p class="text-sm font-black uppercase tracking-tight" :class="form.is_recoverable ? 'text-amber-600 dark:text-amber-400' : 'text-slate-700 dark:text-slate-300'">Personal Due (Recoverable from Staff)</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">If enabled, this expense will not be deducted from contract profit.</p>
                     </div>
                 </div>
                 <div class="relative inline-flex items-center" :class="selectedContractFunds <= 0 ? 'pointer-events-none' : ''">

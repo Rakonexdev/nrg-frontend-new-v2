@@ -65,6 +65,13 @@ const router = createRouter({
           name: 'admin-collectors',
           component: () => import('../views/admin/CollectorsView.vue')
         },
+        // General Documentation
+        {
+          path: 'documentation/:category',
+          name: 'admin-documentation',
+          component: () => import('../views/admin/GeneralDocumentsView.vue'),
+          meta: { title: 'Documentation Upload' }
+        },
         // Reports
         {
           path: 'reports/collections',

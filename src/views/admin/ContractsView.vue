@@ -32,6 +32,7 @@
         color-class="bg-blue-600" 
         subtitle="Gross from contracts"
       />
+
       <KpiCard 
         title="General Overheads" 
         :value="formatCurrencyValue(contractSummary.total_overheads)" 
@@ -46,20 +47,36 @@
         <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-blue-500 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </span>
-        <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search staff or company..." 
+        <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search staff, QID or company..." 
                class="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white font-medium">
       </div>
       <div class="flex flex-wrap items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
 
+        <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-700/50">
+          <span class="text-slate-400 font-black text-[11px] uppercase tracking-widest pl-2">From</span>
+          <div class="relative">
+            <input v-model="fromDate" @change="fetchContracts(1)" type="date" 
+                   class="bg-transparent border-none rounded-lg px-4 py-2 text-sm font-black outline-none dark:text-white focus:ring-0 transition-all w-[150px]"
+                   title="From Date">
+          </div>
+          <span class="text-slate-400 font-black text-[11px] uppercase tracking-widest px-1">To</span>
+          <div class="relative">
+            <input v-model="toDate" @change="fetchContracts(1)" type="date" 
+                   class="bg-transparent border-none rounded-lg px-4 py-2 text-sm font-black outline-none dark:text-white focus:ring-0 transition-all w-[150px]"
+                   title="To Date">
+          </div>
+        </div>
+
         <div class="w-full md:w-32">
-          <select v-model="perPage" @change="fetchContracts(1)" class="w-full h-[50px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold outline-none dark:text-white focus:ring-4 focus:ring-blue-500/10 transition-all">
+          <select v-model="perPage" @change="fetchContracts(1)" class="w-full h-[50px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-black outline-none dark:text-white focus:ring-4 focus:ring-blue-500/10 transition-all">
             <option :value="10">10 per page</option>
             <option :value="25">25 per page</option>
             <option :value="50">50 per page</option>
           </select>
         </div>
-        <button v-if="search || paymentStatusFilter || pendingOnly" @click="resetMainFilters" class="p-2 text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1" title="Reset Filters">
+        <button v-if="search || paymentStatusFilter || pendingOnly || fromDate || toDate" @click="resetMainFilters" class="p-2 text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1" title="Reset Filters">
           <span v-if="pendingOnly" class="text-[10px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">Pending Only</span>
+          <span v-if="fromDate || toDate" class="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100">Date Range Active</span>
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </button>
       </div>
@@ -159,11 +176,9 @@
             </div>
 
             <!-- Additional Amounts & Recoverable History -->
-            <div class="space-y-4">
-                <div class="flex items-center justify-between px-2">
-                    <h3 class="text-sm font-black text-indigo-500 uppercase tracking-widest">Additional & Recoverable History</h3>
-                    <span class="text-[10px] font-black text-slate-400 uppercase">{{ (selectedViewContract.adjustments?.length || 0) + (selectedViewContract.recoverable_expenses?.length || 0) }} Entries</span>
-                </div>
+            <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <h3 class="text-sm font-black text-indigo-500 uppercase tracking-widest">Personal Due & Recoverable History</h3>
+                <span class="text-[10px] font-black text-slate-400 uppercase">{{ (selectedViewContract.adjustments?.length || 0) + (selectedViewContract.recoverable_expenses?.length || 0) }} Entries</span>
                 <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                     <table class="w-full text-left">
                         <thead>
@@ -196,22 +211,22 @@
                                 <td class="px-6 py-4 text-sm font-black text-rose-500 text-right">- QAR {{ formatCurrency(expense.amount) }}</td>
                             </tr>
                             <tr v-if="!selectedViewContract.adjustments?.length && !selectedViewContract.recoverable_expenses?.length">
-                                <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic text-xs font-bold">No additional amounts or personal expenses recorded.</td>
+                                <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic text-xs font-bold">No Personal Due or personal expenses recorded.</td>
                             </tr>
                         </tbody>
                         <tfoot v-if="selectedViewContract.adjustments?.length || selectedViewContract.recoverable_expenses?.length">
                             <tr class="bg-slate-50 dark:bg-slate-800/50 border-t-2 border-slate-200 dark:border-slate-700">
-                                <td colspan="2" class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Net Additional Amount</td>
+                                <td colspan="2" class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Net Personal Due</td>
                                 <td class="px-6 py-4 text-sm font-black text-indigo-600 dark:text-indigo-400 text-right">QAR {{ formatCurrency(selectedViewContract.adjustment_total) }}</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
 
-                <!-- Additional Payment History (Inside Recoverable Section) -->
-                <div v-if="selectedViewAdjustmentPayments.length > 0" class="mt-4 space-y-3">
+                <!-- Personal Due Payments Log -->
+                <div v-if="selectedViewAdjustmentPayments.length > 0" class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
                     <div class="flex items-center justify-between px-2">
-                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Additional Payments Log</p>
+                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Personal Due Payments Log</p>
                     </div>
                     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                         <table class="w-full text-left">
@@ -220,7 +235,7 @@
                                     <td class="px-6 py-3 text-[11px] font-bold text-slate-500">{{ formatDate(payment.payment_date) }}</td>
                                     <td class="px-6 py-3">
                                         <div class="flex items-center gap-2">
-                                            <span class="text-[11px] font-black text-slate-700 dark:text-slate-300">Adjustment Payment</span>
+                                            <span class="text-[11px] font-black text-slate-700 dark:text-slate-300">Personal Due Payment</span>
                                             <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold uppercase tracking-tighter">{{ payment.payment_method }}</span>
                                         </div>
                                     </td>
@@ -319,15 +334,36 @@
             </template>
 
             <template #pending_amount="{ row, value }">
-                <div>
-                  <span class="font-black text-rose-500">{{ formatCurrency(value) }}</span>
-                  <div v-if="row.adjustment_pending_total > 0" class="mt-0.5">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-900/20 text-[9px] font-black text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/50 uppercase tracking-tighter">
-                      + {{ formatCurrency(row.adjustment_pending_total) }} additional
-                    </span>
+                <div class="flex flex-col gap-2 py-1">
+                  <!-- Main Collection Balance -->
+                  <span class="font-black text-rose-500 text-xl leading-none tracking-tight">{{ formatCurrency(value) }}</span>
+                  
+                  <!-- Maximized Personal Due -->
+                  <div v-if="row.adjustment_pending > 0" class="flex items-center gap-2">
+                    <span class="font-black text-indigo-600 dark:text-indigo-400 text-xl leading-none">{{ formatCurrency(row.adjustment_pending) }}</span>
+                    <span class="text-xs font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Personal Due</span>
                   </div>
                 </div>
             </template>
+
+            <template #next_collection_due_date="{ row }">
+                <div v-if="row.next_collection_due_date && row.pending_amount > 0" class="flex flex-col items-center">
+                    <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2 rounded-xl border border-emerald-100 dark:border-emerald-800/50 shadow-sm inline-flex items-center justify-center min-w-[110px]">
+                        {{ formatDate(row.next_collection_due_date) }}
+                    </span>
+                </div>
+                <span v-else class="text-slate-300 dark:text-slate-600 font-black text-xs">—</span>
+            </template>
+
+            <template #next_personal_due_date="{ row }">
+                <div v-if="row.next_personal_due_date && row.adjustment_pending > 0" class="flex flex-col items-center">
+                    <span class="text-xs font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-4 py-2 rounded-xl border border-indigo-100 dark:border-indigo-800/50 shadow-sm inline-flex items-center justify-center min-w-[110px]">
+                        {{ formatDate(row.next_personal_due_date) }}
+                    </span>
+                </div>
+                <span v-else class="text-slate-300 dark:text-slate-600 font-black text-xs">—</span>
+            </template>
+
 
 
             <template #actions="{ row }">
@@ -433,13 +469,13 @@
             ]"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            Add additional amount
+            Add Personal Due
           </button>
         </div>
 
         <!-- ===================== TAB 1: Contract Details ===================== -->
         <div v-if="paymentModalTab === 'details'" class="space-y-6 animate-fade-in">
-          <!-- Row 1: Contract Info + Contract Value + Additional Payment -->
+          <!-- Row 1: Contract Info + Contract Value + Personal Due Payment -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Contract Information (Employee + Company) -->
             <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
@@ -465,16 +501,16 @@
               <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Fixed Contract Amount</p>
             </div>
 
-            <!-- Additional Payment Card -->
+            <!-- Personal Due Payment Card -->
             <div class="p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 shadow-sm">
-              <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Additional Payment</p>
-              <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400">QAR {{ formatCurrency(paymentContract.adjustment_total || 0) }}</p>
+              <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Personal Due Payment</p>
+              <p class="text-3xl font-black text-indigo-600 dark:text-indigo-400">QAR {{ formatCurrency(paymentContract.adjustment_total || 0) }}</p>
               <p class="text-[9px] font-bold text-indigo-400 uppercase tracking-tighter mt-1">{{ contractAdjustments.length }} adjustment{{ contractAdjustments.length !== 1 ? 's' : '' }} added</p>
             </div>
           </div>
 
-          <!-- Row 2: Linked Expenses + Pending Additional Amount -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Row 2: Linked Expenses + Pending Personal Due + Personal Next Due -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Linked Expenses Card -->
             <div class="p-5 rounded-2xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 shadow-sm">
               <p class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">Linked Expenses</p>
@@ -482,19 +518,26 @@
               <p class="text-[9px] font-bold text-orange-400 uppercase tracking-tighter mt-1">Fixed Fees + Dynamic</p>
             </div>
 
-            <!-- Pending Additional Amount Card -->
+            <!-- Pending Personal Due Card -->
             <div class="p-5 rounded-2xl bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/30 shadow-sm">
-              <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Pending Additional Amount</p>
-              <p class="text-2xl font-black text-rose-500">QAR {{ formatCurrency(totalAdditionalPending) }}</p>
+              <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Pending Personal Due</p>
+              <p class="text-3xl font-black text-rose-500">QAR {{ formatCurrency(totalPersonalDuePending) }}</p>
               <p class="text-[9px] font-bold text-rose-400 uppercase tracking-tighter mt-1">Unpaid from {{ contractAdjustments.length }} adjustment{{ contractAdjustments.length !== 1 ? 's' : '' }}</p>
+            </div>
+
+            <!-- Personal Next Due Date Card -->
+            <div class="p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 shadow-sm">
+              <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Next Personal Due</p>
+              <p class="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ formatDate(paymentContract.next_personal_due_date) || 'None' }}</p>
+              <p class="text-[9px] font-bold text-indigo-400 uppercase tracking-tighter mt-1">Scheduled Staff Payment</p>
             </div>
           </div>
 
-          <!-- Add Additional Amount Section -->
+          <!-- Add Personal Due Section -->
           <div class="space-y-4">
             <div class="flex items-center gap-3 px-1">
               <div class="w-1 h-6 rounded-full bg-indigo-500"></div>
-              <h3 class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Add Additional Amount</h3>
+              <h3 class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Add Personal Due</h3>
               <p class="text-[10px] text-slate-400 font-bold italic ml-auto">This records extra payments that do not affect the main contract balance.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
@@ -507,7 +550,7 @@
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Total Amount <span class="text-rose-500">*</span></label>
                 <div class="relative">
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
-                  <input v-model="adjustmentForm.amount" :disabled="adjustmentSaving" type="number" step="0.01" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-bold text-sm" placeholder="0.00">
+                  <input v-model="adjustmentForm.amount" :disabled="adjustmentSaving" type="number" step="0.01" class="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white font-black text-lg" placeholder="0.00">
                 </div>
               </div>
               <div>
@@ -531,14 +574,14 @@
                 </select>
               </div>
               <DateInput 
-                label="Next Pay Date"
+                label="Next Personal Due"
                 v-model="adjustmentForm.next_payment_date"
                 :disabled="adjustmentSaving"
               />
               <div class="md:col-span-5 flex justify-end mt-2">
                 <button @click.prevent="submitAdjustmentFromModal" :disabled="adjustmentSaving || !paymentContract.id" class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 flex items-center gap-2">
                   <svg v-if="adjustmentSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                  {{ adjustmentSaving ? 'Adding...' : 'Add Additional Amount' }}
+                  {{ adjustmentSaving ? 'Adding...' : 'Add Personal Due' }}
                 </button>
               </div>
             </div>
@@ -547,7 +590,7 @@
           <!-- Adjustments List -->
           <div v-if="contractAdjustments.length > 0" class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
             <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Additional Amounts History</p>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Personal Due History</p>
               <span class="text-[10px] font-black text-slate-400 uppercase">{{ contractAdjustments.length }} Entries</span>
             </div>
             <table class="w-full text-left">
@@ -584,24 +627,24 @@
               </tbody>
               <tfoot>
                 <tr class="bg-indigo-50/50 dark:bg-indigo-900/10 border-t-2 border-indigo-100 dark:border-indigo-900/30">
-                  <td colspan="2" class="px-5 py-3 text-[10px] font-black text-indigo-500 uppercase tracking-widest">Total Additional</td>
-                  <td class="px-5 py-3 text-sm font-black text-indigo-600 dark:text-indigo-400 text-right">QAR {{ formatCurrency(totalAdditionalAmount) }}</td>
-                  <td class="px-5 py-3 text-sm font-black text-emerald-600 text-right">QAR {{ formatCurrency(totalAdditionalPaid) }}</td>
-                  <td class="px-5 py-3 text-sm font-black text-rose-500 text-right">QAR {{ formatCurrency(totalAdditionalPending) }}</td>
+                  <td colspan="2" class="px-5 py-3 text-[10px] font-black text-indigo-500 uppercase tracking-widest">Total Personal Due</td>
+                  <td class="px-5 py-3 text-sm font-black text-indigo-600 dark:text-indigo-400 text-right">QAR {{ formatCurrency(totalPersonalDueAmount) }}</td>
+                  <td class="px-5 py-3 text-sm font-black text-emerald-600 text-right">QAR {{ formatCurrency(totalPersonalDuePaid) }}</td>
+                  <td class="px-5 py-3 text-sm font-black text-rose-500 text-right">QAR {{ formatCurrency(totalPersonalDuePending) }}</td>
                   <td></td>
                 </tr>
               </tfoot>
             </table>
           </div>
           <div v-else class="rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 px-6 py-8 text-center">
-            <p class="text-sm font-bold text-slate-400 dark:text-slate-500 italic">No additional amounts added yet.</p>
+            <p class="text-sm font-bold text-slate-400 dark:text-slate-500 italic">No Personal Due entries added yet.</p>
           </div>
 
-          <!-- Additional Payment History (Collections for Adjustments) -->
+          <!-- Personal Due Payments History (Collections for Adjustments) -->
           <div v-if="filteredAdjustmentPayments.length > 0" class="space-y-4">
               <div class="flex items-center gap-3 px-1">
                   <div class="w-1 h-5 rounded-full bg-indigo-500"></div>
-                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Additional Payments History (Staff to NRG)</p>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Personal Due Payments History (Staff to NRG)</p>
               </div>
               <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
                   <table class="w-full text-left">
@@ -654,13 +697,13 @@
           </div>
 
           <!-- Quick Summary Pills -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center">
               <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contract Value</p>
               <p class="text-sm font-black text-slate-800 dark:text-white mt-0.5">QAR {{ formatCurrency(paymentContract.total_income || 0) }}</p>
             </div>
             <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center">
-              <p class="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Adjustments</p>
+              <p class="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Personal Due</p>
               <p class="text-sm font-black text-indigo-600 dark:text-indigo-400 mt-0.5">QAR {{ formatCurrency(paymentContract.adjustment_total || 0) }}</p>
             </div>
             <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center">
@@ -670,6 +713,10 @@
             <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center">
               <p class="text-[9px] font-black text-rose-500 uppercase tracking-widest">Pending</p>
               <p class="text-sm font-black text-rose-500 mt-0.5">QAR {{ formatCurrency(paymentContract.pending_amount || 0) }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center ring-2 ring-emerald-500/10">
+              <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Admin Next Due</p>
+              <p class="text-sm font-black text-emerald-600 mt-0.5">{{ formatDate(paymentContract.next_collection_due_date) || '—' }}</p>
             </div>
           </div>
 
@@ -692,7 +739,7 @@
               </select>
             </div>
             <DateInput 
-              label="Next Payment Date"
+              label="Next Collection Due"
               v-model="paymentForm.next_payment_date"
               :disabled="paymentSaving"
             />
@@ -930,6 +977,8 @@ const paymentDeletingId = ref(null);
 const search = ref('');
 const paymentStatusFilter = ref('');
 const pendingOnly = ref(false);
+const fromDate = ref('');
+const toDate = ref('');
 const sortBy = ref('id');
 const sortDir = ref('desc');
 const perPage = ref(10);
@@ -942,15 +991,15 @@ const showPaymentModal = ref(false);
 const paymentModalTab = ref('payments');
 const contractAdjustments = ref([]);
 
-const totalAdditionalAmount = computed(() => {
+const totalPersonalDueAmount = computed(() => {
     return contractAdjustments.value.reduce((sum, adj) => sum + (parseFloat(adj.amount) || 0), 0);
 });
 
-const totalAdditionalPaid = computed(() => {
+const totalPersonalDuePaid = computed(() => {
     return contractAdjustments.value.reduce((sum, adj) => sum + (parseFloat(adj.paid_amount) || 0), 0);
 });
 
-const totalAdditionalPending = computed(() => {
+const totalPersonalDuePending = computed(() => {
     return contractAdjustments.value.reduce((sum, adj) => sum + (parseFloat(adj.pending_amount) || 0), 0);
 });
 
@@ -1079,9 +1128,10 @@ const columns = [
   { key: 'company_name', label: 'Company', sortable: false },
   { key: 'net_payable', label: 'Contract Value', sortable: true },
   { key: 'contract_date', label: 'Date', sortable: true },
-
   { key: 'paid_amount', label: 'Paid', sortable: true },
   { key: 'pending_amount', label: 'Balance', sortable: true },
+  { key: 'next_collection_due_date', label: 'Company Next Due', sortable: true },
+  { key: 'next_personal_due_date', label: 'Personal Next Due', sortable: true },
   { key: 'actions', label: 'Actions', sortable: false }
 ];
 
@@ -1093,6 +1143,8 @@ const fetchContracts = async (page = 1) => {
       search: search.value,
       payment_status: paymentStatusFilter.value,
       pending_only: pendingOnly.value ? 1 : '',
+      from_date: fromDate.value,
+      to_date: toDate.value,
       staff_id: '',
       sort_by: sortBy.value === 'total_income' ? 'total_income' : sortBy.value,
       sort_direction: sortDir.value,
@@ -1140,6 +1192,8 @@ const resetMainFilters = () => {
     search.value = '';
     paymentStatusFilter.value = '';
     pendingOnly.value = false;
+    fromDate.value = '';
+    toDate.value = '';
     
     // Clear URL query parameters
     router.replace({ query: {} });
@@ -1517,17 +1571,17 @@ const submitAdjustmentFromModal = async () => {
     if (!paymentContract.value.id) return;
 
     if (!adjustmentForm.value.adjustment_date) {
-        alertConfig.value = { type: 'error', title: 'Date Required', message: 'Please select a date for the additional amount.' };
+        alertConfig.value = { type: 'error', title: 'Date Required', message: 'Please select a date for the Personal Due.' };
         showAlertModal.value = true;
         return;
     }
     if (!adjustmentForm.value.amount || parseFloat(adjustmentForm.value.amount) <= 0) {
-        alertConfig.value = { type: 'error', title: 'Invalid Amount', message: 'Please enter a valid additional amount.' };
+        alertConfig.value = { type: 'error', title: 'Invalid Amount', message: 'Please enter a valid Personal Due amount.' };
         showAlertModal.value = true;
         return;
     }
     if (!adjustmentForm.value.reason) {
-        alertConfig.value = { type: 'error', title: 'Reason Required', message: 'Please enter a reason for the additional amount.' };
+        alertConfig.value = { type: 'error', title: 'Reason Required', message: 'Please enter a reason for the Personal Due.' };
         showAlertModal.value = true;
         return;
     }
@@ -1540,7 +1594,7 @@ const submitAdjustmentFromModal = async () => {
             paid_amount: parseAmount(adjustmentForm.value.paid_amount) || 0,
         };
         await contractService.addAdjustment(paymentContract.value.id, payload);
-        notificationStore.success('Additional amount added successfully');
+        notificationStore.success('Personal Due added successfully');
         // Reset adjustment form
         adjustmentForm.value = {
             amount: '',
@@ -1558,7 +1612,7 @@ const submitAdjustmentFromModal = async () => {
         alertConfig.value = {
             type: 'error',
             title: 'Adjustment Error',
-            message: err.response?.data?.message || 'Failed to add additional amount'
+            message: err.response?.data?.message || 'Failed to add Personal Due'
         };
         showAlertModal.value = true;
     } finally {

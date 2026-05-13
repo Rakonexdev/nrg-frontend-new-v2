@@ -12,12 +12,22 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isAuthenticated: (state) => !!state.token,
     userRole: (state) => state.user?.role,
-    isSuperAdmin: (state) => state.user?.role === 'super_admin',
+    isSuperAdmin: (state) => {
+      if (!state.user) return false;
+      return state.user.role === 'super_admin' || 
+             (state.user.roles && state.user.roles.some(r => r.name === 'super_admin'));
+    },
     userPermissions: (state) => state.user?.permissions || [],
     hasPermission: (state) => (permission) => {
+      if (!state.user) return false;
+      
       // Super admin has all permissions
-      if (state.user?.role === 'super_admin') return true;
-      return (state.user?.permissions || []).includes(permission);
+      const isSuperAdmin = state.user.role === 'super_admin' || 
+                          (state.user.roles && state.user.roles.some(r => r.name === 'super_admin'));
+      
+      if (isSuperAdmin) return true;
+      
+      return (state.user.permissions || []).includes(permission);
     }
   },
   
