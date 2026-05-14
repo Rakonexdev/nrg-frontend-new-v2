@@ -302,7 +302,11 @@
                     </div>
                     <div>
                         <p class="text-sm font-black uppercase tracking-tight" :class="form.is_recoverable ? 'text-amber-600 dark:text-amber-400' : 'text-slate-700 dark:text-slate-300'">Personal Due (Recoverable from Staff)</p>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">If enabled, this expense will not be deducted from contract profit.</p>
+                        <p v-if="!form.is_recoverable" class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">If enabled, this expense will not be deducted from contract profit.</p>
+                        <div v-else class="flex items-center gap-2 mt-1">
+                            <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest">Available Balance:</span>
+                            <span class="text-xs font-black text-amber-600 dark:text-amber-400">QAR {{ formatCurrency(selectedContractFunds) }}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="relative inline-flex items-center" :class="selectedContractFunds <= 0 ? 'pointer-events-none' : ''">
@@ -318,9 +322,10 @@
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount (QAR) <span class="text-rose-500">*</span></label>
                 <div class="relative">
                     <span class="absolute left-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">QAR</span>
-                    <input v-model="form.amount" type="number" step="0.01" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.amount}" class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-2xl" placeholder="0.00">
+                    <input v-model="form.amount" type="number" step="0.01" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.amount || (form.is_recoverable && isAmountExceedingFunds)}" class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-2xl" placeholder="0.00">
                 </div>
                 <p v-if="errors.amount" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.amount[0] }}</p>
+                <p v-if="form.is_recoverable && isAmountExceedingFunds" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest animate-pulse">Amount exceeds available personal funds (QAR {{ formatCurrency(selectedContractFunds) }})</p>
             </div>
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment Method <span class="text-rose-500">*</span></label>
@@ -450,6 +455,12 @@ const selectedContractFunds = computed(() => {
     if (!form.value.contract_id) return 0;
     const contract = rawContracts.value.find(c => c.id == form.value.contract_id);
     return parseFloat(contract?.adjustment_paid_total || 0);
+});
+
+const isAmountExceedingFunds = computed(() => {
+    if (!form.value.is_recoverable) return false;
+    const amount = parseFloat(form.value.amount) || 0;
+    return amount > selectedContractFunds.value;
 });
 
 const getDaysDiff = (date) => {
@@ -668,6 +679,10 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
 };
 
 const saveExpense = async () => {
+  if (form.value.is_recoverable && isAmountExceedingFunds.value) {
+    notificationStore.error('Amount exceeds available personal funds for this staff.');
+    return;
+  }
   saving.value = true;
   try {
     const payload = { ...form.value };
@@ -733,6 +748,13 @@ const formatDate = (date) => {
   const month = d.toLocaleString('en-US', { month: 'short' }).toLowerCase();
   const year = d.getFullYear();
   return `${day}-${month}-${year}`;
+};
+
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(value);
 };
 
 onMounted(async () => {

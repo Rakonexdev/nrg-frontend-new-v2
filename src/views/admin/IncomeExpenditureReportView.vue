@@ -18,6 +18,12 @@
                 class="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm transition-all active:scale-95">
           Reset
         </button>
+        <button @click="handleDownload" :disabled="downloading"
+                class="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50">
+          <svg v-if="!downloading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <svg v-else class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          {{ downloading ? 'Exporting...' : 'Excel' }}
+        </button>
       </div>
     </div>
 
@@ -45,7 +51,7 @@
       <!-- Search -->
       <div class="relative flex-1 min-w-[240px] max-w-md">
         <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        <input v-model="filters.search" type="text" placeholder="Search all fields..."
+        <input v-model="filters.search" type="text" placeholder="Search by name, QID..."
                class="w-full pl-11 pr-4 py-3 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
       </div>
 
@@ -99,7 +105,10 @@
       <template #staff_info="{ row }">
         <div class="flex flex-col">
           <span class="font-bold text-slate-800 dark:text-slate-200">{{ row.staff_name || '—' }}</span>
-          <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">{{ row.company_name || '' }}</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">{{ row.company_name || '' }}</span>
+            <span v-if="row.staff_qid" class="text-[9px] font-bold text-slate-400">/ {{ row.staff_qid }}</span>
+          </div>
         </div>
       </template>
       <template #amount="{ row }">
@@ -125,11 +134,14 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { reportService } from '@/services/api';
+import { useNotificationStore } from '@/stores/notification';
 import DataTable from '@/components/shared/DataTable.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 import debounce from 'lodash/debounce';
 
 const loading = ref(false);
+const downloading = ref(false);
+const notificationStore = useNotificationStore();
 const records = ref([]);
 const pagination = ref({});
 const summary = ref({ total_income: 0, total_expenditure: 0, net_balance: 0 });
@@ -174,6 +186,27 @@ const fetchReport = async () => {
     console.error('Failed to load income/expenditure report', err);
   } finally {
     loading.value = false;
+  }
+};
+
+const handleDownload = async () => {
+  downloading.value = true;
+  try {
+    const response = await reportService.exportIncomeExpenditure(filters);
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Income_Expenditure_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    notificationStore.success('Excel report downloaded successfully');
+  } catch (error) {
+    console.error('Download failed:', error);
+    notificationStore.error('Failed to download Excel report');
+  } finally {
+    downloading.value = false;
   }
 };
 

@@ -110,7 +110,9 @@ export const collectorService = {
 
 export const reportService = {
     getCollections: (params) => api.get('/reports/collections', { params }),
+    exportCollections: (params) => api.get('/reports/collections/export', { params, responseType: 'blob' }),
     getIncomeExpenditure: (params) => api.get('/reports/income-expenditure', { params }),
+    exportIncomeExpenditure: (params) => api.get('/reports/income-expenditure/export', { params, responseType: 'blob' }),
     getDocumentationStatus: (params) => api.get('/reports/documentation-status', { params })
 };
 

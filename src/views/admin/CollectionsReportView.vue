@@ -21,6 +21,12 @@
             Filter
           </button>
           <button @click="resetFilters" class="px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Reset</button>
+          <button @click="handleDownload" :disabled="downloading"
+                  class="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50">
+            <svg v-if="!downloading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <svg v-else class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            {{ downloading ? 'Exporting...' : 'Excel' }}
+          </button>
         </div>
       </div>
     </div>
@@ -131,8 +137,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { reportService } from '@/services/api';
+import { useNotificationStore } from '@/stores/notification';
 
+const notificationStore = useNotificationStore();
 const loading = ref(false);
+const downloading = ref(false);
 const collections = ref([]);
 const summary = ref({ total_collected: 0 });
 const sortDir = ref('desc');
@@ -214,6 +223,29 @@ const fetchReport = async (page = 1) => {
     console.error('Failed to load collections report', err);
   } finally {
     loading.value = false;
+  }
+};
+
+const handleDownload = async () => {
+  downloading.value = true;
+  try {
+    const response = await reportService.exportCollections(filters.value);
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Collections_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    notificationStore.success('Excel report downloaded successfully');
+  } catch (error) {
+    console.error('Download failed:', error);
+    notificationStore.error('Failed to download Excel report');
+  } finally {
+    downloading.value = false;
   }
 };
 
