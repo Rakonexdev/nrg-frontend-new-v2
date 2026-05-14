@@ -10,13 +10,13 @@
         <div class="flex flex-wrap items-end gap-4">
           <div class="space-y-1">
             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">From Date</label>
-            <input v-model="filters.from_date" type="date" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+            <input v-model="filters.from_date" type="date" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all" />
           </div>
           <div class="space-y-1">
             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">To Date</label>
-            <input v-model="filters.to_date" type="date" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+            <input v-model="filters.to_date" type="date" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all" />
           </div>
-          <button @click="fetchReport(1)" class="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all">
+          <button @click="fetchReport(1)" class="flex items-center gap-2 px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#29166e]/30 hover:shadow-xl transition-all">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             Filter
           </button>
@@ -34,11 +34,11 @@
     <!-- Summary Card -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-6 flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-          <svg class="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <div class="w-14 h-14 rounded-2xl bg-[#29166e]/10 flex items-center justify-center">
+          <svg class="w-7 h-7 text-[#29166e]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </div>
         <div>
-          <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Total Collected</p>
+          <p class="text-[10px] font-black text-[#29166e] uppercase tracking-widest">Total Collected</p>
           <p class="text-2xl font-black text-slate-900 dark:text-white">QAR {{ formatCurrency(summary.total_collected) }}</p>
         </div>
       </div>
@@ -48,7 +48,7 @@
     <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
       <!-- Loading -->
       <div v-if="loading" class="flex justify-center py-20">
-        <div class="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+        <div class="w-10 h-10 border-4 border-slate-200 border-t-[#29166e] rounded-full animate-spin"></div>
       </div>
 
       <div v-else>
@@ -56,7 +56,7 @@
           <table class="w-full text-left">
             <thead>
               <tr class="text-[10px] uppercase tracking-widest text-slate-500 border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30">
-                <th class="px-6 py-4 font-black cursor-pointer hover:text-blue-600 transition-colors" @click="toggleSort">
+                <th class="px-6 py-4 font-black cursor-pointer hover:text-[#29166e] transition-colors" @click="toggleSort">
                   Date
                   <span v-if="sortDir === 'desc'" class="ml-1">↓</span>
                   <span v-else class="ml-1">↑</span>
@@ -88,7 +88,7 @@
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                    <div class="w-6 h-6 rounded-full bg-[#29166e]/10 flex items-center justify-center text-[10px] font-bold text-[#29166e]">
                       {{ (item.creator?.name || 'U').charAt(0) }}
                     </div>
                     <span class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ item.creator?.name || '—' }}</span>
@@ -118,7 +118,7 @@
             <template v-for="page in visiblePages" :key="page">
               <button v-if="page !== '...'" @click="fetchReport(page)"
                       class="w-8 h-8 rounded-lg text-xs font-bold transition-all"
-                      :class="page === pagination.current_page ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
+                      :class="page === pagination.current_page ? 'bg-[#29166e] text-white shadow-lg shadow-[#29166e]/30' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
                 {{ page }}
               </button>
               <span v-else class="text-slate-400 text-xs px-1">...</span>

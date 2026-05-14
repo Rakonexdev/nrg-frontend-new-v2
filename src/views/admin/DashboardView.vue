@@ -22,7 +22,7 @@
           title="Total Staff" 
           :value="stats.total_staff" 
           :icon="icons.users" 
-          color-class="bg-blue-600" 
+          color-class="bg-[#29166e]" 
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
@@ -49,7 +49,7 @@
           title="Renewing This Month" 
           :value="stats.renewing_contracts" 
           :icon="icons.clock" 
-          color-class="bg-indigo-600" 
+          color-class="bg-[#29166e]" 
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
@@ -88,7 +88,7 @@
           title="Contract Profit" 
           :value="`QAR ${formatCurrency(stats.total_profit)}`" 
           :icon="icons.trending" 
-          color-class="bg-blue-600" 
+          color-class="bg-[#29166e]" 
         />
       </div>
     </div>
@@ -99,7 +99,7 @@
       <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-0 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
         <div class="flex items-center justify-between p-6 pb-2">
           <h3 class="text-lg font-bold text-slate-800 dark:text-white">Recent Collections</h3>
-          <router-link to="/admin/reports/collections" class="text-xs font-bold text-blue-600 hover:text-blue-700">View All Collections →</router-link>
+          <router-link to="/admin/reports/collections" class="text-xs font-bold text-[#29166e] hover:text-[#1d0f4d]">View All Collections →</router-link>
         </div>
         
         <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
@@ -120,12 +120,12 @@
                 <td class="px-6 py-4">
                   <div class="flex flex-col">
                     <span class="text-sm font-black text-slate-800 dark:text-white leading-tight mb-0.5">{{ collection.date }}</span>
-                    <span class="text-[10px] font-bold text-blue-500/70 dark:text-blue-400/60 uppercase tracking-wider">{{ collection.time_ago }}</span>
+                    <span class="text-[10px] font-bold text-[#29166e]/70 uppercase tracking-wider">{{ collection.time_ago }}</span>
                   </div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                    <div class="w-7 h-7 rounded-full bg-[#29166e]/10 dark:bg-[#29166e]/20 flex items-center justify-center text-[10px] font-bold text-[#29166e]">
                       {{ collection.collector.charAt(0) }}
                     </div>
                     <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ collection.collector }}</span>
@@ -176,7 +176,7 @@
                             </template>
                           </p>
                       </div>
-                      <router-link :to="`/admin/staff?search=${staff.name}`" class="text-xs font-bold text-blue-600 hover:text-blue-700">View</router-link>
+                      <router-link :to="`/admin/staff?search=${staff.name}`" class="text-xs font-bold text-[#29166e] hover:text-[#1d0f4d]">View</router-link>
                   </div>
                   <div v-if="!upcomingExpirations.length" class="py-10 text-center text-slate-400 italic text-sm">
                       No expirations in the next 30 days.
@@ -196,10 +196,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div class="space-y-4">
             <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Collection Info</h4>
-            <div class="p-5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50">
+            <div class="p-5 rounded-2xl bg-[#29166e]/5 dark:bg-[#29166e]/10 border border-[#29166e]/10 dark:border-[#29166e]/20">
               <div class="flex items-center justify-between mb-4">
-                <span class="text-xs font-bold text-blue-600 dark:text-blue-400">Amount Collected</span>
-                <span class="text-2xl font-black text-blue-700 dark:text-white">QAR {{ formatCurrency(selectedCollection.amount) }}</span>
+                <span class="text-xs font-bold text-[#29166e]">Amount Collected</span>
+                <span class="text-2xl font-black text-[#29166e] dark:text-white">QAR {{ formatCurrency(selectedCollection.amount) }}</span>
               </div>
               <div class="space-y-3">
                 <div class="flex justify-between text-sm">
@@ -238,12 +238,12 @@
                   <span class="font-bold text-slate-700 dark:text-slate-300">{{ companyInfo.phone_number || 'N/A' }}</span>
                 </div>
               </div>
-              <router-link :to="`/admin/companies`" class="mt-4 block w-full py-2 text-center text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-xl hover:bg-blue-100 transition-colors">
+              <router-link :to="`/admin/companies`" class="mt-4 block w-full py-2 text-center text-[10px] font-black uppercase tracking-widest text-[#29166e] bg-[#29166e]/5 dark:bg-[#29166e]/20 rounded-xl hover:bg-[#29166e]/10 transition-colors">
                 View Full Company Profile
               </router-link>
             </div>
             <div v-else-if="loadingDetails" class="p-10 flex flex-col items-center justify-center space-y-4">
-              <div class="w-8 h-8 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
+              <div class="w-8 h-8 border-4 border-[#29166e]/20 border-t-[#29166e] rounded-full animate-spin"></div>
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading Company Info...</p>
             </div>
           </div>
@@ -259,7 +259,7 @@
           </div>
           
           <div v-if="loadingDetails" class="flex justify-center py-12">
-            <div class="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <div class="w-10 h-10 border-4 border-slate-200 border-t-[#29166e] rounded-full animate-spin"></div>
           </div>
           <div v-else-if="pendingCollections.length > 0" class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
             <table class="w-full text-left">
@@ -367,7 +367,7 @@ const getStatusClass = (status) => {
     case 'critical': return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
     case 'warning': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
     case 'expired': return 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400';
-    case 'info': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+    case 'info': return 'bg-[#29166e]/10 text-[#29166e] dark:bg-[#29166e]/20 dark:text-[#29166e]';
     default: return 'bg-slate-100 text-slate-500';
   }
 };

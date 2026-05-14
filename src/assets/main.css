@@ -7,6 +7,9 @@
 :root {
   --font-inter: 'Inter', sans-serif;
   --font-outfit: 'Outfit', sans-serif;
+  --brand-blue: #29166e;
+  --brand-blue-dark: #1a0d4a;
+  --brand-slate: #334155;
 }
 
 body {

@@ -34,14 +34,14 @@
       <div class="relative flex-1 min-w-[240px] max-w-md">
         <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         <input v-model="filters.search" type="text" placeholder="Search staff, QID, phone, company or type..."
-               class="w-full pl-11 pr-4 py-3 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+               class="w-full pl-11 pr-4 py-3 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all" />
       </div>
 
       <!-- Status Filter -->
       <div class="space-y-0.5">
         <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Status</label>
         <select v-model="filters.status"
-                class="px-4 py-2.5 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all cursor-pointer appearance-none pr-8 bg-no-repeat bg-[right_0.5rem_center] bg-[length:16px]"
+                class="px-4 py-2.5 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all cursor-pointer appearance-none pr-8 bg-no-repeat bg-[right_0.5rem_center] bg-[length:16px]"
                 style="background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E')">
           <option value="">All Statuses</option>
           <option value="processing">Processing</option>
@@ -70,7 +70,7 @@
           <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black text-slate-500">{{ row.staff_name?.[0] || '?' }}</div>
           <div class="flex flex-col">
             <span class="text-sm font-black text-slate-800 dark:text-white">{{ row.staff_name }}</span>
-            <span v-if="row.staff?.company_name" class="text-[9px] font-bold text-blue-600 uppercase tracking-widest">{{ row.staff.company_name }}</span>
+            <span v-if="row.staff?.company_name" class="text-[9px] font-bold text-[#29166e] uppercase tracking-widest">{{ row.staff.company_name }}</span>
             <span v-if="row.staff?.branch_name" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
               {{ row.staff.branch_name }}<span v-if="row.staff.branch_number">-{{ row.staff.branch_number }}</span>
             </span>
@@ -78,7 +78,7 @@
         </div>
       </template>
       <template #type="{ value }">
-        <span class="px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+        <span class="px-2 py-1 rounded-lg bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[10px] font-black text-[#29166e] dark:text-[#29166e]/80 uppercase tracking-widest">
           {{ value }}
         </span>
       </template>
@@ -97,14 +97,14 @@
             'text-slate-500': row.renewal_status === 'processing',
             'text-amber-500': row.renewal_status === 'medical' || row.renewal_status === 'fingerprints',
             'text-rose-500': row.renewal_status === 'delayed',
-            'text-blue-500': row.renewal_status === 'submitted' || row.renewal_status === 'qid_upload' || row.renewal_status === 'passport_upload',
+            'text-[#29166e]': row.renewal_status === 'submitted' || row.renewal_status === 'qid_upload' || row.renewal_status === 'passport_upload',
             'text-emerald-500': row.renewal_status === 'completed'
           }" class="text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full" :class="{
               'bg-slate-500': row.renewal_status === 'processing',
               'bg-amber-500': row.renewal_status === 'medical' || row.renewal_status === 'fingerprints',
               'bg-rose-500': row.renewal_status === 'delayed',
-              'bg-blue-500': row.renewal_status === 'submitted' || row.renewal_status === 'qid_upload' || row.renewal_status === 'passport_upload',
+              'bg-[#29166e]': row.renewal_status === 'submitted' || row.renewal_status === 'qid_upload' || row.renewal_status === 'passport_upload',
               'bg-emerald-500': row.renewal_status === 'completed'
             }"></span>
             {{ row.renewal_status }}
@@ -119,7 +119,7 @@
           <router-link v-if="authStore.hasPermission('staff_edit') || authStore.hasPermission('report_doc_status_edit')" :to="{ name: 'admin-staff', query: { edit: row.staff_id, search: row.staff?.name } }" class="p-2 bg-slate-50 dark:bg-slate-800 text-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-sm" title="Update Documents">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </router-link>
-          <button v-if="authStore.hasPermission('report_doc_status_edit')" @click="openTrackingModal(row)" class="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg hover:bg-blue-100 transition-all shadow-sm" title="Update Status">
+          <button v-if="authStore.hasPermission('report_doc_status_edit')" @click="openTrackingModal(row)" class="p-2 bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] rounded-lg hover:bg-[#29166e]/10 transition-all shadow-sm" title="Update Status">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
         </div>
@@ -132,7 +132,7 @@
         <div class="space-y-4">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Process Status</label>
-            <select v-model="form.renewal_status" :class="{'border-rose-500 ring-2 ring-rose-500/10': errors.renewal_status}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+            <select v-model="form.renewal_status" :class="{'border-rose-500 ring-2 ring-rose-500/10': errors.renewal_status}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-[#29166e] transition-all outline-none">
               <option value="processing">🔄 Initial Processing</option>
               <option value="medical">🏥 Medical Test Pending</option>
               <option value="fingerprints">☝️ Fingerprints / Biometrics</option>
@@ -147,7 +147,7 @@
 
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Internal Notes / Progress Remarks</label>
-            <textarea v-model="form.renewal_notes" rows="4" :class="{'border-rose-500 ring-2 ring-rose-500/10': errors.renewal_notes}" placeholder="Enter details about why it's taking time, missing documents, etc." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"></textarea>
+            <textarea v-model="form.renewal_notes" rows="4" :class="{'border-rose-500 ring-2 ring-rose-500/10': errors.renewal_notes}" placeholder="Enter details about why it's taking time, missing documents, etc." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-[#29166e] transition-all outline-none"></textarea>
             <p v-if="errors.renewal_notes" class="text-[10px] font-bold text-rose-500 mt-1 pl-1">{{ errors.renewal_notes[0] }}</p>
           </div>
         </div>
@@ -156,7 +156,7 @@
         <div class="flex items-center justify-end w-full p-6 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 gap-3">
           <button @click="showModal = false" class="px-6 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors">Cancel</button>
           
-          <button @click="save" :disabled="saving" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/30 disabled:opacity-50">
+          <button @click="save" :disabled="saving" class="px-8 py-3 bg-[#29166e] text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#1d0f4d] transition-all shadow-xl shadow-[#29166e]/30 disabled:opacity-50">
             {{ saving ? 'Saving...' : 'Update Progress' }}
           </button>
 

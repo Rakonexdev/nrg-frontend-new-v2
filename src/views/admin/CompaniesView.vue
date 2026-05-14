@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Company management</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage business partners and clients</p>
       </div>
-      <button v-if="authStore.hasPermission('company_create')" @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
+      <button v-if="authStore.hasPermission('company_create')" @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         Add Company
       </button>
@@ -18,7 +18,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </span>
             <input v-model="searchQuery" @input="fetchCompanies(1)" type="text" placeholder="Search companies by name or card..." 
-                   class="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-bold">
+                   class="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
         </div>
         
         <div class="flex items-center gap-3 w-full md:w-auto">
@@ -40,7 +40,7 @@
 
     <!-- Loading State -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-32 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none">
-        <div class="w-16 h-16 border-4 border-blue-600/10 border-t-blue-600 rounded-full animate-spin"></div>
+        <div class="w-16 h-16 border-4 border-[#29166e]/10 border-t-[#29166e] rounded-full animate-spin"></div>
         <p class="mt-6 text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em] text-xs">Loading Companies</p>
     </div>
 
@@ -55,7 +55,7 @@
         <div class="flex flex-col gap-0.5">
           <div>
             <span class="font-bold text-slate-800 dark:text-white">{{ row.name }}</span>
-            <span v-if="row.branch_number" class="text-[11px] font-black text-indigo-500">({{ row.branch_number }})</span>
+            <span v-if="row.branch_number" class="text-[11px] font-black text-[#29166e]">({{ row.branch_number }})</span>
           </div>
           <div v-if="row.computer_card" class="flex items-center gap-1.5 mt-0.5">
             <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">Computer Card: {{ row.computer_card }}</span>
@@ -81,10 +81,10 @@
 
       <template #actions="{ row }">
         <div class="flex items-center gap-3">
-          <button @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-indigo-500 transition-colors" title="View Details">
+          <button @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-[#29166e] transition-colors" title="View Details">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
-          <button v-if="authStore.hasPermission('company_edit')" @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Company">
+          <button v-if="authStore.hasPermission('company_edit')" @click="openModal(row)" class="p-1 text-slate-400 hover:text-[#29166e] transition-colors" title="Edit Company">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
           
@@ -112,7 +112,7 @@
                            viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
                            errors.name ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
                        ]"
-                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-[#29166e]/50 transition-all font-bold" 
                        placeholder="Enter full company name">
                 <p v-if="errors.name" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.name[0] }}</p>
             </div>
@@ -124,7 +124,7 @@
                            viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
                            errors.computer_card ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
                        ]"
-                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-[#29166e]/50 transition-all font-bold" 
                        placeholder="Enter Computer Card number">
                 <p v-if="errors.computer_card" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.computer_card[0] }}</p>
             </div>
@@ -136,14 +136,14 @@
                            viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
                            errors.contact_person ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
                        ]"
-                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-[#29166e]/50 transition-all font-bold" 
                        placeholder="Full name">
                 <p v-if="errors.contact_person" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.contact_person[0] }}</p>
             </div>
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone Number <span class="text-red-500">*</span></label>
-                <div class="flex items-center rounded-2xl overflow-hidden transition-all focus-within:ring-2 focus-within:ring-blue-500/50"
+                <div class="flex items-center rounded-2xl overflow-hidden transition-all focus-within:ring-2 focus-within:ring-[#29166e]/50"
                      :class="[
                          viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
                          errors.phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
@@ -162,7 +162,7 @@
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Alternative Number <span class="text-slate-400 font-normal italic">(Optional)</span></label>
-                <div class="flex items-center rounded-2xl overflow-hidden transition-all focus-within:ring-2 focus-within:ring-blue-500/50"
+                <div class="flex items-center rounded-2xl overflow-hidden transition-all focus-within:ring-2 focus-within:ring-[#29166e]/50"
                      :class="[
                          viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
                          errors.alternative_phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
@@ -186,7 +186,7 @@
                            viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
                            errors.branch_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
                        ]"
-                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-[#29166e]/50 transition-all font-bold" 
                        placeholder="Branch ID (e.g. 001)">
                 <p v-if="errors.branch_number" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.branch_number[0] }}</p>
             </div>
@@ -199,7 +199,7 @@
 
         <div class="flex justify-end gap-4 mt-8">
           <button type="button" @click="showModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">{{ viewMode ? 'Close' : 'Cancel' }}</button>
-          <button v-if="!viewMode" type="submit" class="px-10 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl shadow-blue-500/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
+          <button v-if="!viewMode" type="submit" class="px-10 py-3.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-2xl shadow-xl shadow-[#29166e]/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
             {{ saving ? 'Saving...' : (editMode ? 'Update Company' : 'Create Company') }}
           </button>
         </div>
@@ -235,14 +235,14 @@
             <div class="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
                 <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Add New Branch</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input v-model="branchForm.name" type="text" placeholder="Branch Name" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
-                    <input v-model="branchForm.branch_number" type="text" placeholder="Branch Number (e.g. 001)" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
-                    <input v-model="branchForm.location" type="text" placeholder="Location/Address" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
-                    <input v-model="branchForm.contact_person" type="text" placeholder="Contact Person" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
-                    <input v-model="branchForm.contact_number" type="text" placeholder="Contact Number" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 font-bold">
+                    <input v-model="branchForm.name" type="text" placeholder="Branch Name" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#29166e]/20 font-bold">
+                    <input v-model="branchForm.branch_number" type="text" placeholder="Branch Number (e.g. 001)" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#29166e]/20 font-bold">
+                    <input v-model="branchForm.location" type="text" placeholder="Location/Address" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#29166e]/20 font-bold">
+                    <input v-model="branchForm.contact_person" type="text" placeholder="Contact Person" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#29166e]/20 font-bold">
+                    <input v-model="branchForm.contact_number" type="text" placeholder="Contact Number" class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#29166e]/20 font-bold">
                 </div>
                 <div class="flex justify-end mt-4">
-                    <button @click="saveBranch" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2" :disabled="branchSaving">
+                    <button @click="saveBranch" class="px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl font-black text-xs shadow-lg shadow-[#29166e]/20 transition-all flex items-center gap-2" :disabled="branchSaving">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                         Add Branch
                     </button>
@@ -253,7 +253,7 @@
             <div class="space-y-4">
                 <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Existing Branches</h4>
                 <div v-if="branchesLoading" class="flex justify-center py-10">
-                    <div class="w-8 h-8 border-4 border-blue-600/10 border-t-blue-600 rounded-full animate-spin"></div>
+                    <div class="w-8 h-8 border-4 border-[#29166e]/10 border-t-[#29166e] rounded-full animate-spin"></div>
                 </div>
                 <div v-else-if="branches.length === 0" class="text-center py-10 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
                     <p class="text-xs text-slate-400 font-bold">No branches registered for this company yet.</p>
@@ -261,11 +261,11 @@
                 <div v-else class="space-y-3">
                     <div v-for="branch in branches" :key="branch.id" class="flex items-center justify-between p-4 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group">
                         <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-[#29166e] group-hover:text-white transition-all">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                             </div>
                             <div>
-                                <h5 class="text-sm font-black text-slate-800 dark:text-white">{{ branch.name }} <span class="text-blue-500 ml-1">#{{ branch.branch_number }}</span></h5>
+                                <h5 class="text-sm font-black text-slate-800 dark:text-white">{{ branch.name }} <span class="text-[#29166e] ml-1">#{{ branch.branch_number }}</span></h5>
                                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{{ branch.location || 'No location set' }}</p>
                             </div>
                         </div>

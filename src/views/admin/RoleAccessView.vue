@@ -5,7 +5,7 @@
         <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Role Access Management</h1>
         <p class="text-slate-500 dark:text-slate-400">Create roles and manage menu visibility & action permissions.</p>
       </div>
-      <button @click="showCreateRole = true" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all">
+      <button @click="showCreateRole = true" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#29166e] to-[#1d0f4d] text-white rounded-2xl font-bold text-sm shadow-lg shadow-[#29166e]/30 hover:shadow-xl hover:scale-[1.02] transition-all">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"></path></svg>
         Create Role
       </button>
@@ -13,7 +13,7 @@
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-20">
-      <div class="w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+      <div class="w-12 h-12 border-4 border-slate-200 border-t-[#29166e] rounded-full animate-spin"></div>
     </div>
 
     <!-- Roles Grid -->
@@ -22,7 +22,7 @@
         <!-- Role Header -->
         <div class="p-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
           <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-500/30">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#29166e] to-[#1d0f4d] flex items-center justify-center text-white font-black text-lg shadow-lg shadow-[#29166e]/30">
               {{ role.name.charAt(0).toUpperCase() }}
             </div>
             <div>
@@ -31,7 +31,7 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button @click="editRole(role)" class="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 transition-colors" title="Edit Permissions">
+            <button @click="editRole(role)" class="p-2.5 rounded-xl bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] hover:bg-[#29166e]/10 transition-colors" title="Edit Permissions">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </button>
             <button v-if="!isProtectedRole(role.name)" @click="deleteRole(role)" class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-600 hover:bg-rose-100 transition-colors" title="Delete Role">
@@ -104,7 +104,7 @@
             <tr v-for="user in adminUsers" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xs font-bold">
+                  <div class="w-8 h-8 rounded-full bg-[#29166e]/10 dark:bg-[#29166e]/30 flex items-center justify-center text-[#29166e] dark:text-[#29166e]/80 text-xs font-bold">
                     {{ user.name.charAt(0).toUpperCase() }}
                   </div>
                   <span class="text-sm font-bold text-slate-800 dark:text-white">{{ user.name }}</span>
@@ -112,7 +112,7 @@
               </td>
               <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ user.email }}</td>
               <td class="px-6 py-4">
-                <span class="px-3 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-[11px] font-bold capitalize">{{ (user.role || '').replace('_', ' ') }}</span>
+                <span class="px-3 py-1 rounded-lg bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] dark:text-[#29166e]/80 text-[11px] font-bold capitalize">{{ (user.role || '').replace('_', ' ') }}</span>
               </td>
               <td class="px-6 py-4">
                 <span :class="user.is_active ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400'" class="px-3 py-1 rounded-lg text-[11px] font-bold">
@@ -121,7 +121,7 @@
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
-                  <button @click="editUser(user)" class="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Edit User">
+                  <button @click="editUser(user)" class="p-2 rounded-lg text-slate-400 hover:text-[#29166e] hover:bg-[#29166e]/5 transition-colors" title="Edit User">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                   </button>
                   <button @click="deleteUser(user)" class="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Delete User">
@@ -144,13 +144,13 @@
         <!-- Role Name (only for create) -->
         <div v-if="!showEditRole" class="space-y-2">
           <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Role Name</label>
-          <input v-model="roleForm.name" type="text" placeholder="e.g. manager, supervisor" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white" />
+          <input v-model="roleForm.name" type="text" placeholder="e.g. manager, supervisor" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all dark:text-white" />
         </div>
 
         <!-- Editing role name display -->
-        <div v-if="showEditRole" class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
-          <p class="text-xs font-black text-indigo-500 uppercase tracking-widest mb-1">Editing Role</p>
-          <p class="text-lg font-black text-indigo-800 dark:text-indigo-300 capitalize">{{ (editingRole?.name || '').replace('_', ' ') }}</p>
+        <div v-if="showEditRole" class="p-4 bg-[#29166e]/5 dark:bg-[#29166e]/20 rounded-xl border border-[#29166e]/10 dark:border-[#29166e]/20">
+          <p class="text-xs font-black text-[#29166e] uppercase tracking-widest mb-1">Editing Role</p>
+          <p class="text-lg font-black text-[#29166e] dark:text-[#29166e]/80 capitalize">{{ (editingRole?.name || '').replace('_', ' ') }}</p>
         </div>
 
         <!-- Permission Groups -->
@@ -160,15 +160,15 @@
               <h4 class="text-sm font-black text-slate-800 dark:text-white">{{ group.label }}</h4>
               <p class="text-[11px] text-slate-400">{{ group.description }}</p>
             </div>
-            <button @click="toggleGroup(key)" class="text-[10px] font-bold text-blue-600 hover:text-blue-700 uppercase tracking-widest">
+            <button @click="toggleGroup(key)" class="text-[10px] font-bold text-[#29166e] hover:text-[#1d0f4d] uppercase tracking-widest">
               {{ isGroupAllSelected(key) ? 'Deselect All' : 'Select All' }}
             </button>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
             <label v-for="perm in group.permissions" :key="perm"
                    class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all"
-                   :class="roleForm.permissions.includes(perm) ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-slate-300'">
-              <input type="checkbox" :value="perm" v-model="roleForm.permissions" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                   :class="roleForm.permissions.includes(perm) ? 'bg-[#29166e]/5 dark:bg-[#29166e]/20 border-[#29166e]/20 dark:border-[#29166e]/30' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-slate-300'">
+              <input type="checkbox" :value="perm" v-model="roleForm.permissions" class="w-4 h-4 rounded border-slate-300 text-[#29166e] focus:ring-[#29166e]" />
               <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ formatPermissionLabel(perm) }}</span>
             </label>
           </div>
@@ -180,7 +180,7 @@
           <span class="text-xs font-bold text-slate-400">{{ roleForm.permissions.length }} permissions selected</span>
           <div class="flex items-center gap-3">
             <button @click="closeRoleModal" class="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors">Cancel</button>
-            <button @click="saveRole" :disabled="saving" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+            <button @click="saveRole" :disabled="saving" class="px-6 py-2.5 bg-[#29166e] text-white rounded-xl font-bold text-sm hover:bg-[#1d0f4d] transition-colors disabled:opacity-50 flex items-center gap-2">
               <svg v-if="saving" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
               {{ showEditRole ? 'Update Permissions' : 'Create Role' }}
             </button>
@@ -194,30 +194,30 @@
       <div class="p-6 space-y-5">
         <div class="space-y-2">
           <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Full Name</label>
-          <input v-model="userForm.name" type="text" placeholder="John Doe" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white" />
+          <input v-model="userForm.name" type="text" placeholder="John Doe" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all dark:text-white" />
         </div>
         <div class="space-y-2">
           <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Email</label>
-          <input v-model="userForm.email" type="email" placeholder="admin@nrg.com" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white" />
+          <input v-model="userForm.email" type="email" placeholder="admin@nrg.com" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all dark:text-white" />
         </div>
         <div class="space-y-2">
           <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Password</label>
-          <input v-model="userForm.password" type="password" placeholder="Min 8 characters" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white" />
+          <input v-model="userForm.password" type="password" placeholder="Min 8 characters" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all dark:text-white" />
         </div>
         <div class="space-y-2">
           <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Mobile</label>
-          <input v-model="userForm.mobile" type="text" placeholder="+974..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white" />
+          <input v-model="userForm.mobile" type="text" placeholder="+974..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all dark:text-white" />
         </div>
         <div class="space-y-2">
           <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Assign Role</label>
-          <select v-model="userForm.role" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white">
+          <select v-model="userForm.role" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all dark:text-white">
             <option value="">Select a role</option>
             <option v-for="role in roles" :key="role.id" :value="role.name">{{ role.name.replace('_', ' ') }}</option>
           </select>
         </div>
         <div v-if="showEditUser" class="space-y-2">
           <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" v-model="userForm.is_active" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+            <input type="checkbox" v-model="userForm.is_active" class="w-4 h-4 rounded border-slate-300 text-[#29166e] focus:ring-[#29166e]" />
             <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Account Active</span>
           </label>
         </div>
@@ -225,7 +225,7 @@
       <template #footer>
         <div class="flex items-center justify-end gap-3 w-full p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
           <button @click="closeUserModal" class="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors">Cancel</button>
-          <button @click="saveAdminUser" :disabled="saving" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+          <button @click="saveAdminUser" :disabled="saving" class="px-6 py-2.5 bg-[#29166e] text-white rounded-xl font-bold text-sm hover:bg-[#1d0f4d] transition-colors disabled:opacity-50 flex items-center gap-2">
             <svg v-if="saving" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
             {{ showEditUser ? 'Update User' : 'Create User' }}
           </button>

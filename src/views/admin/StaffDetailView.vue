@@ -8,29 +8,29 @@
     </div>
 
     <div v-if="loading" class="flex justify-center p-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-4 border-[#29166e] border-t-transparent"></div>
     </div>
 
     <div v-else-if="staff" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Left Column: Profile Card -->
         <div class="lg:col-span-1 space-y-8">
             <div class="glass p-8 rounded-[2.5rem] text-center relative overflow-hidden group">
-                <div class="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-700"></div>
+                <div class="absolute -top-12 -right-12 w-32 h-32 bg-[#29166e]/10 rounded-full blur-3xl group-hover:bg-[#29166e]/20 transition-all duration-700"></div>
                 <div class="absolute top-0 right-0 p-6">
                     <span :class="[
                         'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest',
                         staff.status === 'active' ? 'bg-green-100 text-green-600 dark:bg-green-900/30' : 'bg-red-100 text-red-600 dark:bg-red-900/30'
                     ]">{{ staff.status || 'Active' }}</span>
                 </div>
-                <div class="w-32 h-32 bg-gradient-to-tr from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 rounded-[2.2rem] mx-auto flex items-center justify-center text-white text-4xl font-black mb-6 shadow-2xl shadow-blue-500/40 transform group-hover:rotate-6 transition-transform duration-500">
+                <div class="w-32 h-32 bg-gradient-to-tr from-[#29166e] to-[#1d0f4d] dark:from-[#29166e] dark:to-[#1d0f4d] rounded-[2.2rem] mx-auto flex items-center justify-center text-white text-4xl font-black mb-6 shadow-2xl shadow-[#29166e]/40 transform group-hover:rotate-6 transition-transform duration-500">
                     {{ staff.name ? staff.name[0] : (staff.first_name ? staff.first_name[0] : '?') }}
                 </div>
                 <h2 class="text-2xl font-black text-slate-800 dark:text-white">{{ staff.name || (staff.first_name + ' ' + staff.last_name) }}</h2>
-                <p class="text-blue-600 dark:text-blue-400 font-black uppercase text-[10px] tracking-[0.2em] mt-3 mb-8 bg-blue-50 dark:bg-blue-900/20 py-2 px-4 rounded-xl inline-block">{{ staff.profession || staff.designation || 'Staff Member' }}</p>
+                <p class="text-[#29166e] dark:text-[#29166e] font-black uppercase text-[10px] tracking-[0.2em] mt-3 mb-8 bg-[#29166e]/5 dark:bg-[#29166e]/20 py-2 px-4 rounded-xl inline-block">{{ staff.profession || staff.designation || 'Staff Member' }}</p>
                 
                 <div class="space-y-3">
-                    <div class="flex items-center gap-4 px-5 py-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl text-left border border-slate-100 dark:border-slate-700/50 hover:border-blue-500/30 transition-colors group/item">
-                        <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/item:text-blue-500 transition-colors shadow-sm">
+                    <div class="flex items-center gap-4 px-5 py-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl text-left border border-slate-100 dark:border-slate-700/50 hover:border-[#29166e]/30 transition-colors group/item">
+                        <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/item:text-[#29166e] transition-colors shadow-sm">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                         </div>
                         <div class="flex flex-col">
@@ -38,8 +38,8 @@
                             <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ staff.mobile || staff.personal_number || 'N/A' }}</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-4 px-5 py-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl text-left border border-slate-100 dark:border-slate-700/50 hover:border-indigo-500/30 transition-colors group/item">
-                        <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/item:text-indigo-500 transition-colors shadow-sm">
+                    <div class="flex items-center gap-4 px-5 py-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl text-left border border-slate-100 dark:border-slate-700/50 hover:border-[#29166e]/30 transition-colors group/item">
+                        <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/item:text-[#29166e] transition-colors shadow-sm">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                         </div>
                         <div class="flex flex-col">
@@ -70,7 +70,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div class="p-6 rounded-3xl bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 flex items-center gap-5">
-                       <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-indigo-500">
+                       <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-[#29166e]">
                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                        </div>
                        <div>
@@ -80,7 +80,7 @@
                     </div>
 
                     <div class="p-6 rounded-3xl bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 flex items-center gap-5">
-                       <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-blue-500">
+                       <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-[#29166e]">
                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                        </div>
                        <div>
@@ -130,7 +130,7 @@
                             <p class="text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest mb-1">Assigned Branch</p>
                             <p class="text-sm font-black text-slate-800 dark:text-white">
                                 {{ staff.branch_name }}
-                                <span v-if="staff.branch_number" class="text-blue-500 ml-1">#{{ staff.branch_number }}</span>
+                                <span v-if="staff.branch_number" class="text-[#29166e] ml-1">#{{ staff.branch_number }}</span>
                             </p>
                         </div>
                         <div v-if="staff.company_contact_person">
@@ -147,7 +147,7 @@
                 <!-- Digital Document Repository -->
                 <div class="mt-8 space-y-6">
                     <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                        <div class="w-10 h-10 rounded-xl bg-[#29166e] flex items-center justify-center text-white shadow-lg shadow-[#29166e]/20">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                         </div>
                         <div>
@@ -162,10 +162,10 @@
                             <template v-if="getLatestDoc('qid')">
                                 <img v-if="isImage(getLatestDoc('qid').url)" :src="getFileUrl(getLatestDoc('qid').url)" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="QID Scan">
                                 <div v-else class="text-center space-y-3">
-                                    <div class="w-16 h-16 mx-auto bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600">
+                                    <div class="w-16 h-16 mx-auto bg-[#29166e]/10 dark:bg-[#29166e]/30 rounded-2xl flex items-center justify-center text-[#29166e]">
                                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                                     </div>
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-blue-600">PDF Document</p>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-[#29166e]">PDF Document</p>
                                 </div>
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                                     <a :href="getFileUrl(getLatestDoc('qid').url)" target="_blank" class="w-full py-3 bg-white/20 backdrop-blur-md rounded-xl text-white font-black text-[10px] uppercase tracking-widest text-center hover:bg-white/30 transition-colors">View Document</a>

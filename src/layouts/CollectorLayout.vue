@@ -4,8 +4,8 @@
     <!-- Header -->
     <header class="pt-10 pb-4 px-6 bg-white dark:bg-slate-900 shadow-md dark:shadow-lg dark:backdrop-blur-md sticky top-0 z-50 flex justify-between items-center border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
       <div>
-        <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-indigo-600 dark:from-teal-400 dark:to-indigo-400 tracking-tight">NRG Connect</h1>
-        <p class="text-[10px] text-indigo-600 dark:text-indigo-300 font-black tracking-wider uppercase">Field Collector</p>
+        <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#29166e] to-slate-600 dark:from-blue-400 dark:to-slate-400 tracking-tight uppercase">NRG Qatar</h1>
+        <p class="text-[10px] text-[#29166e] dark:text-blue-300 font-black tracking-wider uppercase">Field Collector</p>
       </div>
 
       <div class="flex items-center gap-3">
@@ -19,9 +19,9 @@
         <!-- Profile Dropdown -->
         <div class="relative" ref="profileRef">
           <button @click="showProfileDropdown = !showProfileDropdown" 
-                  class="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-500 to-indigo-500 flex items-center justify-center p-[2px] shadow-lg transition-transform hover:scale-105">
+                  class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#29166e] to-slate-500 flex items-center justify-center p-[2px] shadow-lg transition-transform hover:scale-105">
             <div class="w-full h-full bg-white dark:bg-slate-900 rounded-full flex items-center justify-center">
-              <span class="text-sm font-bold text-teal-600 dark:text-teal-400">{{ userInitials }}</span>
+              <span class="text-sm font-bold text-[#29166e] dark:text-blue-400">{{ userInitials }}</span>
             </div>
           </button>
   
@@ -34,8 +34,8 @@
               </div>
               
               <div class="px-3 mt-2 space-y-1">
-                  <button @click="openChangePassword" class="w-full flex items-center gap-4 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl hover:text-teal-600 transition-all group font-bold text-xs uppercase tracking-widest">
-                      <div class="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-teal-600 group-hover:scale-110 transition-transform">
+                  <button @click="openChangePassword" class="w-full flex items-center gap-4 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl hover:text-blue-600 transition-all group font-bold text-xs uppercase tracking-widest">
+                      <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                       </div>
                       Change Password
@@ -67,14 +67,14 @@
       <ul class="flex justify-around items-center">
         <!-- Home -->
         <li class="flex-1 flex justify-center">
-          <router-link to="/collector" class="flex flex-col items-center gap-1 group transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-300" active-class="text-teal-600 dark:text-teal-400 scale-110" exact>
+          <router-link to="/collector" class="flex flex-col items-center gap-1 group transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-[#29166e] dark:hover:text-blue-300" active-class="text-[#29166e] dark:text-blue-400 scale-110" exact>
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
             <span class="text-[10px] font-medium tracking-wide">Home</span>
           </router-link>
         </li>
         <!-- Settlement -->
         <li class="flex-1 flex justify-center">
-          <router-link to="/collector/settle" class="flex flex-col items-center gap-1 group transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-300" active-class="text-indigo-600 dark:text-indigo-400 scale-110">
+          <router-link to="/collector/settle" class="flex flex-col items-center gap-1 group transition-all duration-300 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" active-class="text-[#29166e] dark:text-blue-400 scale-110">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
             <span class="text-[10px] font-medium tracking-wide">Settle</span>
           </router-link>

@@ -6,15 +6,15 @@
         <p class="text-slate-500 dark:text-slate-400">Track and manage your daily business expenditures</p>
       </div>
       <div class="flex gap-3">
-        <button @click="$router.push({ name: 'admin-expense-categories' })" class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
+        <button @click="$router.push({ name: 'admin-expense-categories' })" class="flex items-center gap-2 px-6 py-3 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
           <svg class="w-4 h-4 text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Categories
         </button>
-        <button v-if="authStore.hasPermission('expense_create')" @click="openModal(null, 'Company')" class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
+        <button v-if="authStore.hasPermission('expense_create')" @click="openModal(null, 'Company')" class="flex items-center gap-2 px-6 py-3 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
           <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Add Company Expense
         </button>
-        <button v-if="authStore.hasPermission('expense_create')" @click="openModal(null, 'Employee')" class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
+        <button v-if="authStore.hasPermission('expense_create')" @click="openModal(null, 'Employee')" class="flex items-center gap-2 px-6 py-3 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
           <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Add Employee Expense
         </button>
@@ -25,7 +25,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <!-- Total Expenses -->
       <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex items-center gap-6 group transition-all hover:shadow-md hover:-translate-y-1">
-        <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm font-black text-xl">∑</div>
+        <div class="w-16 h-16 bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] dark:text-[#29166e]/80 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm font-black text-xl">∑</div>
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Expenses</p>
           <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
@@ -73,11 +73,11 @@
     <!-- Search & Filters -->
     <div class="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
       <div class="relative w-full md:w-96 group">
-        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-blue-500 transition-colors">
+        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </span>
         <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search by contract or category..." 
-               class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white font-medium">
+               class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
       </div>
 
       <div class="flex items-center gap-4 w-full md:w-auto md:ml-auto">
@@ -108,7 +108,7 @@
 
     <!-- Data Table -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-32 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm shadow-slate-100">
-        <div class="w-16 h-16 border-4 border-blue-600/10 border-t-blue-600 rounded-full animate-spin"></div>
+        <div class="w-16 h-16 border-4 border-[#29166e]/10 border-t-[#29166e] rounded-full animate-spin"></div>
         <p class="mt-6 text-slate-400 font-black uppercase tracking-widest text-[10px]">Synchronizing Records...</p>
     </div>
     
@@ -120,7 +120,7 @@
       
       <template #expense_date="{ value }">
         <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+            <div class="w-2 h-2 rounded-full bg-[#29166e]"></div>
             <span class="font-black text-slate-800 dark:text-slate-200 tracking-tight">
                 {{ formatDate(value) }}
             </span>
@@ -132,7 +132,7 @@
             <span class="text-sm font-black text-slate-800 dark:text-white tracking-tight">{{ row.contract.staff?.name }} Contract</span>
             <div class="flex items-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                 <span>{{ row.contract.company?.name || 'Individual' }}</span>
-                <span v-if="row.contract.staff?.branch" class="text-blue-500 opacity-80">
+                <span v-if="row.contract.staff?.branch" class="text-[#29166e] font-black">
                     ({{ row.contract.staff.branch.name }}<span v-if="row.contract.staff.branch.branch_number">-{{ row.contract.staff.branch.branch_number }}</span>)
                 </span>
             </div>
@@ -162,7 +162,7 @@
           <button @click="openModal(row, null, true)" class="p-2 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all" title="View Details">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
-          <button v-if="authStore.hasPermission('expense_edit')" @click="openModal(row)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all" title="Edit">
+          <button v-if="authStore.hasPermission('expense_edit')" @click="openModal(row)" class="p-2 text-slate-400 hover:text-[#29166e] hover:bg-[#29166e]/5 dark:hover:bg-[#29166e]/20 rounded-lg transition-all" title="Edit">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
           <button v-if="authStore.hasPermission('expense_delete')" @click="confirmDelete(row)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all" title="Delete">
@@ -220,15 +220,15 @@
               </div>
             
             <!-- Prefilled Company Confirmation -->
-            <div v-if="selectedContractCompany" class="mt-2 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-2xl animate-in fade-in slide-in-from-top-1">
+            <div v-if="selectedContractCompany" class="mt-2 p-4 bg-[#29166e]/5 dark:bg-[#29166e]/20 border border-[#29166e]/10 dark:border-[#29166e]/30 rounded-2xl animate-in fade-in slide-in-from-top-1">
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-lg">
+                    <div class="w-12 h-12 bg-[#29166e] text-white rounded-xl flex items-center justify-center font-black text-lg">
                         {{ selectedContractCompany.charAt(0) }}
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-0.5">
-                            <p class="text-[9px] font-black text-blue-500 uppercase tracking-widest">Assigned Client / Company</p>
-                            <span v-if="selectedContractCompany !== 'Individual'" class="px-1.5 py-0.5 bg-blue-600 text-white text-[8px] font-black rounded uppercase tracking-tight">Active Assignment</span>
+                            <p class="text-[9px] font-black text-[#29166e] uppercase tracking-widest">Assigned Client / Company</p>
+                            <span v-if="selectedContractCompany !== 'Individual'" class="px-1.5 py-0.5 bg-[#29166e] text-white text-[8px] font-black rounded uppercase tracking-tight">Active Assignment</span>
                         </div>
                         <p class="text-base font-black text-slate-800 dark:text-white leading-tight uppercase tracking-tight">{{ selectedContractCompany }}</p>
                         <p v-if="selectedContractProfession" class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
@@ -238,7 +238,7 @@
                     </div>
                 </div>
             </div>
-            <p v-else class="mt-2 text-[9px] text-blue-500 font-bold uppercase tracking-widest italic animate-pulse">* Required for employee expenses</p>
+            <p v-else class="mt-2 text-[9px] text-[#29166e] font-bold uppercase tracking-widest italic animate-pulse">* Required for employee expenses</p>
           </div>
           <div v-else class="flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-4 bg-white/50 dark:bg-slate-900/30">
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Company Level Expense<br><span class="text-[8px] font-bold lowercase opacity-50">(No contract required)</span></p>
@@ -247,7 +247,7 @@
           <!-- Category -->
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Main Category <span class="text-rose-500">*</span></label>
-            <select v-model="form.category_id" required @change="handleCategoryChange" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.category_id}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold">
+            <select v-model="form.category_id" required @change="handleCategoryChange" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.category_id}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold">
                 <option value="">Select Category</option>
                 <option v-for="cat in mainCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
@@ -257,7 +257,7 @@
           <!-- Subcategory -->
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Sub Category <span class="text-rose-500">*</span></label>
-            <select v-model="form.subcategory_id" :disabled="!availableSubcategories.length" @change="handleSubcategoryChange" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.subcategory_id}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold disabled:opacity-50">
+            <select v-model="form.subcategory_id" :disabled="!availableSubcategories.length" @change="handleSubcategoryChange" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.subcategory_id}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold disabled:opacity-50">
                 <option value="">Select Subcategory</option>
                 <option v-for="sub in availableSubcategories" :key="sub.id" :value="sub.id">{{ sub.name }}</option>
             </select>
@@ -277,7 +277,7 @@
           <!-- Reason -->
           <div class="md:col-span-2">
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason / Expense Name <span class="text-rose-500">*</span></label>
-            <input v-model="form.description" type="text" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.description}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold tracking-tight placeholder:font-medium" placeholder="e.g., Office Supplies, Staff Transport, etc.">
+            <input v-model="form.description" type="text" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.description}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold tracking-tight placeholder:font-medium" placeholder="e.g., Office Supplies, Staff Transport, etc.">
             <p v-if="errors.description" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.description[0] }}</p>
           </div>
 
@@ -322,14 +322,14 @@
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount (QAR) <span class="text-rose-500">*</span></label>
                 <div class="relative">
                     <span class="absolute left-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">QAR</span>
-                    <input v-model="form.amount" type="number" step="0.01" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.amount || (form.is_recoverable && isAmountExceedingFunds)}" class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-black text-2xl" placeholder="0.00">
+                    <input v-model="form.amount" type="number" step="0.01" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.amount || (form.is_recoverable && isAmountExceedingFunds)}" class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-black text-2xl" placeholder="0.00">
                 </div>
                 <p v-if="errors.amount" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.amount[0] }}</p>
                 <p v-if="form.is_recoverable && isAmountExceedingFunds" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest animate-pulse">Amount exceeds available personal funds (QAR {{ formatCurrency(selectedContractFunds) }})</p>
             </div>
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment Method <span class="text-rose-500">*</span></label>
-                <select v-model="form.payment_method" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.payment_method}" class="w-full px-5 py-[22px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-bold">
+                <select v-model="form.payment_method" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.payment_method}" class="w-full px-5 py-[22px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold">
                     <option value="">Select Method</option>
                     <option value="Cash">Cash</option>
                     <option value="Bank Transfer">Bank Transfer</option>
@@ -344,7 +344,7 @@
       <template #footer>
         <div class="flex items-center justify-between w-full p-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800">
             <button @click="showModal = false" class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">{{ viewMode ? 'Close' : 'Cancel' }}</button>
-            <button v-if="!viewMode" @click="saveExpense" class="px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl shadow-blue-500/20 transition-all font-black text-[10px] uppercase tracking-[0.2em] transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-3" :disabled="saving">
+            <button v-if="!viewMode" @click="saveExpense" class="px-10 py-4 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-2xl shadow-xl shadow-[#29166e]/20 transition-all font-black text-[10px] uppercase tracking-[0.2em] transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-3" :disabled="saving">
             <svg v-if="!saving" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             {{ saving ? 'Verifying...' : 'Confirm & Save' }}
             </button>

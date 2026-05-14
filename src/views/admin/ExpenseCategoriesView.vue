@@ -19,7 +19,7 @@
           :class="[
             'flex-1 py-3 px-6 text-sm font-black transition-all rounded-xl flex items-center justify-center gap-3',
             activeTab === 'main' 
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
+              ? 'bg-[#29166e] text-white shadow-lg shadow-[#29166e]/20' 
               : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/50'
           ]"
         >
@@ -31,7 +31,7 @@
           :class="[
             'flex-1 py-3 px-6 text-sm font-black transition-all rounded-xl flex items-center justify-center gap-3',
             activeTab === 'sub' 
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
+              ? 'bg-[#29166e] text-white shadow-lg shadow-[#29166e]/20' 
               : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/50'
           ]"
         >
@@ -53,7 +53,7 @@
                         v-model="search" 
                         type="text" 
                         :placeholder="activeTab === 'main' ? 'Search main categories...' : 'Search sub-categories...'"
-                        class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                        class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e]"
                     >
                     <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </div>
@@ -62,14 +62,14 @@
                 <select 
                     v-if="activeTab === 'main'"
                     v-model="targetTypeFilter"
-                    class="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    class="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e]"
                 >
                     <option value="">All Types</option>
                     <option value="Employee">Employee Related</option>
                     <option value="Company">Company Related</option>
                 </select>
 
-                <button @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 font-semibold text-sm ml-auto">
+                <button @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-lg shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-semibold text-sm ml-auto">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                     Add {{ activeTab === 'main' ? 'Main' : 'Sub' }} Category
                 </button>
@@ -85,7 +85,7 @@
         >
           
           <template #parent="{ row }">
-            <span class="px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+            <span class="px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] dark:text-[#29166e]/80">
                 {{ row.parent?.name || 'N/A' }}
             </span>
           </template>
@@ -101,7 +101,7 @@
 
           <template #actions="{ row }">
             <div class="flex items-center gap-3">
-              <button @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors">
+              <button @click="openModal(row)" class="p-1 text-slate-400 hover:text-[#29166e] transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
               </button>
               <button @click="confirmDelete(row)" class="p-1 text-slate-400 hover:text-red-500 transition-colors">
@@ -120,7 +120,7 @@
           <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
             {{ activeTab === 'main' ? 'Category Name' : 'Sub-Category Name' }}
           </label>
-          <input v-model="form.name" type="text" required class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" :placeholder="activeTab === 'main' ? 'e.g. Office Supplies' : 'e.g. Stationery'">
+          <input v-model="form.name" type="text" required class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium" :placeholder="activeTab === 'main' ? 'e.g. Office Supplies' : 'e.g. Stationery'">
         </div>
 
         <div v-if="activeTab === 'main'">
@@ -128,11 +128,11 @@
           <div class="grid grid-cols-2 gap-3">
             <button type="button" @click="form.target_type = 'Employee'" :class="[
               'px-4 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all',
-              form.target_type === 'Employee' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700/50 text-slate-500 hover:bg-slate-100'
+              form.target_type === 'Employee' ? 'bg-[#29166e] border-[#29166e] text-white shadow-lg shadow-[#29166e]/20' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700/50 text-slate-500 hover:bg-slate-100'
             ]">Employee Related</button>
             <button type="button" @click="form.target_type = 'Company'" :class="[
               'px-4 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all',
-              form.target_type === 'Company' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700/50 text-slate-500 hover:bg-slate-100'
+              form.target_type === 'Company' ? 'bg-[#29166e] border-[#29166e] text-white shadow-lg shadow-[#29166e]/20' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700/50 text-slate-500 hover:bg-slate-100'
             ]">Company Related</button>
           </div>
           <p class="mt-2 text-[9px] text-slate-400 font-medium">Employee-related categories will link expenses to specific contracts.</p>
@@ -140,7 +140,7 @@
 
         <div v-if="activeTab === 'sub'">
           <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Parent Category</label>
-          <select v-model="form.parent_id" required class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium">
+          <select v-model="form.parent_id" required class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium">
             <option value="">Select Parent</option>
             <option v-for="cat in mainCategoriesOnly" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
           </select>
@@ -148,12 +148,12 @@
 
         <div>
           <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Description (Optional)</label>
-          <textarea v-model="form.description" rows="3" class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium" placeholder="What is this category for?"></textarea>
+          <textarea v-model="form.description" rows="3" class="w-full px-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium" placeholder="What is this category for?"></textarea>
         </div>
       </form>
       <template #footer>
         <button @click="showModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">Cancel</button>
-        <button @click="saveCategory" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-xl shadow-blue-500/25 transition-all font-black text-sm" :disabled="saving">
+        <button @click="saveCategory" class="px-8 py-3 bg-gradient-to-r from-[#29166e] to-[#1d0f4d] hover:from-[#1d0f4d] hover:to-[#29166e] text-white rounded-xl shadow-xl shadow-[#29166e]/25 transition-all font-black text-sm" :disabled="saving">
           {{ saving ? 'Saving...' : (editMode ? (activeTab === 'main' ? 'Update Category' : 'Update Sub-Category') : (activeTab === 'main' ? 'Create Category' : 'Create Sub-Category')) }}
         </button>
       </template>

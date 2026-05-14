@@ -1,7 +1,7 @@
 <template>
   <div class="h-full bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
     <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-        <div v-html="icon" class="w-32 h-32 text-blue-600"></div>
+        <div v-html="icon" class="w-32 h-32 text-[#29166e]"></div>
     </div>
     <div class="flex items-center gap-4 relative z-10">
       <div :class="[colorClass, 'p-3 rounded-xl text-white shadow-lg']" v-html="icon"></div>
@@ -24,7 +24,7 @@ defineProps({
   title: String,
   value: [String, Number],
   icon: String,
-  colorClass: { type: String, default: 'bg-blue-600' },
+  colorClass: { type: String, default: 'bg-[#29166e]' },
   trend: Number
 });
 </script>

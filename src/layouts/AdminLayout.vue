@@ -1,12 +1,11 @@
 <template>
   <div class="admin-layout flex h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-hidden font-outfit">
     <!-- Sidebar -->
-    <aside class="w-72 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl shadow-2xl shadow-blue-500/5 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col z-30 transition-all">
-      <div class="p-8 flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/40 transform rotate-3">N</div>
-        <div>
-            <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">NRG <span class="text-blue-600">Pro</span></h2>
-            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Management Suite</p>
+    <aside class="w-72 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl shadow-2xl shadow-[#29166e]/5 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col z-30 transition-all">
+      <div class="p-8 flex items-center justify-center">
+        <div class="relative group">
+            <div class="absolute -inset-4 bg-[#29166e]/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <img src="@/assets/nrg-logo.png" alt="NRG Logo" class="w-32 h-auto relative drop-shadow-lg transform transition-transform duration-500 hover:scale-105" />
         </div>
       </div>
       
@@ -15,7 +14,7 @@
         
         <router-link v-for="link in filteredNavLinks" :key="link.to" :to="link.to" 
                      class="flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative" 
-                     active-class="bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]">
+                     active-class="bg-[#29166e] text-white shadow-xl shadow-[#29166e]/30 scale-[1.02]">
           <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
           <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
           <div v-if="$route.path === link.to" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
@@ -26,7 +25,7 @@
           
           <router-link v-for="link in filteredDocLinks" :key="link.to" :to="link.to" 
                        class="flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative" 
-                       active-class="bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]">
+                       active-class="bg-[#29166e] text-white shadow-xl shadow-[#29166e]/30 scale-[1.02]">
             <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
             <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
             <div v-if="$route.path === link.to" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
@@ -39,7 +38,7 @@
           
           <router-link v-for="link in filteredReportLinks" :key="link.to" :to="link.to" 
                        class="flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative" 
-                       active-class="bg-blue-600 text-white shadow-xl shadow-blue-500/30 scale-[1.02]">
+                       active-class="bg-[#29166e] text-white shadow-xl shadow-[#29166e]/30 scale-[1.02]">
             <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
             <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
             <div v-if="$route.path === link.to" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
@@ -50,7 +49,7 @@
       <div class="p-6 mt-auto">
         <div class="bg-slate-100/50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-200/50 dark:border-slate-700/50">
             <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">{{ userInitials }}</div>
+                <div class="w-10 h-10 rounded-full bg-[#29166e]/10 dark:bg-[#29166e]/30 flex items-center justify-center text-[#29166e] dark:text-blue-400 font-bold">{{ userInitials }}</div>
                 <div class="min-w-0">
                     <p class="text-sm font-bold text-slate-800 dark:text-white truncate">{{ authStore.user?.name || 'Admin User' }}</p>
                     <p class="text-[10px] font-medium text-slate-500 truncate">{{ roleBadge }}</p>
@@ -67,7 +66,7 @@
     <!-- Content -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
       <!-- Glow effect -->
-      <div class="absolute -top-40 -right-40 w-96 h-96 bg-blue-500/10 blur-[100px] pointer-events-none"></div>
+      <div class="absolute -top-40 -right-40 w-96 h-96 bg-[#29166e]/10 blur-[100px] pointer-events-none"></div>
       
       <header class="h-20 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md flex items-center justify-between px-10 relative z-20">
         <div class="flex items-center gap-3">
@@ -80,9 +79,9 @@
             <svg v-else class="w-5 h-5 group-hover:-rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
           <div class="relative group">
-              <button class="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-all">
+              <button class="p-2.5 rounded-xl bg-[#29166e]/10 dark:bg-[#29166e]/20 text-[#29166e] dark:text-blue-400 transition-all">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                  <span class="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+                  <span class="absolute top-2 right-2 w-2 h-2 bg-[#29166e] rounded-full border-2 border-white dark:border-slate-900"></span>
               </button>
           </div>
         </div>

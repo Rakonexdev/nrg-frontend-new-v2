@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Staff Management</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage employees, documents and assignments</p>
       </div>
-      <button v-if="authStore.hasPermission('staff_create')" @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg shadow-blue-500/30 transition-all font-semibold">
+      <button v-if="authStore.hasPermission('staff_create')" @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-lg shadow-lg shadow-[#29166e]/30 transition-all font-semibold">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         Add Staff Member
       </button>
@@ -18,7 +18,7 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </span>
         <input v-model="search" @input="fetchStaff(1)" type="text" placeholder="Search by name, QID, profession..." 
-               class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none dark:text-white">
+               class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-[#29166e]/20 outline-none dark:text-white">
       </div>
 
       <div v-if="filter" class="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg animate-in fade-in slide-in-from-left-4">
@@ -53,7 +53,7 @@
 
     <!-- Data Table -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-        <div class="w-12 h-12 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
+        <div class="w-12 h-12 border-4 border-[#29166e]/20 border-t-[#29166e] rounded-full animate-spin"></div>
         <p class="mt-4 text-slate-500 font-medium">Loading staff records...</p>
     </div>
 
@@ -111,11 +111,11 @@
 
       <template #actions="{ row }">
         <div class="flex items-center gap-3">
-          <button @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-indigo-500 transition-colors" title="View Details">
+          <button @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-[#29166e] transition-colors" title="View Details">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
-
-          <button v-if="authStore.hasPermission('staff_edit')" @click="openModal(row)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="Edit Staff">
+ 
+          <button v-if="authStore.hasPermission('staff_edit')" @click="openModal(row)" class="p-1 text-slate-400 hover:text-[#29166e] transition-colors" title="Edit Staff">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
 
@@ -135,7 +135,7 @@
           <!-- Basic Info -->
           <div class="space-y-6">
           <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div class="w-8 h-8 rounded-lg bg-[#29166e]/10 dark:bg-[#29166e]/20 flex items-center justify-center text-[#29166e] dark:text-[#29166e]">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </div>
             <h4 class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Personal & Prof. Info</h4>
@@ -149,7 +149,7 @@
                   errors.name ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
                   viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
                 ]"
-                class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Employee Name">
+                class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Employee Name">
               <p v-if="errors.name" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.name) ? errors.name[0] : errors.name }}</p>
             </div>
             
@@ -161,7 +161,7 @@
                     errors.nationality ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
                     viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
                   ]"
-                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed appearance-none">
+                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed appearance-none">
                   <option value="">Select Country</option>
                   <option v-for="c in nationalities" :key="c" :value="c">{{ c }}</option>
                 </select>
@@ -174,7 +174,7 @@
                     errors.profession ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
                     viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
                   ]"
-                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Job Title">
+                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="Job Title">
                 <p v-if="errors.profession" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.profession) ? errors.profession[0] : errors.profession }}</p>
               </div>
             </div>
@@ -210,7 +210,7 @@
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mobile Number <span class="text-red-500">*</span></label>
                 <div class="relative group">
-                  <div class="absolute inset-y-0 left-0 flex items-center pl-4 pr-2 border-r border-slate-200 dark:border-slate-700/50 text-slate-400 font-bold text-xs pointer-events-none group-focus-within:text-blue-500 transition-colors">
+                  <div class="absolute inset-y-0 left-0 flex items-center pl-4 pr-2 border-r border-slate-200 dark:border-slate-700/50 text-slate-400 font-bold text-xs pointer-events-none group-focus-within:text-[#29166e] transition-colors">
                     +974
                   </div>
                     <input v-model="form.mobile" type="text" required :disabled="viewMode" 
@@ -219,19 +219,19 @@
                         errors.mobile ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
                         viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
                       ]"
-                      class="w-full pl-16 pr-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-digit number">
+                      class="w-full pl-16 pr-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-digit number">
                 </div>
                 <p v-if="errors.mobile" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.mobile) ? errors.mobile[0] : errors.mobile }}</p>
               </div>
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Alt. Mobile <span class="text-slate-400 font-normal italic">(Optional)</span></label>
                 <div class="relative group">
-                  <div class="absolute inset-y-0 left-0 flex items-center pl-4 pr-2 border-r border-slate-200 dark:border-slate-700/50 text-slate-400 font-bold text-xs pointer-events-none group-focus-within:text-blue-500 transition-colors">
+                  <div class="absolute inset-y-0 left-0 flex items-center pl-4 pr-2 border-r border-slate-200 dark:border-slate-700/50 text-slate-400 font-bold text-xs pointer-events-none group-focus-within:text-[#29166e] transition-colors">
                     +974
                   </div>
                   <input v-model="form.alternative_mobile" type="text" :disabled="viewMode" 
                     @input="form.alternative_mobile = form.alternative_mobile.replace(/[^0-9]/g, '').slice(0, 8)"
-                    class="w-full pl-16 pr-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-digit number">
+                    class="w-full pl-16 pr-5 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="8-digit number">
                 </div>
               </div>
             </div>
@@ -262,7 +262,7 @@
         <!-- Identity Details -->
         <div class="space-y-6">
           <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <div class="w-8 h-8 rounded-lg bg-[#29166e]/10 dark:bg-[#29166e]/20 flex items-center justify-center text-[#29166e] dark:text-[#29166e]">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </div>
             <h4 class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Identity & Documents</h4>
@@ -277,7 +277,7 @@
                     errors.passport_number ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
                     viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
                   ]"
-                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
+                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed">
                 <p v-if="errors.passport_number" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.passport_number) ? errors.passport_number[0] : errors.passport_number }}</p>
               </div>
               <DateInput 
@@ -297,7 +297,7 @@
                     errors.qid_number ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-200 dark:border-slate-700/50',
                     viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
                   ]"
-                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="11-digit QID">
+                  class="w-full px-5 py-3 border rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed" placeholder="11-digit QID">
                 <p v-if="errors.qid_number" class="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">{{ Array.isArray(errors.qid_number) ? errors.qid_number[0] : errors.qid_number }}</p>
               </div>
               <DateInput 
@@ -318,7 +318,7 @@
                   <div v-for="file in form.qid_documents" :key="file.id" class="group relative">
                     <a :href="getFileUrl(file.url)" target="_blank" 
                        :class="[isImage(file.name) ? 'w-24 h-24' : 'w-24 h-24 flex flex-col items-center justify-center bg-white dark:bg-slate-800']"
-                       class="block rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm hover:border-blue-500 transition-all">
+                       class="block rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm hover:border-[#29166e] transition-all">
                       <img v-if="isImage(file.name)" :src="getFileUrl(file.url)" class="w-full h-full object-cover" />
                       <div v-else class="flex flex-col items-center p-2 text-center">
                         <svg class="w-8 h-8 text-slate-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -334,12 +334,12 @@
 
                   <!-- New Uploads Previews -->
                   <div v-for="(file, index) in form.qid_files" :key="'new-'+index" class="group relative">
-                    <div :class="[form.qid_previews[index] ? 'w-24 h-24' : 'w-24 h-24 flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/20']"
-                         class="rounded-xl overflow-hidden border-2 border-dashed border-blue-400 dark:border-blue-500/50 shadow-sm">
+                    <div :class="[form.qid_previews[index] ? 'w-24 h-24' : 'w-24 h-24 flex flex-col items-center justify-center bg-[#29166e]/5 dark:bg-[#29166e]/10']"
+                         class="rounded-xl overflow-hidden border-2 border-dashed border-[#29166e]/40 dark:border-[#29166e]/50 shadow-sm">
                       <img v-if="form.qid_previews[index]" :src="form.qid_previews[index]" class="w-full h-full object-cover" />
                       <div v-else class="flex flex-col items-center p-2 text-center">
-                        <svg class="w-8 h-8 text-blue-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                        <span class="text-[8px] font-bold text-blue-500 truncate w-full px-1">{{ file.name }}</span>
+                        <svg class="w-8 h-8 text-[#29166e]/40 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        <span class="text-[8px] font-bold text-[#29166e] truncate w-full px-1">{{ file.name }}</span>
                       </div>
                     </div>
                     <button v-if="!viewMode" @click.stop="removeNewFile('qid', index)" 
@@ -350,7 +350,7 @@
                   </div>
                 </div>
 
-                <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'qid_files')" multiple accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition-all cursor-pointer">
+                <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'qid_files')" multiple accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-[#29166e] file:text-white hover:file:bg-[#1d0f4d] transition-all cursor-pointer">
                 <p v-if="!form.qid_documents?.length && !form.qid_files?.length" class="text-xs text-slate-400 italic py-2">No documents attached</p>
               </div>
               <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50">
@@ -361,7 +361,7 @@
                   <div v-for="file in form.passport_documents" :key="file.id" class="group relative">
                     <a :href="getFileUrl(file.url)" target="_blank" 
                        :class="[isImage(file.name) ? 'w-24 h-24' : 'w-24 h-24 flex flex-col items-center justify-center bg-white dark:bg-slate-800']"
-                       class="block rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-500 transition-all">
+                       class="block rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm hover:border-[#29166e] transition-all">
                       <img v-if="isImage(file.name)" :src="getFileUrl(file.url)" class="w-full h-full object-cover" />
                       <div v-else class="flex flex-col items-center p-2 text-center">
                         <svg class="w-8 h-8 text-slate-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -377,12 +377,12 @@
 
                   <!-- New Uploads Previews -->
                   <div v-for="(file, index) in form.passport_files" :key="'new-'+index" class="group relative">
-                    <div :class="[form.passport_previews[index] ? 'w-24 h-24' : 'w-24 h-24 flex flex-col items-center justify-center bg-indigo-50 dark:bg-indigo-900/20']"
-                         class="rounded-xl overflow-hidden border-2 border-dashed border-indigo-400 dark:border-indigo-500/50 shadow-sm">
+                    <div :class="[form.passport_previews[index] ? 'w-24 h-24' : 'w-24 h-24 flex flex-col items-center justify-center bg-[#29166e]/5 dark:bg-[#29166e]/10']"
+                         class="rounded-xl overflow-hidden border-2 border-dashed border-[#29166e]/40 dark:border-[#29166e]/50 shadow-sm">
                       <img v-if="form.passport_previews[index]" :src="form.passport_previews[index]" class="w-full h-full object-cover" />
                       <div v-else class="flex flex-col items-center p-2 text-center">
-                        <svg class="w-8 h-8 text-indigo-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                        <span class="text-[8px] font-bold text-indigo-500 truncate w-full px-1">{{ file.name }}</span>
+                        <svg class="w-8 h-8 text-[#29166e]/40 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        <span class="text-[8px] font-bold text-[#29166e] truncate w-full px-1">{{ file.name }}</span>
                       </div>
                     </div>
                     <button v-if="!viewMode" @click.stop="removeNewFile('passport', index)" 
@@ -393,7 +393,7 @@
                   </div>
                 </div>
 
-                <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'passport_files')" multiple accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 transition-all cursor-pointer">
+                <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'passport_files')" multiple accept=".jpg,.jpeg,.png,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-[#29166e] file:text-white hover:file:bg-[#1d0f4d] transition-all cursor-pointer">
                 <p v-if="!form.passport_documents?.length && !form.passport_files?.length" class="text-xs text-slate-400 italic py-2">No documents attached</p>
               </div>
             </div>
@@ -407,7 +407,7 @@
             :class="[
               viewMode ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'
             ]"
-            class="w-full px-6 py-5 border border-slate-200 dark:border-slate-700/50 rounded-[2.5rem] outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed resize-none h-28 shadow-inner" 
+            class="w-full px-6 py-5 border border-slate-200 dark:border-slate-700/50 rounded-[2.5rem] outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-medium disabled:opacity-75 disabled:cursor-not-allowed resize-none h-28 shadow-inner" 
             placeholder="Enter any additional details, special instructions, or performance notes about this staff member..."></textarea>
         </div>
       </form>
@@ -415,7 +415,7 @@
         <button @click="showModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">
           {{ viewMode ? 'Close' : 'Cancel' }}
         </button>
-        <button v-if="!viewMode" @click="saveStaff" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
+        <button v-if="!viewMode" @click="saveStaff" class="px-8 py-3 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
           <svg v-if="saving" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           {{ saving ? 'Saving Changes...' : 'Save Member Details' }}
         </button>

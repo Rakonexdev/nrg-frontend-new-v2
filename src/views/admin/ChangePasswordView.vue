@@ -1,8 +1,8 @@
 <template>
   <div class="max-w-2xl mx-auto py-10">
-    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-blue-500/5 border border-slate-200/50 dark:border-slate-800/50 overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-[#29166e]/5 border border-slate-200/50 dark:border-slate-800/50 overflow-hidden">
       <div class="p-10 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900 pointer-events-none">
-        <h1 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Security <span class="text-blue-600">Settings</span></h1>
+        <h1 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Security <span class="text-[#29166e]">Settings</span></h1>
         <p class="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">Update your account credentials</p>
       </div>
 
@@ -15,10 +15,10 @@
               v-model="form.current_password"
               type="password"
               placeholder="••••••••"
-              class="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-blue-500 dark:focus:border-blue-500 rounded-2xl px-6 py-4 text-slate-800 dark:text-white font-bold outline-none transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+              class="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-[#29166e] dark:focus:border-[#29166e] rounded-2xl px-6 py-4 text-slate-800 dark:text-white font-bold outline-none transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
               required
             />
-            <div class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors">
+            <div class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#29166e] transition-colors">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </div>
           </div>
@@ -64,7 +64,7 @@
           <button 
             type="submit" 
             :disabled="loading"
-            class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-500/20 transition-all flex items-center justify-center gap-3 group overflow-hidden relative"
+            class="w-full bg-[#29166e] hover:bg-[#1d0f4d] disabled:bg-[#29166e]/50 text-white font-black py-5 rounded-2xl shadow-xl shadow-[#29166e]/20 transition-all flex items-center justify-center gap-3 group overflow-hidden relative"
           >
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
             <svg v-if="!loading" class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>

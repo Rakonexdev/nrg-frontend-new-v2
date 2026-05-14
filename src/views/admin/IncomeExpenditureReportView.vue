@@ -10,7 +10,7 @@
         <DateInput label="From Date" v-model="filters.from_date" />
         <DateInput label="To Date" v-model="filters.to_date" />
         <button @click="filters.page = 1; fetchReport()"
-                class="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all active:scale-95">
+                class="flex items-center gap-2 px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#29166e]/30 hover:shadow-xl transition-all active:scale-95">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Generate
         </button>
@@ -52,14 +52,14 @@
       <div class="relative flex-1 min-w-[240px] max-w-md">
         <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         <input v-model="filters.search" type="text" placeholder="Search by name, QID..."
-               class="w-full pl-11 pr-4 py-3 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+               class="w-full pl-11 pr-4 py-3 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all" />
       </div>
 
       <!-- Type Filter -->
       <div class="space-y-0.5">
         <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Type</label>
         <select v-model="filters.type"
-                class="px-4 py-2.5 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all cursor-pointer appearance-none pr-8 bg-no-repeat bg-[right_0.5rem_center] bg-[length:16px]"
+                class="px-4 py-2.5 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all cursor-pointer appearance-none pr-8 bg-no-repeat bg-[right_0.5rem_center] bg-[length:16px]"
                 style="background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E')">
           <option value="">All Types</option>
           <option value="income">Income</option>
@@ -71,7 +71,7 @@
       <div class="space-y-0.5">
         <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Method</label>
         <select v-model="filters.method"
-                class="px-4 py-2.5 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all cursor-pointer appearance-none pr-8 bg-no-repeat bg-[right_0.5rem_center] bg-[length:16px]"
+                class="px-4 py-2.5 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all cursor-pointer appearance-none pr-8 bg-no-repeat bg-[right_0.5rem_center] bg-[length:16px]"
                 style="background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E')">
           <option value="">All Methods</option>
           <option value="cash">Cash</option>
@@ -106,7 +106,7 @@
         <div class="flex flex-col">
           <span class="font-bold text-slate-800 dark:text-slate-200">{{ row.staff_name || '—' }}</span>
           <div class="flex items-center gap-1.5">
-            <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">{{ row.company_name || '' }}</span>
+            <span class="text-[10px] font-black text-[#29166e] uppercase tracking-widest">{{ row.company_name || '' }}</span>
             <span v-if="row.staff_qid" class="text-[9px] font-bold text-slate-400">/ {{ row.staff_qid }}</span>
           </div>
         </div>

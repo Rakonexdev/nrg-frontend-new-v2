@@ -17,7 +17,7 @@
           v-model="filters.to_date"
         />
         <button @click="filters.page = 1; fetchCollections()" 
-                class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2">
+                class="px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#29166e]/30 transition-all active:scale-95 flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Filter
         </button>
@@ -31,9 +31,9 @@
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden relative group">
-        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-[#29166e]/10 rounded-full blur-2xl group-hover:bg-[#29166e]/20 transition-all"></div>
         <div class="flex items-center gap-4 mb-4">
-          <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+          <div class="w-12 h-12 rounded-2xl bg-[#29166e]/10 flex items-center justify-center text-[#29166e]">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </div>
           <div>
@@ -49,11 +49,11 @@
       <template #staff_info="{ row }">
         <div class="flex flex-col">
             <span class="font-bold text-slate-800 dark:text-slate-200">{{ row.contract?.staff?.name || 'N/A' }}</span>
-            <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">{{ row.contract?.staff?.company?.name || 'Individual' }}</span>
+            <span class="text-[10px] font-black text-[#29166e] uppercase tracking-widest">{{ row.contract?.staff?.company?.name || 'Individual' }}</span>
         </div>
       </template>
       <template #amount="{ value }">
-        <span class="font-black text-blue-600 dark:text-blue-400">QAR {{ parseFloat(value || 0).toLocaleString() }}</span>
+        <span class="font-black text-[#29166e] dark:text-[#29166e]/80">QAR {{ parseFloat(value || 0).toLocaleString() }}</span>
       </template>
       <template #payment_method="{ value }">
         <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">

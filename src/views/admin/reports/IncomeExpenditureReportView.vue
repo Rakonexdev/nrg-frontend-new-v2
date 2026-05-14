@@ -17,7 +17,7 @@
           v-model="filters.to_date"
         />
         <button @click="fetchReport" 
-                class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2">
+                class="px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#29166e]/30 transition-all active:scale-95 flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Generate
         </button>
@@ -44,10 +44,10 @@
         <h3 class="text-2xl font-black text-amber-600 dark:text-amber-500 mt-1">QAR {{ summary.total_recoverable?.toLocaleString() }}</h3>
       </div>
 
-      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group transition-all hover:shadow-md border-b-blue-500 border-b-2">
-        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
+      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group transition-all hover:shadow-md border-b-[#29166e] border-b-2">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-[#29166e]/10 rounded-full blur-2xl group-hover:bg-[#29166e]/20 transition-all"></div>
         <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Net Profit</p>
-        <h3 class="text-2xl font-black mt-1" :class="summary.net_balance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-rose-600'">
+        <h3 class="text-2xl font-black mt-1" :class="summary.net_balance >= 0 ? 'text-[#29166e] dark:text-[#29166e]/80' : 'text-rose-600'">
           QAR {{ summary.net_balance?.toLocaleString() }}
         </h3>
       </div>
