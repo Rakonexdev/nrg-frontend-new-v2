@@ -57,8 +57,9 @@
             <span class="font-bold text-slate-800 dark:text-white">{{ row.name }}</span>
             <span v-if="row.branch_number" class="text-[11px] font-black text-indigo-500">({{ row.branch_number }})</span>
           </div>
-
-
+          <div v-if="row.computer_card" class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">Computer Card: {{ row.computer_card }}</span>
+          </div>
         </div>
       </template>
 
@@ -116,8 +117,16 @@
                 <p v-if="errors.name" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.name[0] }}</p>
             </div>
 
-            <div class="hidden">
-                <input v-model="form.computer_card" type="hidden">
+            <div>
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Computer Card</label>
+                <input v-model="form.computer_card" type="text" :disabled="viewMode"
+                       :class="[
+                           viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                           errors.computer_card ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
+                       ]"
+                       class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/50 transition-all font-bold" 
+                       placeholder="Enter Computer Card number">
+                <p v-if="errors.computer_card" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.computer_card[0] }}</p>
             </div>
 
             <div>
@@ -181,6 +190,8 @@
                        placeholder="Branch ID (e.g. 001)">
                 <p v-if="errors.branch_number" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.branch_number[0] }}</p>
             </div>
+
+
 
 
 
@@ -348,7 +359,6 @@ const form = ref({
     contact_person: '',
     phone_number: '',
     alternative_phone_number: '',
-    branch_name: '',
     branch_number: '',
     is_active: true
 });
@@ -400,7 +410,6 @@ const openModal = (company = null, isView = false) => {
             contact_person: '',
             phone_number: '',
             alternative_phone_number: '',
-            branch_name: '',
             branch_number: '',
             is_active: true
         };
