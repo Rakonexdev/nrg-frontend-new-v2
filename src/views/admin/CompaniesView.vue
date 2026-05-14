@@ -118,14 +118,16 @@
             </div>
 
             <div>
-                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Computer Card</label>
-                <input v-model="form.computer_card" type="text" :disabled="viewMode"
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Computer Card <span class="text-red-500">*</span></label>
+                <input v-model="form.computer_card" type="text" required :disabled="viewMode"
+                       @input="form.computer_card = form.computer_card.replace(/[^0-9]/g, '').slice(0, 8)"
+                       maxlength="8"
                        :class="[
                            viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
                            errors.computer_card ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
                        ]"
                        class="w-full px-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-[#29166e]/50 transition-all font-bold" 
-                       placeholder="Enter Computer Card number">
+                       placeholder="Enter 8-digit Computer Card">
                 <p v-if="errors.computer_card" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.computer_card[0] }}</p>
             </div>
 

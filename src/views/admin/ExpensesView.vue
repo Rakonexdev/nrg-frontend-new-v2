@@ -12,7 +12,7 @@
         </button>
         <button v-if="authStore.hasPermission('expense_create')" @click="openModal(null, 'Company')" class="flex items-center gap-2 px-6 py-3 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
           <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-          Add Company Expense
+          NRG Company Expense
         </button>
         <button v-if="authStore.hasPermission('expense_create')" @click="openModal(null, 'Employee')" class="flex items-center gap-2 px-6 py-3 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-black uppercase tracking-widest text-[10px]">
           <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -142,8 +142,8 @@
 
       <template #category="{ row }">
         <div class="flex flex-col">
-            <span class="text-xs font-black text-slate-700 dark:text-slate-300">{{ row.category?.name || 'N/A' }}</span>
-            <span v-if="row.subcategory" class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{{ row.subcategory?.name }}</span>
+            <span class="text-xs font-black text-slate-700 dark:text-slate-300">{{ row.category ? row.category.name : 'N/A' }}</span>
+            <span v-if="row.subcategory" class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{{ row.subcategory ? row.subcategory.name : '' }}</span>
         </div>
       </template>
 
@@ -181,6 +181,7 @@
             label="Expense Date *"
             v-model="form.expense_date"
             :error="errors.expense_date?.[0]"
+            :disabled="viewMode"
             required
           />
 
@@ -192,6 +193,7 @@
                 :options="contractsList"
                 :error="errors.contract_id?.[0]"
                 placeholder="Select Staff Member's Contract"
+                :disabled="viewMode"
                 required
               />
               <p v-if="errors.contract_id" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.contract_id[0] }}</p>
@@ -247,7 +249,7 @@
           <!-- Category -->
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Main Category <span class="text-rose-500">*</span></label>
-            <select v-model="form.category_id" required @change="handleCategoryChange" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.category_id}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold">
+            <select v-model="form.category_id" required @change="handleCategoryChange" :disabled="viewMode" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.category_id}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold">
                 <option value="">Select Category</option>
                 <option v-for="cat in mainCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
@@ -257,7 +259,7 @@
           <!-- Subcategory -->
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Sub Category <span class="text-rose-500">*</span></label>
-            <select v-model="form.subcategory_id" :disabled="!availableSubcategories.length" @change="handleSubcategoryChange" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.subcategory_id}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold disabled:opacity-50">
+            <select v-model="form.subcategory_id" :disabled="!availableSubcategories.length || viewMode" @change="handleSubcategoryChange" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.subcategory_id}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold disabled:opacity-50">
                 <option value="">Select Subcategory</option>
                 <option v-for="sub in availableSubcategories" :key="sub.id" :value="sub.id">{{ sub.name }}</option>
             </select>
@@ -270,30 +272,55 @@
               label="New Validation/Expiry Date *"
               v-model="form.validation_date"
               :error="errors.validation_date?.[0]"
+              :disabled="viewMode"
               required
             />
           </div>
           
-          <!-- Reason -->
+          <!-- Description / Reason / Notes -->
           <div class="md:col-span-2">
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason / Expense Name <span class="text-rose-500">*</span></label>
-            <input v-model="form.description" type="text" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.description}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold tracking-tight placeholder:font-medium" placeholder="e.g., Office Supplies, Staff Transport, etc.">
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
+              {{ currentType === 'Employee' ? 'Reason / Expense Name' : 'Expense Notes / Details' }}
+              <span class="text-rose-500">*</span>
+            </label>
+            
+            <textarea v-if="currentType !== 'Employee'" 
+                      v-model="form.description" 
+                      required 
+                      :disabled="viewMode" 
+                      rows="3"
+                      :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.description}" 
+                      class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-medium tracking-tight placeholder:font-medium" 
+                      placeholder="Add any additional details here..."></textarea>
+            
+            <input v-else 
+                   v-model="form.description" 
+                   type="text" 
+                   required 
+                   :disabled="viewMode" 
+                   :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.description}" 
+                   class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold tracking-tight placeholder:font-medium" 
+                   placeholder="e.g., Office Supplies, Staff Transport, etc.">
+            
             <p v-if="errors.description" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.description[0] }}</p>
           </div>
+
+
+
 
           <!-- Recoverable Toggle (Only for Employee type) -->
           <div v-if="currentType === 'Employee'" class="md:col-span-2">
             <!-- Balance Warning Message -->
-            <div v-if="form.contract_id && selectedContractFunds <= 0" class="mb-3 p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/50 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
-                <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                <p class="text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest">This employee doesn't have a Personal Due balance to recover from.</p>
+            <div v-if="form.contract_id && selectedContractFunds <= 0" class="mb-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
+                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <p class="text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Note: Employee current balance is zero. Expense will be recorded as a pending recovery.</p>
             </div>
 
-            <div @click="selectedContractFunds > 0 ? (form.is_recoverable = !form.is_recoverable) : null" 
+            <div @click="!viewMode ? (form.is_recoverable = !form.is_recoverable) : null" 
                  class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-2 rounded-2xl transition-all"
                  :class="[
                     form.is_recoverable ? 'border-amber-500 bg-amber-50/30 dark:bg-amber-900/10' : 'border-slate-200 dark:border-slate-800',
-                    (selectedContractFunds <= 0 && form.contract_id) ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:shadow-md'
+                    viewMode ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:shadow-md'
                  ]">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
@@ -309,8 +336,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="relative inline-flex items-center" :class="selectedContractFunds <= 0 ? 'pointer-events-none' : ''">
-                    <input type="checkbox" v-model="form.is_recoverable" :disabled="selectedContractFunds <= 0" class="sr-only peer">
+                <div class="relative inline-flex items-center">
+                    <input type="checkbox" v-model="form.is_recoverable" :disabled="viewMode" class="sr-only peer">
                     <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"></div>
                 </div>
             </div>
@@ -322,14 +349,14 @@
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Amount (QAR) <span class="text-rose-500">*</span></label>
                 <div class="relative">
                     <span class="absolute left-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">QAR</span>
-                    <input v-model="form.amount" type="number" step="0.01" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.amount || (form.is_recoverable && isAmountExceedingFunds)}" class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-black text-2xl" placeholder="0.00">
+                    <input v-model="form.amount" type="number" step="0.01" required :disabled="viewMode" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.amount}" class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-black text-2xl" placeholder="0.00">
                 </div>
                 <p v-if="errors.amount" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.amount[0] }}</p>
-                <p v-if="form.is_recoverable && isAmountExceedingFunds" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest animate-pulse">Amount exceeds available personal funds (QAR {{ formatCurrency(selectedContractFunds) }})</p>
+                <p v-if="form.is_recoverable && isAmountExceedingFunds" class="text-amber-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">Notice: Amount exceeds current available balance. This will be recorded as a debt.</p>
             </div>
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment Method <span class="text-rose-500">*</span></label>
-                <select v-model="form.payment_method" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.payment_method}" class="w-full px-5 py-[22px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold">
+                <select v-model="form.payment_method" required :disabled="viewMode" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.payment_method}" class="w-full px-5 py-[22px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold">
                     <option value="">Select Method</option>
                     <option value="Cash">Cash</option>
                     <option value="Bank Transfer">Bank Transfer</option>
@@ -343,11 +370,11 @@
       </form>
       <template #footer>
         <div class="flex items-center justify-between w-full p-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800">
-            <button @click="showModal = false" class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">{{ viewMode ? 'Close' : 'Cancel' }}</button>
-            <button v-if="!viewMode" @click="saveExpense" class="px-10 py-4 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-2xl shadow-xl shadow-[#29166e]/20 transition-all font-black text-[10px] uppercase tracking-[0.2em] transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-3" :disabled="saving">
+          <button @click="showModal = false" class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">{{ viewMode ? 'Close' : 'Cancel' }}</button>
+          <button v-if="!viewMode" @click="saveExpense" class="px-10 py-4 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-2xl shadow-xl shadow-[#29166e]/20 transition-all font-black text-[10px] uppercase tracking-[0.2em] transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-3" :disabled="saving">
             <svg v-if="!saving" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             {{ saving ? 'Verifying...' : 'Confirm & Save' }}
-            </button>
+          </button>
         </div>
       </template>
     </Modal>
@@ -417,6 +444,7 @@ const form = ref({
   is_recoverable: false,
   payment_method: 'Cash',
   description: '',
+  notes: '',
   contract_id: null,
   staff_id: null,
   company_id: null
@@ -528,13 +556,7 @@ const updateAutomaticDescription = () => {
 
 // Re-update description when contract/staff changes to catch the correct expiry dates
 watch(() => form.value.contract_id, (newVal) => {
-    if (newVal) {
-        const contract = rawContracts.value.find(c => c.id == newVal);
-        const fund = parseFloat(contract?.adjustment_total || 0);
-        if (fund <= 0) {
-            form.value.is_recoverable = false;
-        }
-    } else {
+    if (!newVal) {
         form.value.is_recoverable = false;
     }
     
@@ -656,7 +678,8 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
         subcategory_id: expense.subcategory_id || null,
         contract_id: expense.contract_id || null,
         is_recoverable: !!expense.is_recoverable,
-        payment_method: expense.payment_method || 'Cash'
+        payment_method: expense.payment_method || 'Cash',
+        notes: expense.notes || ''
     };
   } else {
     editMode.value = false;
@@ -670,6 +693,7 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
         is_recoverable: false,
         payment_method: '',
         description: '',
+        notes: '',
         contract_id: null,
         staff_id: null,
         company_id: null
@@ -679,10 +703,6 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
 };
 
 const saveExpense = async () => {
-  if (form.value.is_recoverable && isAmountExceedingFunds.value) {
-    notificationStore.error('Amount exceeds available personal funds for this staff.');
-    return;
-  }
   saving.value = true;
   try {
     const payload = { ...form.value };
@@ -693,6 +713,7 @@ const saveExpense = async () => {
     payload.subcategory_id = payload.subcategory_id || null;
     payload.validation_date = payload.validation_date || null;
     payload.contract_id = payload.contract_id || null;
+    payload.notes = payload.notes || null;
     payload.staff_id = payload.staff_id || null;
     payload.company_id = payload.company_id || null;
     

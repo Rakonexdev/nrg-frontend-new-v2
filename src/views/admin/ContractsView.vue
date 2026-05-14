@@ -422,7 +422,7 @@
             </div>
             <div>
                 <DateInput 
-                    label="Contract Date *"
+                    label="Next QID Date *"
                     v-model="form.contract_date"
                     required
                     :error="errors.contract_date"
@@ -457,7 +457,7 @@
             ]"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            Admin collection details
+            Company Collections details
           </button>
           <button 
             @click="paymentModalTab = 'details'" 
@@ -542,7 +542,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
               <DateInput 
-                label="Date *"
+                label="Paid Date *"
                 v-model="adjustmentForm.adjustment_date"
                 :disabled="adjustmentSaving"
               />
@@ -596,7 +596,7 @@
             <table class="w-full text-left">
               <thead>
                 <tr class="bg-slate-50/50 dark:bg-slate-800/30">
-                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Paid Date</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reason</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Total</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Paid</th>
@@ -650,7 +650,7 @@
                   <table class="w-full text-left">
                       <thead>
                           <tr class="bg-slate-50/50 dark:bg-slate-800/30">
-                              <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                              <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Paid Date</th>
                               <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
                               <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
                               <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Action</th>
@@ -682,7 +682,7 @@
           <!-- Payment Status Header -->
           <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Admin Collection Management (Company to NRG)</p>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Company Collection Management (Company to NRG)</p>
               <p class="text-[10px] text-emerald-500 font-bold italic">Record payments received from companies against the main contract balance.</p>
             </div>
             <div class="flex items-center gap-3">
@@ -715,7 +715,7 @@
               <p class="text-sm font-black text-rose-500 mt-0.5">QAR {{ formatCurrency(paymentContract.pending_amount || 0) }}</p>
             </div>
             <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center ring-2 ring-emerald-500/10">
-              <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Admin Next Due</p>
+              <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Company Next Due</p>
               <p class="text-sm font-black text-emerald-600 mt-0.5">{{ formatDate(paymentContract.next_collection_due_date) || '—' }}</p>
             </div>
           </div>
@@ -727,7 +727,7 @@
               <input v-model="paymentForm.amount" :disabled="paymentSaving" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all dark:text-white font-bold text-sm" placeholder="Ex: 1,000">
             </div>
             <DateInput 
-              label="Date *"
+              label="Paid Date *"
               v-model="paymentForm.payment_date"
               :disabled="paymentSaving"
             />
@@ -769,7 +769,7 @@
           <!-- Payment History Table -->
           <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
             <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Admin Collection History (NRG Revenue)</p>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Company Collection History (NRG Revenue)</p>
               <span class="text-[10px] font-black text-slate-400 uppercase">{{ filteredContractPayments.length }} Entries</span>
             </div>
             <div v-if="paymentLoading" class="px-6 py-10 text-center">
@@ -783,7 +783,7 @@
             <table v-else class="w-full text-left">
               <thead>
                 <tr class="bg-slate-50/50 dark:bg-slate-800/30">
-                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Paid Date</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Sub Category</th>
@@ -811,7 +811,7 @@
               </tbody>
               <tfoot>
                 <tr class="bg-emerald-50/50 dark:bg-emerald-900/10 border-t-2 border-emerald-100 dark:border-emerald-900/30">
-                  <td class="px-5 py-3 text-[10px] font-black text-emerald-600 uppercase tracking-widest">Total Admin Collected</td>
+                  <td class="px-5 py-3 text-[10px] font-black text-emerald-600 uppercase tracking-widest">Total Company Collected</td>
                   <td class="px-5 py-3 text-sm font-black text-emerald-600 dark:text-emerald-400 text-right">QAR {{ formatCurrency(paymentContract.paid_amount || 0) }}</td>
                   <td colspan="4"></td>
                 </tr>
@@ -847,7 +847,7 @@
                 </div>
             </div>
             <DateInput 
-                label="Payment Date *" 
+                label="Paid Date *" 
                 v-model="pendingPaymentForm.payment_date" 
                 :disabled="pendingPaymentSaving" 
             />
@@ -1127,7 +1127,7 @@ const columns = [
   { key: 'staff_name', label: 'Staff Member', sortable: false },
   { key: 'company_name', label: 'Company', sortable: false },
   { key: 'net_payable', label: 'Contract Value', sortable: true },
-  { key: 'contract_date', label: 'Date', sortable: true },
+  { key: 'contract_date', label: 'Next QID Date', sortable: true },
   { key: 'paid_amount', label: 'Paid', sortable: true },
   { key: 'pending_amount', label: 'Balance', sortable: true },
   { key: 'next_collection_due_date', label: 'Company Next Due', sortable: true },

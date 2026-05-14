@@ -21,6 +21,22 @@
                class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-[#29166e]/20 outline-none dark:text-white">
       </div>
 
+      <div class="flex items-center gap-2">
+        <select v-model="dateType" @change="fetchStaff(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs outline-none dark:text-white font-semibold h-full">
+          <option value="both">Both (QID/PP)</option>
+          <option value="qid_expiry">QID Expiry</option>
+          <option value="passport_expiry">Passport Expiry</option>
+        </select>
+        <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">From</label>
+          <input v-model="fromDate" @change="fetchStaff(1)" type="date" class="bg-transparent border-none text-xs outline-none dark:text-white font-semibold">
+        </div>
+        <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">To</label>
+          <input v-model="toDate" @change="fetchStaff(1)" type="date" class="bg-transparent border-none text-xs outline-none dark:text-white font-semibold">
+        </div>
+      </div>
+
       <div v-if="filter" class="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg animate-in fade-in slide-in-from-left-4">
         <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider text-nowrap">Filtered: {{ filter.replace('_', ' ') }}</span>
         <button @click="filter = ''; fetchStaff(1)" class="p-0.5 hover:bg-amber-100 dark:hover:bg-amber-800 rounded transition-colors text-amber-600">
@@ -472,6 +488,9 @@ const sortDir = ref('desc');
 const perPage = ref(10);
 const pagination = ref({});
 const filter = ref('');
+const fromDate = ref('');
+const toDate = ref('');
+const dateType = ref('both');
 const statusFilter = ref('');
 const statusOptions = [
   { id: '', name: 'All Status' },
@@ -588,6 +607,9 @@ const fetchStaff = async (page = 1) => {
       sort_direction: sortDir.value,
       per_page: perPage.value,
       filter: filter.value,
+      from_date: fromDate.value,
+      to_date: toDate.value,
+      date_type: dateType.value,
       status: statusFilter.value,
       company_id: companyFilter.value
     });
