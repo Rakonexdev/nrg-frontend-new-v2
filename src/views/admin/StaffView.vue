@@ -12,58 +12,71 @@
     </div>
 
     <!-- Filters & Search -->
-    <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-      <div class="relative w-full md:w-96">
-        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </span>
-        <input v-model="search" @input="fetchStaff(1)" type="text" placeholder="Search by name, QID, profession..." 
-               class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-[#29166e]/20 outline-none dark:text-white">
-      </div>
-
-      <div class="flex items-center gap-2">
-        <select v-model="dateType" @change="fetchStaff(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs outline-none dark:text-white font-semibold h-full">
-          <option value="both">Both (QID/PP)</option>
-          <option value="qid_expiry">QID Expiry</option>
-          <option value="passport_expiry">Passport Expiry</option>
-        </select>
-        <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
-          <label class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">From</label>
-          <input v-model="fromDate" @change="fetchStaff(1)" type="date" class="bg-transparent border-none text-xs outline-none dark:text-white font-semibold">
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-5">
+      <!-- Row 1: Search & Main Selects -->
+      <div class="flex flex-col xl:flex-row gap-4 items-center">
+        <div class="relative w-full xl:max-w-md">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </span>
+          <input v-model="search" @input="fetchStaff(1)" type="text" placeholder="Search by name, QID, profession..." 
+                 class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#29166e]/20 outline-none dark:text-white font-medium">
         </div>
-        <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
-          <label class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">To</label>
-          <input v-model="toDate" @change="fetchStaff(1)" type="date" class="bg-transparent border-none text-xs outline-none dark:text-white font-semibold">
+
+        <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto xl:ml-auto">
+          <SearchableSelect 
+            v-model="statusFilter"
+            :options="statusOptions"
+            @change="fetchStaff(1)"
+            placeholder="All Status"
+            class="flex-1 md:w-44"
+          />
+          <SearchableSelect 
+            v-model="companyFilter"
+            :options="companyOptions"
+            @change="fetchStaff(1)"
+            placeholder="All Companies"
+            class="flex-1 md:w-60"
+          />
+          <select v-model="perPage" @change="fetchStaff(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none dark:text-white font-bold">
+            <option :value="10">10 / pg</option>
+            <option :value="25">25 / pg</option>
+            <option :value="50">50 / pg</option>
+          </select>
         </div>
       </div>
 
-      <div v-if="filter" class="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg animate-in fade-in slide-in-from-left-4">
-        <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider text-nowrap">Filtered: {{ filter.replace('_', ' ') }}</span>
-        <button @click="filter = ''; fetchStaff(1)" class="p-0.5 hover:bg-amber-100 dark:hover:bg-amber-800 rounded transition-colors text-amber-600">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </button>
-      </div>
+      <!-- Row 2: Date Filters & Applied Badges -->
+      <div class="flex flex-col md:flex-row gap-4 items-center pt-5 border-t border-slate-100 dark:border-slate-700/50">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2 mr-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-[#29166e]"></div>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Expiry Filters:</span>
+          </div>
 
-      <div class="flex items-center gap-3 w-full md:w-auto">
-        <SearchableSelect 
-          v-model="statusFilter"
-          :options="statusOptions"
-          @change="fetchStaff(1)"
-          placeholder="All Status"
-          class="flex-1 md:w-48"
-        />
-        <SearchableSelect 
-          v-model="companyFilter"
-          :options="companyOptions"
-          @change="fetchStaff(1)"
-          placeholder="All Companies"
-          class="flex-1 md:w-64"
-        />
-        <select v-model="perPage" @change="fetchStaff(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none dark:text-white font-semibold">
-          <option :value="10">10 / pg</option>
-          <option :value="25">25 / pg</option>
-          <option :value="50">50 / pg</option>
-        </select>
+          <select v-model="dateType" @change="fetchStaff(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none dark:text-white font-bold h-9">
+            <option value="both">Both (QID/PP)</option>
+            <option value="qid_expiry">QID Expiry Only</option>
+            <option value="passport_expiry">Passport Expiry Only</option>
+          </select>
+
+          <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 h-9">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">From</label>
+            <input v-model="fromDate" @change="fetchStaff(1)" type="date" class="bg-transparent border-none text-xs outline-none dark:text-white font-bold">
+          </div>
+
+          <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 h-9">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">To</label>
+            <input v-model="toDate" @change="fetchStaff(1)" type="date" class="bg-transparent border-none text-xs outline-none dark:text-white font-bold">
+          </div>
+        </div>
+
+        <div v-if="filter" class="md:ml-auto flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-xl animate-in fade-in slide-in-from-right-4">
+          <span class="text-[10px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest text-nowrap">Active Filter: {{ filter.replace('_', ' ') }}</span>
+          <button @click="filter = ''; fetchStaff(1)" class="p-0.5 hover:bg-amber-100 dark:hover:bg-amber-800 rounded-lg transition-colors text-amber-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+        </div>
       </div>
     </div>
 
