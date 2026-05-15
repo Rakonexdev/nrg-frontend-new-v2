@@ -108,6 +108,7 @@
             <div class="md:col-span-2">
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Company Name <span class="text-red-500">*</span></label>
                 <input v-model="form.name" type="text" required :disabled="viewMode"
+                       @keydown.enter.prevent="handleEnter"
                        :class="[
                            viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
                            errors.name ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
@@ -121,6 +122,7 @@
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Computer Card <span class="text-red-500">*</span></label>
                 <input v-model="form.computer_card" type="text" required :disabled="viewMode"
                        @input="form.computer_card = form.computer_card.replace(/[^0-9]/g, '').slice(0, 8)"
+                       @keydown.enter.prevent="handleEnter"
                        maxlength="8"
                        :class="[
                            viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
@@ -134,6 +136,7 @@
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Contact Person <span class="text-red-500">*</span></label>
                 <input v-model="form.contact_person" type="text" required :disabled="viewMode"
+                       @keydown.enter.prevent="handleEnter"
                        :class="[
                            viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
                            errors.contact_person ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
@@ -145,18 +148,19 @@
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone Number <span class="text-red-500">*</span></label>
-                <div class="flex items-center rounded-2xl overflow-hidden transition-all focus-within:ring-2 focus-within:ring-[#29166e]/50"
-                     :class="[
-                         viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
-                         errors.phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
-                     ]">
-                    <div class="px-5 py-4 text-sm font-bold text-slate-400 border-r border-slate-200 dark:border-slate-700 bg-slate-100/50 dark:bg-slate-800/50">
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 flex items-center px-4 text-sm font-black text-slate-500 border-r border-slate-200 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 rounded-l-2xl pointer-events-none transition-colors group-focus-within:text-[#29166e] group-focus-within:bg-[#29166e]/5">
                         +974
                     </div>
                     <input v-model="form.phone_number" type="text" required :disabled="viewMode"
                            @input="form.phone_number = form.phone_number.replace(/[^0-9]/g, '').slice(0, 8)"
+                           @keydown.enter.prevent="handleEnter"
                            minlength="8" maxlength="8"
-                           class="flex-1 px-5 py-4 bg-transparent border-none text-sm focus:ring-0 outline-none font-bold" 
+                           :class="[
+                               viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                               errors.phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-slate-200 dark:border-slate-700'
+                           ]"
+                           class="w-full pl-20 pr-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-[#29166e]/50 border outline-none font-bold transition-all" 
                            placeholder="8-digit number">
                 </div>
                 <p v-if="errors.phone_number" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.phone_number[0] }}</p>
@@ -164,18 +168,19 @@
 
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Alternative Number <span class="text-slate-400 font-normal italic">(Optional)</span></label>
-                <div class="flex items-center rounded-2xl overflow-hidden transition-all focus-within:ring-2 focus-within:ring-[#29166e]/50"
-                     :class="[
-                         viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
-                         errors.alternative_phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
-                     ]">
-                    <div class="px-5 py-4 text-sm font-bold text-slate-400 border-r border-slate-200 dark:border-slate-700 bg-slate-100/50 dark:bg-slate-800/50">
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 flex items-center px-4 text-sm font-black text-slate-500 border-r border-slate-200 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 rounded-l-2xl pointer-events-none transition-colors group-focus-within:text-[#29166e] group-focus-within:bg-[#29166e]/5">
                         +974
                     </div>
                     <input v-model="form.alternative_phone_number" type="text" :disabled="viewMode"
                            @input="form.alternative_phone_number = form.alternative_phone_number.replace(/[^0-9]/g, '').slice(0, 8)"
+                           @keydown.enter.prevent="handleEnter"
                            minlength="8" maxlength="8"
-                           class="flex-1 px-5 py-4 bg-transparent border-none text-sm focus:ring-0 outline-none font-bold" 
+                           :class="[
+                               viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
+                               errors.alternative_phone_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-slate-200 dark:border-slate-700'
+                           ]"
+                           class="w-full pl-20 pr-5 py-4 rounded-2xl text-sm focus:ring-2 focus:ring-[#29166e]/50 border outline-none font-bold transition-all" 
                            placeholder="8-digit number">
                 </div>
                 <p v-if="errors.alternative_phone_number" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.alternative_phone_number[0] }}</p>
@@ -184,6 +189,7 @@
             <div>
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Branch Number <span class="text-red-500">*</span></label>
                 <input v-model="form.branch_number" type="text" required :disabled="viewMode"
+                       @keydown.enter.prevent="handleEnter"
                        :class="[
                            viewMode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-900',
                            errors.branch_number ? 'ring-4 ring-rose-500/10 border-rose-500' : 'border-none'
@@ -419,7 +425,31 @@ const openModal = (company = null, isView = false) => {
     showModal.value = true;
 };
 
+const handleEnter = (e) => {
+    // Get all focusable form elements that are not disabled or readonly
+    const inputs = Array.from(e.target.form.querySelectorAll('input:not([disabled]), select:not([disabled]), textarea:not([disabled])'));
+    const index = inputs.indexOf(e.target);
+    
+    if (index > -1 && index < inputs.length - 1) {
+        // Move to the next input
+        inputs[index + 1].focus();
+    }
+    // Removed automatic saveCompany() call to prevent accidental submissions
+};
+
 const saveCompany = async () => {
+    // Validate phone number length (must be 8 digits)
+    if (form.value.phone_number && form.value.phone_number.length !== 8) {
+        errors.value.phone_number = ['Phone number must be exactly 8 digits'];
+        notificationStore.error('Phone number must be exactly 8 digits');
+        return;
+    }
+    if (form.value.alternative_phone_number && form.value.alternative_phone_number.length !== 8) {
+        errors.value.alternative_phone_number = ['Alternative phone number must be exactly 8 digits'];
+        notificationStore.error('Alternative phone number must be exactly 8 digits');
+        return;
+    }
+
     saving.value = true;
     try {
         if (editMode.value) {

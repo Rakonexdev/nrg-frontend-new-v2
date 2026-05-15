@@ -27,6 +27,15 @@
             <svg v-else class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             {{ downloading ? 'Exporting...' : 'Excel' }}
           </button>
+          
+          <div class="flex items-center gap-2">
+            <select v-model="pagination.per_page" @change="fetchReport(1)" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all cursor-pointer">
+              <option :value="10">10 / pg</option>
+              <option :value="25">25 / pg</option>
+              <option :value="50">50 / pg</option>
+              <option :value="100">100 / pg</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
@@ -205,7 +214,7 @@ const fetchReport = async (page = 1) => {
   try {
     const params = {
       page,
-      per_page: 15,
+      per_page: pagination.value.per_page,
       ...filters.value,
     };
     const res = await reportService.getCollections(params);

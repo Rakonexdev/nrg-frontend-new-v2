@@ -20,6 +20,14 @@
         <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search documents by name..." 
                class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
       </div>
+      <div class="flex items-center gap-2 md:ml-auto">
+        <select v-model="perPage" @change="fetchDocuments(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none dark:text-white font-bold h-[50px] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+          <option :value="10">10 / pg</option>
+          <option :value="25">25 / pg</option>
+          <option :value="50">50 / pg</option>
+          <option :value="100">100 / pg</option>
+        </select>
+      </div>
     </div>
 
     <!-- Data Table -->
@@ -146,6 +154,7 @@ const submitting = ref(false);
 const isEditing = ref(false);
 const editingItem = ref(null);
 const search = ref('');
+const perPage = ref(10);
 const pagination = ref({});
 const showModal = ref(false);
 const showConfirmModal = ref(false);
@@ -170,6 +179,7 @@ const fetchDocuments = async (page = 1) => {
   try {
     const res = await generalDocumentService.getAll({
       page,
+      per_page: perPage.value,
       search: search.value,
       category: category.value
     });

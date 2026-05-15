@@ -10,6 +10,15 @@
           <svg class="w-4 h-4" :class="{'animate-spin': loading}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           Refresh Data
         </button>
+        <div class="flex items-center gap-2">
+          <select v-model="filters.per_page" @change="handlePageChange(1)"
+                  class="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all cursor-pointer">
+            <option :value="10">10 / pg</option>
+            <option :value="25">25 / pg</option>
+            <option :value="50">50 / pg</option>
+            <option :value="100">100 / pg</option>
+          </select>
+        </div>
       </div>
     </div>
 
