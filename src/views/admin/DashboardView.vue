@@ -17,7 +17,7 @@
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-      <router-link to="/admin/staff" class="block group h-full">
+      <router-link v-if="authStore.hasPermission('dashboard_total_staff')" to="/admin/staff" class="block group h-full">
         <KpiCard 
           title="Total Staff" 
           :value="stats.total_staff" 
@@ -26,7 +26,7 @@
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
-      <router-link to="/admin/staff?filter=expiring_qid" class="block group h-full">
+      <router-link v-if="authStore.hasPermission('dashboard_qid_expiry')" to="/admin/staff?filter=expiring_qid" class="block group h-full">
         <KpiCard 
           title="QID Expiry" 
           :value="stats.expiring_qid" 
@@ -35,7 +35,7 @@
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
-      <router-link to="/admin/staff?filter=expiring_passport" class="block group h-full">
+      <router-link v-if="authStore.hasPermission('dashboard_passport_expiry')" to="/admin/staff?filter=expiring_passport" class="block group h-full">
         <KpiCard 
           title="Passport Expiry" 
           :value="stats.expiring_passport" 
@@ -44,7 +44,7 @@
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
-      <router-link to="/admin/staff?filter=renewing_contract" class="block group h-full">
+      <router-link v-if="authStore.hasPermission('dashboard_renewing_this_month')" to="/admin/staff?filter=renewing_contract" class="block group h-full">
         <KpiCard 
           title="Renewing This Month" 
           :value="stats.renewing_contracts" 
@@ -53,7 +53,7 @@
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
-      <router-link to="/admin/reports/documentation-status" class="block group h-full">
+      <router-link v-if="authStore.hasPermission('dashboard_doc_status')" to="/admin/reports/documentation-status" class="block group h-full">
         <KpiCard 
           title="Doc Status" 
           :value="stats.pending_docs_count" 
@@ -66,7 +66,7 @@
     
     <!-- Financial Metrics Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="block h-full">
+      <div v-if="authStore.hasPermission('dashboard_total_collected')" class="block h-full">
         <KpiCard 
           title="Total Collected" 
           :value="`QAR ${formatCurrency(stats.total_collected)}`" 
@@ -74,7 +74,7 @@
           color-class="bg-emerald-600" 
         />
       </div>
-      <router-link to="/admin/contracts?filter=pending" class="block group h-full">
+      <router-link v-if="authStore.hasPermission('dashboard_pending_collection')" to="/admin/contracts?filter=pending" class="block group h-full">
         <KpiCard 
           title="Pending Collection" 
           :value="`QAR ${formatCurrency(stats.total_pending)}`" 
@@ -83,7 +83,7 @@
           class="cursor-pointer group-hover:scale-[1.02] transition-transform"
         />
       </router-link>
-      <div class="block h-full">
+      <div v-if="authStore.hasPermission('dashboard_contract_profit')" class="block h-full">
         <KpiCard 
           title="Contract Profit" 
           :value="`QAR ${formatCurrency(stats.total_profit)}`" 
@@ -96,7 +96,7 @@
     <!-- Data Tables Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Recent Collections Table -->
-      <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-0 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div v-if="authStore.hasPermission('dashboard_recent_collections')" class="lg:col-span-2 bg-white dark:bg-slate-800 p-0 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
         <div class="flex items-center justify-between p-6 pb-2">
           <h3 class="text-lg font-bold text-slate-800 dark:text-white">Recent Collections</h3>
           <router-link to="/admin/reports/collections" class="text-xs font-bold text-[#29166e] hover:text-[#1d0f4d]">View All Collections →</router-link>
@@ -153,7 +153,7 @@
       </div>
 
         <!-- Column for Alerts -->
-        <div class="space-y-8">
+        <div v-if="authStore.hasPermission('dashboard_upcoming_expirations')" class="space-y-8">
           <!-- Upcoming Expirations -->
           <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden relative h-fit">
               <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-6">Upcoming Expirations</h3>
@@ -311,10 +311,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import KpiCard from '@/components/shared/KpiCard.vue';
 import Modal from '@/components/shared/Modal.vue';
 import api, { companyService } from '@/services/api';
 
+const authStore = useAuthStore();
 const loading = ref(false);
 const lastSync = ref(new Date().toLocaleTimeString());
 const stats = ref({
