@@ -42,15 +42,26 @@
       />
     </div>
     <!-- Filters & Search -->
-    <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative z-30">
-      <div class="relative w-full md:w-96 group">
-        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </span>
-        <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search staff, QID or company..." 
-               class="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
+    <div class="flex flex-col xl:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative z-30 animate-fade-in">
+      <div class="flex flex-col md:flex-row gap-3 w-full xl:w-auto">
+        <div class="relative w-full md:w-80 group">
+          <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </span>
+          <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search staff, QID or company..." 
+                 class="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
+        </div>
+        <div class="w-full md:w-64">
+          <SearchableSelect 
+            v-model="companyFilter"
+            :options="companyOptions"
+            @change="fetchContracts(1)"
+            placeholder="All Companies"
+            class="w-full"
+          />
+        </div>
       </div>
-      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+      <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto mt-4 xl:mt-0">
 
         <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-700/50">
           <span class="text-slate-400 font-black text-[11px] uppercase tracking-widest pl-2">From</span>
@@ -74,7 +85,7 @@
             <option :value="50">50 per page</option>
           </select>
         </div>
-        <button v-if="search || paymentStatusFilter || pendingOnly || fromDate || toDate" @click="resetMainFilters" class="p-2 text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1" title="Reset Filters">
+        <button v-if="search || paymentStatusFilter || companyFilter || pendingOnly || fromDate || toDate" @click="resetMainFilters" class="p-2 text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1" title="Reset Filters">
           <span v-if="pendingOnly" class="text-[10px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">Pending Only</span>
           <span v-if="fromDate || toDate" class="text-[10px] font-black uppercase text-[#29166e] bg-[#29166e]/5 px-2 py-1 rounded-lg border border-[#29166e]/10">Date Range Active</span>
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -140,6 +151,15 @@
 
 
 
+            <!-- Notes Section -->
+            <div v-if="selectedViewContract.notes" class="p-6 bg-[#29166e]/5 dark:bg-[#29166e]/10 rounded-3xl border border-[#29166e]/10 dark:border-[#29166e]/30 shadow-sm">
+                <h3 class="text-xs font-black text-[#29166e] uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Contract Notes
+                </h3>
+                <p class="text-sm text-slate-700 dark:text-slate-300 font-medium whitespace-pre-wrap">{{ selectedViewContract.notes }}</p>
+            </div>
+
             <!-- Daily Expenses Log -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between px-2">
@@ -190,14 +210,17 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                             <!-- Show Adjustments (Positive) -->
-                            <tr v-for="adj in selectedViewContract.adjustments" :key="'adj-'+adj.id" class="hover:bg-[#29166e]/5 transition-colors">
-                                <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(adj.adjustment_date) }}</td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex px-1.5 py-0.5 rounded bg-[#29166e]/10 text-[8px] font-black text-[#29166e] uppercase tracking-tighter mr-2">Addition</span>
-                                    <span class="text-sm font-black text-slate-800 dark:text-white">{{ adj.reason }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-sm font-black text-[#29166e] text-right">QAR {{ formatCurrency(adj.amount) }}</td>
-                            </tr>
+                             <tr v-for="adj in selectedViewContract.adjustments" :key="'adj-'+adj.id" class="hover:bg-[#29166e]/5 transition-colors">
+                                 <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(adj.adjustment_date) }}</td>
+                                 <td class="px-6 py-4">
+                                     <span class="inline-flex px-1.5 py-0.5 rounded bg-[#29166e]/10 text-[8px] font-black text-[#29166e] uppercase tracking-tighter mr-2">Addition</span>
+                                     <span class="text-sm font-black text-slate-800 dark:text-white">{{ adj.reason }}</span>
+                                     <div v-if="adj.recorded_by" class="mt-1 text-[9px] font-bold text-slate-400">
+                                         Rec by: <span class="font-black text-slate-600 dark:text-slate-400">{{ adj.recorded_by }}</span> <span class="uppercase text-[8px]">({{ adj.recorded_by_role }})</span>
+                                     </div>
+                                 </td>
+                                 <td class="px-6 py-4 text-sm font-black text-[#29166e] text-right">QAR {{ formatCurrency(adj.amount) }}</td>
+                             </tr>
                             <!-- Show Recoverable Expenses (Negative) -->
                             <tr v-for="expense in selectedViewContract.recoverable_expenses" :key="'rec-'+expense.id" class="hover:bg-rose-50/30 transition-colors">
                                 <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(expense.expense_date) }}</td>
@@ -231,16 +254,19 @@
                     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                         <table class="w-full text-left">
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                                <tr v-for="payment in selectedViewAdjustmentPayments" :key="payment.id" class="hover:bg-[#29166e]/5 transition-colors">
-                                    <td class="px-6 py-3 text-[11px] font-bold text-slate-500">{{ formatDate(payment.payment_date) }}</td>
-                                    <td class="px-6 py-3">
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-[11px] font-black text-slate-700 dark:text-slate-300">Personal Due Payment</span>
-                                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold uppercase tracking-tighter">{{ payment.payment_method }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-3 text-right text-[11px] font-black text-[#29166e]">QAR {{ formatCurrency(payment.amount) }}</td>
-                                </tr>
+                                 <tr v-for="payment in selectedViewAdjustmentPayments" :key="payment.id" class="hover:bg-[#29166e]/5 transition-colors">
+                                     <td class="px-6 py-3 text-[11px] font-bold text-slate-500">{{ formatDate(payment.payment_date) }}</td>
+                                     <td class="px-6 py-3">
+                                         <div class="flex items-center gap-2 flex-wrap">
+                                             <span class="text-[11px] font-black text-slate-700 dark:text-slate-300">Personal Due Payment</span>
+                                             <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold uppercase tracking-tighter">{{ payment.payment_method }}</span>
+                                             <span v-if="payment.recorded_by" class="text-[9px] font-bold text-slate-400 dark:text-slate-500 lowercase">
+                                                 by {{ payment.recorded_by }} ({{ payment.recorded_by_role }})
+                                             </span>
+                                         </div>
+                                     </td>
+                                     <td class="px-6 py-3 text-right text-[11px] font-black text-[#29166e]">QAR {{ formatCurrency(payment.amount) }}</td>
+                                 </tr>
                             </tbody>
                         </table>
                     </div>
@@ -263,22 +289,25 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                            <tr v-for="payment in selectedViewAdminPayments" :key="payment.id" class="hover:bg-emerald-50/30 transition-colors">
-                                <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</td>
-                                <td class="px-6 py-4">
-                                    <div v-if="payment.is_settled" class="space-y-1">
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-[8px] font-black text-emerald-600 uppercase tracking-widest border border-emerald-200 dark:border-emerald-800/50">
-                                            Settled
-                                        </span>
-                                        <p class="text-[9px] font-bold text-slate-400 italic">ID: #{{ payment.settlement?.settlement_number || payment.settlement_id }}</p>
-                                        <p class="text-[9px] font-bold text-slate-400">{{ formatDate(payment.settled_at) }}</p>
-                                    </div>
-                                    <span v-else class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-[8px] font-black text-amber-600 uppercase tracking-widest border border-amber-200 dark:border-amber-800/50">
-                                        Pending Settlement
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-sm font-black text-emerald-600 text-right">QAR {{ formatCurrency(payment.amount) }}</td>
-                            </tr>
+                             <tr v-for="payment in selectedViewAdminPayments" :key="payment.id" class="hover:bg-emerald-50/30 transition-colors">
+                                 <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</td>
+                                 <td class="px-6 py-4">
+                                     <div v-if="payment.is_settled" class="space-y-1">
+                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-[8px] font-black text-emerald-600 uppercase tracking-widest border border-emerald-200 dark:border-emerald-800/50">
+                                             Settled
+                                         </span>
+                                         <p class="text-[9px] font-bold text-slate-400 italic">ID: #{{ payment.settlement?.settlement_number || payment.settlement_id }}</p>
+                                         <p class="text-[9px] font-bold text-slate-400">{{ formatDate(payment.settled_at) }}</p>
+                                     </div>
+                                     <span v-else class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-[8px] font-black text-amber-600 uppercase tracking-widest border border-amber-200 dark:border-amber-800/50">
+                                         Pending Settlement
+                                     </span>
+                                     <div v-if="payment.recorded_by" class="mt-1 text-[9px] font-bold text-slate-400">
+                                         Rec by: <span class="font-black text-slate-600 dark:text-slate-400">{{ payment.recorded_by }}</span> <span class="uppercase text-[8px]">({{ payment.recorded_by_role }})</span>
+                                     </div>
+                                 </td>
+                                 <td class="px-6 py-4 text-sm font-black text-emerald-600 text-right">QAR {{ formatCurrency(payment.amount) }}</td>
+                             </tr>
                             <tr v-if="!selectedViewAdminPayments.length">
                                 <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic text-xs font-bold">No payment history found.</td>
                             </tr>
@@ -316,7 +345,10 @@
             </template>
 
             <template #company_name="{ row }">
-                <span class="font-black text-slate-800 dark:text-white tracking-tight">{{ row.staff?.company_name || 'No Company' }}</span>
+                <div class="flex flex-col">
+                    <span class="font-black text-slate-800 dark:text-white tracking-tight">{{ row.staff?.company_name || 'No Company' }}</span>
+                    <span v-if="row.staff?.company?.computer_card" class="text-xs font-bold text-slate-500 mt-0.5">Card: {{ row.staff.company.computer_card }}</span>
+                </div>
             </template>
 
             <template #net_payable="{ row }">
@@ -347,21 +379,33 @@
             </template>
 
             <template #next_collection_due_date="{ row }">
-                <div v-if="row.next_collection_due_date && row.pending_amount > 0" class="flex flex-col items-center">
-                    <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2 rounded-xl border border-emerald-100 dark:border-emerald-800/50 shadow-sm inline-flex items-center justify-center min-w-[110px]">
-                        {{ formatDate(row.next_collection_due_date) }}
-                    </span>
+                <div class="flex items-center gap-2 justify-center group/due">
+                    <div v-if="row.next_collection_due_date && row.pending_amount > 0" class="flex flex-col items-center">
+                        <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2 rounded-xl border border-emerald-100 dark:border-emerald-800/50 shadow-sm inline-flex items-center justify-center min-w-[110px]">
+                            {{ formatDate(row.next_collection_due_date) }}
+                        </span>
+                    </div>
+                    <span v-else class="text-slate-300 dark:text-slate-600 font-black text-xs">—</span>
+                    
+                    <button v-if="authStore.hasPermission('contract_edit')" @click="openUpdateNextDueDateModal(row, 'collection')" class="opacity-0 group-hover/due:opacity-100 p-1 text-slate-400 hover:text-[#29166e] hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all" title="Update Company Next Due Date">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
                 </div>
-                <span v-else class="text-slate-300 dark:text-slate-600 font-black text-xs">—</span>
             </template>
 
             <template #next_personal_due_date="{ row }">
-                <div v-if="row.next_personal_due_date && row.adjustment_pending > 0" class="flex flex-col items-center">
-                    <span class="text-xs font-black text-[#29166e] dark:text-[#29166e]/80 bg-[#29166e]/5 dark:bg-[#29166e]/20 px-4 py-2 rounded-xl border border-[#29166e]/10 dark:border-[#29166e]/30 shadow-sm inline-flex items-center justify-center min-w-[110px]">
-                        {{ formatDate(row.next_personal_due_date) }}
-                    </span>
+                <div class="flex items-center gap-2 justify-center group/due">
+                    <div v-if="row.next_personal_due_date && row.adjustment_pending > 0" class="flex flex-col items-center">
+                        <span class="text-xs font-black text-[#29166e] dark:text-[#29166e]/80 bg-[#29166e]/5 dark:bg-[#29166e]/20 px-4 py-2 rounded-xl border border-[#29166e]/10 dark:border-[#29166e]/30 shadow-sm inline-flex items-center justify-center min-w-[110px]">
+                            {{ formatDate(row.next_personal_due_date) }}
+                        </span>
+                    </div>
+                    <span v-else class="text-slate-300 dark:text-slate-600 font-black text-xs">—</span>
+                    
+                    <button v-if="authStore.hasPermission('contract_edit') && row.adjustment_pending > 0" @click="openUpdateNextDueDateModal(row, 'personal')" class="opacity-0 group-hover/due:opacity-100 p-1 text-slate-400 hover:text-[#29166e] hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all" title="Update Personal Next Due Date">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
                 </div>
-                <span v-else class="text-slate-300 dark:text-slate-600 font-black text-xs">—</span>
             </template>
 
 
@@ -428,6 +472,13 @@
                     :error="errors.contract_date"
                 />
             </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800">
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Contract Notes</label>
+            <textarea v-model="form.notes"
+                class="w-full px-6 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-medium resize-none h-28" 
+                placeholder="Enter any additional details, special instructions, or notes about this contract..."></textarea>
         </div>
 
 <div class="hidden">
@@ -601,6 +652,7 @@
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Total</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Paid</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Pending</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Recorded By</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status / Action</th>
                 </tr>
               </thead>
@@ -613,11 +665,23 @@
                   <td class="px-5 py-3.5 text-sm font-black text-slate-700 dark:text-slate-300 text-right">QAR {{ formatCurrency(adj.amount) }}</td>
                   <td class="px-5 py-3.5 text-sm font-black text-emerald-600 text-right">QAR {{ formatCurrency(adj.paid_amount || 0) }}</td>
                   <td class="px-5 py-3.5 text-sm font-black text-rose-500 text-right">QAR {{ formatCurrency(adj.pending_amount || 0) }}</td>
+                  <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">
+                    <span class="font-bold">{{ adj.recorded_by || 'N/A' }}</span>
+                    <span v-if="adj.recorded_by_role" class="block text-[9px] font-black uppercase text-slate-400 tracking-wider">
+                      {{ adj.recorded_by_role }}
+                    </span>
+                  </td>
                   <td class="px-5 py-3.5 text-center">
-                    <button v-if="adj.pending_amount > 0" @click="openPendingPaymentModal(adj)" class="px-3 py-1.5 text-[10px] font-black bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 rounded-lg transition-all uppercase tracking-widest border border-emerald-200 dark:border-emerald-800">
-                      Pay Pending
-                      <span v-if="adj.next_payment_date" class="block text-[8px] text-emerald-500/70 mt-0.5 tracking-tight normal-case">Due: {{ formatDate(adj.next_payment_date) }}</span>
-                    </button>
+                    <div v-if="adj.pending_amount > 0" class="flex flex-col items-center gap-1.5 justify-center">
+                      <button @click="openPendingPaymentModal(adj)" class="px-3 py-1.5 text-[10px] font-black bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 rounded-lg transition-all uppercase tracking-widest border border-emerald-200 dark:border-emerald-800 shadow-sm">
+                        Pay Pending
+                      </button>
+                      <button @click="openEditNextPaymentDateModal(adj)" class="inline-flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-800 rounded-md transition-all shadow-sm">
+                        <svg class="w-3 h-3 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span>Due: {{ adj.next_payment_date ? formatDate(adj.next_payment_date) : 'Not Set' }}</span>
+                        <svg class="w-2.5 h-2.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                      </button>
+                    </div>
                     <span v-else class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700">
                       <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                       Completed
@@ -631,6 +695,7 @@
                   <td class="px-5 py-3 text-sm font-black text-[#29166e] dark:text-[#29166e] text-right">QAR {{ formatCurrency(totalPersonalDueAmount) }}</td>
                   <td class="px-5 py-3 text-sm font-black text-emerald-600 text-right">QAR {{ formatCurrency(totalPersonalDuePaid) }}</td>
                   <td class="px-5 py-3 text-sm font-black text-rose-500 text-right">QAR {{ formatCurrency(totalPersonalDuePending) }}</td>
+                  <td></td>
                   <td></td>
                 </tr>
               </tfoot>
@@ -653,6 +718,7 @@
                               <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Paid Date</th>
                               <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
                               <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
+                              <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Recorded By</th>
                               <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Action</th>
                           </tr>
                       </thead>
@@ -663,6 +729,12 @@
                               <td class="px-5 py-3.5">
                                   <span class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] border border-[#29166e]/10 dark:border-[#29166e]/30">
                                       {{ payment.payment_method }}
+                                  </span>
+                              </td>
+                              <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">
+                                  <span class="font-bold">{{ payment.recorded_by || 'N/A' }}</span>
+                                  <span v-if="payment.recorded_by_role" class="block text-[9px] font-black uppercase text-slate-400 tracking-wider">
+                                      {{ payment.recorded_by_role }}
                                   </span>
                               </td>
                               <td class="px-5 py-3.5 text-center">
@@ -759,9 +831,12 @@
                 <option value="Others Fee">Others Fee</option>
               </select>
             </div>
-            <div class="flex items-end">
-              <button @click.prevent="addPayment" :disabled="paymentSaving || !paymentContract.id" class="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30">
-                {{ paymentSaving ? 'Saving...' : 'Add Payment' }}
+            <div class="flex flex-col items-end gap-2 justify-end">
+              <button @click.prevent="savePayment" :disabled="paymentSaving || !paymentContract.id" class="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30">
+                {{ paymentSaving ? 'Saving...' : (paymentEditingId ? 'Save Changes' : 'Add Payment') }}
+              </button>
+              <button v-if="paymentEditingId" @click.prevent="resetPaymentForm" :disabled="paymentSaving" class="w-full px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 dark:text-slate-300 rounded-2xl font-black text-sm transition-all">
+                Cancel Edit
               </button>
             </div>
           </div>
@@ -788,6 +863,7 @@
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Sub Category</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Pay Date</th>
+                  <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Recorded By</th>
                   <th class="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Action</th>
                 </tr>
               </thead>
@@ -802,10 +878,21 @@
                   </td>
                   <td class="px-5 py-3.5 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-tight">{{ payment.subcategory || '—' }}</td>
                   <td class="px-5 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400">{{ formatDate(payment.next_payment_date) }}</td>
+                  <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">
+                    <span class="font-bold">{{ payment.recorded_by || 'N/A' }}</span>
+                    <span v-if="payment.recorded_by_role" class="block text-[9px] font-black uppercase text-slate-400 tracking-wider">
+                      {{ payment.recorded_by_role }}
+                    </span>
+                  </td>
                   <td class="px-5 py-3.5 text-center">
-                    <button @click="removePayment(payment)" :disabled="paymentDeletingId === payment.id" class="px-3 py-1.5 text-[10px] font-black text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all disabled:opacity-50 uppercase tracking-widest">
-                      {{ paymentDeletingId === payment.id ? 'Removing...' : 'Delete' }}
-                    </button>
+                    <div class="flex items-center justify-center gap-2">
+                      <button @click="editPayment(payment)" :disabled="paymentDeletingId === payment.id" class="px-3 py-1.5 text-[10px] font-black text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all uppercase tracking-widest">
+                        Edit
+                      </button>
+                      <button @click="removePayment(payment)" :disabled="paymentDeletingId === payment.id" class="px-3 py-1.5 text-[10px] font-black text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all disabled:opacity-50 uppercase tracking-widest">
+                        {{ paymentDeletingId === payment.id ? 'Removing...' : 'Delete' }}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -813,7 +900,7 @@
                 <tr class="bg-emerald-50/50 dark:bg-emerald-900/10 border-t-2 border-emerald-100 dark:border-emerald-900/30">
                   <td class="px-5 py-3 text-[10px] font-black text-emerald-600 uppercase tracking-widest">Total Company Collected</td>
                   <td class="px-5 py-3 text-sm font-black text-emerald-600 dark:text-emerald-400 text-right">QAR {{ formatCurrency(paymentContract.paid_amount || 0) }}</td>
-                  <td colspan="4"></td>
+                  <td colspan="5"></td>
                 </tr>
               </tfoot>
             </table>
@@ -872,6 +959,53 @@
             </button>
         </template>
     </Modal>
+
+    <!-- Edit Next Payment Date Modal -->
+    <Modal :show="showEditNextPaymentDateModal" title="Update Next Payment Date" @close="showEditNextPaymentDateModal = false" maxWidth="md">
+        <div class="p-6 space-y-5 bg-white dark:bg-slate-900">
+            <div class="p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Personal Due Reason</p>
+                <p class="text-sm font-black text-slate-800 dark:text-white">{{ selectedAdjustmentToEditDate?.reason }}</p>
+            </div>
+            
+            <DateInput 
+                label="Next Pay Date *" 
+                v-model="editNextPaymentDateForm.next_payment_date" 
+                :disabled="savingNextPaymentDate" 
+            />
+        </div>
+        <template #footer>
+            <button @click="showEditNextPaymentDateModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">Cancel</button>
+            <button @click="submitEditNextPaymentDate" :disabled="savingNextPaymentDate" class="px-8 py-3.5 bg-[#29166e] hover:bg-[#1d0f4d] disabled:opacity-50 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-[#29166e]/20 flex items-center gap-2">
+                <svg v-if="savingNextPaymentDate" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                {{ savingNextPaymentDate ? 'Saving...' : 'Update Date' }}
+            </button>
+        </template>
+    </Modal>
+
+    <!-- Update Next Due Date Modal (Collection & Personal Due) -->
+    <Modal :show="showUpdateNextDueDateModal" :title="nextDueDateForm.type === 'collection' ? 'Update Company Next Due Date' : 'Update Personal Next Due Date'" @close="showUpdateNextDueDateModal = false" maxWidth="md">
+        <div class="p-6 space-y-5 bg-white dark:bg-slate-900">
+            <div class="p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Staff Member</p>
+                <p class="text-sm font-black text-slate-800 dark:text-white">{{ nextDueDateForm.staff_name }}</p>
+            </div>
+            
+            <DateInput 
+                :label="nextDueDateForm.type === 'collection' ? 'Company Next Due Date *' : 'Personal Next Due Date *'" 
+                v-model="nextDueDateForm.next_payment_date" 
+                :disabled="savingNextDueDate" 
+            />
+        </div>
+        <template #footer>
+            <button @click="showUpdateNextDueDateModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">Cancel</button>
+            <button @click="submitUpdateNextDueDate" :disabled="savingNextDueDate" class="px-8 py-3.5 bg-[#29166e] hover:bg-[#1d0f4d] disabled:opacity-50 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-[#29166e]/20 flex items-center gap-2">
+                <svg v-if="savingNextDueDate" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                {{ savingNextDueDate ? 'Saving...' : 'Update Date' }}
+            </button>
+        </template>
+    </Modal>
+
 
     <!-- Confirm Add Modal -->
     <ConfirmModal 
@@ -973,6 +1107,7 @@ const loading = ref(true);
 const saving = ref(false);
 const paymentLoading = ref(false);
 const paymentSaving = ref(false);
+const paymentEditingId = ref(null);
 const paymentDeletingId = ref(null);
 const search = ref('');
 const paymentStatusFilter = ref('');
@@ -983,6 +1118,17 @@ const sortBy = ref('id');
 const sortDir = ref('desc');
 const perPage = ref(10);
 const pagination = ref({});
+const companies = ref([]);
+const companyFilter = ref('');
+const companyOptions = computed(() => {
+  const options = [
+    { id: '', name: 'All Companies' }
+  ];
+  if (Array.isArray(companies.value)) {
+    companies.value.forEach(c => options.push({ id: c.id, name: c.name }));
+  }
+  return options;
+});
 
 const showModal = ref(false);
 const showViewModal = ref(false);
@@ -1049,7 +1195,8 @@ const form = ref({
   paid_amount: 0,
   pending_amount: 0,
   payment_status: 'Payment Not Initialized',
-  payment_type: 'Cash'
+  payment_type: 'Cash',
+  notes: ''
 });
 const showAdjustmentModal = ref(false);
 const adjustmentSaving = ref(false);
@@ -1093,6 +1240,23 @@ const pendingPaymentForm = ref({
     next_payment_date: ''
 });
 const pendingPaymentSaving = ref(false);
+
+const showEditNextPaymentDateModal = ref(false);
+const selectedAdjustmentToEditDate = ref(null);
+const editNextPaymentDateForm = ref({
+    next_payment_date: ''
+});
+const savingNextPaymentDate = ref(false);
+
+const showUpdateNextDueDateModal = ref(false);
+const nextDueDateForm = ref({
+    contract_id: null,
+    type: 'collection',
+    next_payment_date: '',
+    staff_name: ''
+});
+const savingNextDueDate = ref(false);
+
 
 const paymentStatusOptions = ['Payment Not Initialized', 'Partially Paid', 'Fully Paid'];
 
@@ -1146,6 +1310,7 @@ const fetchContracts = async (page = 1) => {
       from_date: fromDate.value,
       to_date: toDate.value,
       staff_id: '',
+      company_id: companyFilter.value,
       sort_by: sortBy.value === 'total_income' ? 'total_income' : sortBy.value,
       sort_direction: sortDir.value,
       per_page: perPage.value
@@ -1164,6 +1329,9 @@ const fetchResources = async () => {
     try {
         const staffRes = await staffService.getSimple({ status: 'active' });
         staffList.value = staffRes.data || [];
+        
+        const companyRes = await companyService.getSimple();
+        companies.value = companyRes.data || [];
     } catch (err) {
         console.error('Failed to fetch resources', err);
     }
@@ -1191,6 +1359,7 @@ const debouncedSearch = () => {
 const resetMainFilters = () => {
     search.value = '';
     paymentStatusFilter.value = '';
+    companyFilter.value = '';
     pendingOnly.value = false;
     fromDate.value = '';
     toDate.value = '';
@@ -1228,7 +1397,8 @@ const openModal = (contract = null) => {
       paid_amount: 0,
       pending_amount: 0,
       payment_status: 'Payment Not Initialized',
-      payment_type: 'Cash'
+      payment_type: 'Cash',
+      notes: ''
     };
   }
   selectedExpenseCategory.value = '';
@@ -1351,7 +1521,7 @@ const closePaymentModal = () => {
   paymentDeletingId.value = null;
 };
 
-const addPayment = async () => {
+const savePayment = async () => {
   if (!paymentContract.value.id) return;
 
   // Client-side validation
@@ -1383,22 +1553,41 @@ const addPayment = async () => {
       amount: parseAmount(paymentForm.value.amount),
     };
 
-    await contractService.addPayment(paymentContract.value.id, payload);
+    if (paymentEditingId.value) {
+      await contractService.updatePayment(paymentContract.value.id, paymentEditingId.value, payload);
+      notificationStore.success('Payment entry updated successfully');
+    } else {
+      await contractService.addPayment(paymentContract.value.id, payload);
+      notificationStore.success('Payment entry added successfully');
+    }
+    
     await fetchContractPayments(paymentContract.value.id);
     await fetchContracts(pagination.value.current_page || 1);
     await fetchSummary();
     resetPaymentForm();
-    notificationStore.success('Payment entry added successfully');
   } catch (err) {
     alertConfig.value = {
       type: 'error',
       title: 'Payment Error',
-      message: err.response?.data?.message || Object.values(err.response?.data?.errors || {}).flat()[0] || 'Failed to add payment entry'
+      message: err.response?.data?.message || Object.values(err.response?.data?.errors || {}).flat()[0] || 'Failed to save payment entry'
     };
     showAlertModal.value = true;
   } finally {
     paymentSaving.value = false;
   }
+};
+
+const editPayment = (payment) => {
+    paymentEditingId.value = payment.id;
+    paymentForm.value = {
+        amount: payment.amount,
+        payment_date: payment.payment_date ? payment.payment_date.substring(0, 10) : '',
+        payment_method: payment.payment_method || 'Cash',
+        subcategory: payment.subcategory || '',
+        next_payment_date: payment.next_payment_date ? payment.next_payment_date.substring(0, 10) : '',
+        notes: payment.notes || '',
+        contract_adjustment_id: payment.contract_adjustment_id || ''
+    };
 };
 
 const removePayment = async (payment) => {
@@ -1485,7 +1674,8 @@ const syncFormWithContract = (contract) => {
         pending_amount: contract.pending_amount ?? 0,
         contract_date: contract.contract_date || '',
         payment_status: contract.payment_status || 'Payment Not Initialized',
-        payment_type: contract.payment_type || 'Cash'
+        payment_type: contract.payment_type || 'Cash',
+        notes: contract.notes || ''
     };
 
     // Populate activeCategories based on existing data
@@ -1519,6 +1709,7 @@ const resetPaymentForm = () => {
         notes: '',
         contract_adjustment_id: ''
     };
+    paymentEditingId.value = null;
 };
 
 
@@ -1626,7 +1817,7 @@ const openPendingPaymentModal = (adj) => {
         amount: adj.pending_amount,
         payment_date: new Date().toISOString().slice(0, 10),
         payment_method: 'Cash',
-        next_payment_date: ''
+        next_payment_date: adj.next_payment_date ? adj.next_payment_date.substring(0, 10) : ''
     };
     showPendingPaymentModal.value = true;
 };
@@ -1671,6 +1862,84 @@ const submitPendingPayment = async () => {
         showAlertModal.value = true;
     } finally {
         pendingPaymentSaving.value = false;
+    }
+};
+
+const openEditNextPaymentDateModal = (adj) => {
+    selectedAdjustmentToEditDate.value = adj;
+    editNextPaymentDateForm.value = {
+        next_payment_date: adj.next_payment_date ? adj.next_payment_date.substring(0, 10) : ''
+    };
+    showEditNextPaymentDateModal.value = true;
+};
+
+const submitEditNextPaymentDate = async () => {
+    if (!selectedAdjustmentToEditDate.value || !paymentContract.value.id) return;
+    
+    savingNextPaymentDate.value = true;
+    try {
+        const payload = {
+            next_payment_date: editNextPaymentDateForm.value.next_payment_date || null
+        };
+        await contractService.updateAdjustment(
+            paymentContract.value.id,
+            selectedAdjustmentToEditDate.value.id,
+            payload
+        );
+        notificationStore.success('Next payment date updated successfully');
+        showEditNextPaymentDateModal.value = false;
+        
+        await fetchContractPayments(paymentContract.value.id);
+        await fetchContracts(pagination.value.current_page || 1);
+        await fetchSummary();
+    } catch (err) {
+        alertConfig.value = {
+            type: 'error',
+            title: 'Update Error',
+            message: err.response?.data?.message || 'Failed to update next payment date'
+        };
+        showAlertModal.value = true;
+    } finally {
+        savingNextPaymentDate.value = false;
+    }
+};
+
+const openUpdateNextDueDateModal = (contract, type) => {
+    nextDueDateForm.value = {
+        contract_id: contract.id,
+        type: type,
+        next_payment_date: type === 'collection' 
+            ? (contract.next_collection_due_date ? contract.next_collection_due_date.substring(0, 10) : '')
+            : (contract.next_personal_due_date ? contract.next_personal_due_date.substring(0, 10) : ''),
+        staff_name: contract.staff?.name || 'N/A'
+    };
+    showUpdateNextDueDateModal.value = true;
+};
+
+const submitUpdateNextDueDate = async () => {
+    if (!nextDueDateForm.value.contract_id) return;
+    
+    savingNextDueDate.value = true;
+    try {
+        const payload = {
+            type: nextDueDateForm.value.type,
+            next_payment_date: nextDueDateForm.value.next_payment_date || null
+        };
+        await contractService.updateNextDueDate(nextDueDateForm.value.contract_id, payload);
+        notificationStore.success('Next due date updated successfully');
+        showUpdateNextDueDateModal.value = false;
+        
+        await fetchContracts(pagination.value.current_page || 1);
+        await fetchSummary();
+    } catch (err) {
+        alertConfig.value = {
+            type: 'error',
+            title: 'Update Error',
+            message: err.response?.data?.message || 'Failed to update next due date'
+        };
+        showAlertModal.value = true;
+    } finally {
+        savingNextDueDate.value = false;
     }
 };
 

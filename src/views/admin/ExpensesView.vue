@@ -375,6 +375,18 @@
                 <p v-if="errors.payment_method" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.payment_method[0] }}</p>
             </div>
           </div>
+
+          <!-- Notes -->
+          <div class="md:col-span-2 animate-in fade-in slide-in-from-top-1">
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Notes / Remarks</label>
+            <textarea v-model="form.notes" 
+                      :disabled="viewMode" 
+                      rows="3"
+                      :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.notes}" 
+                      class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-medium tracking-tight placeholder:font-medium" 
+                      placeholder="Add any additional notes or remarks here..."></textarea>
+            <p v-if="errors.notes" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.notes[0] }}</p>
+          </div>
         </div>
       </form>
       <template #footer>

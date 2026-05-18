@@ -547,10 +547,7 @@ const branches = ref([]);
 const modalBranchOptions = computed(() => {
   if (!Array.isArray(branches.value)) return [];
   return branches.value.map(b => {
-    let name = b.name;
-    if (b.branch_number && !name.includes(b.branch_number)) {
-      name = `${name} (${b.branch_number})`;
-    }
+    let name = b.branch_number ? String(b.branch_number) : b.name;
     return { id: b.id, name };
   });
 });

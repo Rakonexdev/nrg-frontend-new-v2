@@ -1,6 +1,13 @@
 <template>
   <div class="relative w-full" ref="containerRef">
-    <label v-if="label" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{{ label }}</label>
+    <label v-if="label" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
+      <template v-if="label.includes('*')">
+        {{ label.replace('*', '') }}<span class="text-rose-500 font-black">*</span>
+      </template>
+      <template v-else>
+        {{ label }}
+      </template>
+    </label>
     
     <div 
       @click="toggleDropdown"
@@ -11,7 +18,7 @@
         'border-rose-500 ring-4 ring-rose-500/10': error 
       }"
     >
-      <span class="truncate dark:text-white font-medium" :class="{ 'text-slate-400': !selectedOption }">
+      <span class="break-words whitespace-normal pr-2 dark:text-white font-medium" :class="{ 'text-slate-400': !selectedOption }">
         {{ selectedOption ? selectedOption.name : placeholder }}
       </span>
       <svg class="w-4 h-4 text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': isOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +79,7 @@
            >
              <div class="flex-1 min-w-0">
                <slot name="option" :option="option">
-                 <span class="truncate block">{{ option.name }}</span>
+                 <span class="break-words whitespace-normal block">{{ option.name }}</span>
                </slot>
              </div>
              <svg 

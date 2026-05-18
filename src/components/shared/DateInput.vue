@@ -1,7 +1,12 @@
 <template>
   <div class="flex flex-col gap-1.5">
     <label v-if="label" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-      {{ label }}
+      <template v-if="label.includes('*')">
+        {{ label.replace('*', '') }}<span class="text-rose-500 font-black">*</span>
+      </template>
+      <template v-else>
+        {{ label }}
+      </template>
     </label>
     <div class="relative group">
       <!-- Visible text input for formatted display and manual typing -->

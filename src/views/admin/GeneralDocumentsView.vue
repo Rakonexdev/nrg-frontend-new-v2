@@ -49,6 +49,13 @@
         </div>
       </template>
 
+      <template #expiry_date="{ value }">
+        <span class="text-sm font-bold text-slate-600 dark:text-slate-400">
+            <span v-if="value" :class="isExpired(value) ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10 px-2 py-1 rounded-lg' : ''">{{ formatDate(value) }}</span>
+            <span v-else class="text-slate-400 font-medium text-xs">N/A</span>
+        </span>
+      </template>
+
       <template #created_at="{ value }">
         <span class="text-sm font-bold text-slate-600 dark:text-slate-400">{{ formatDate(value) }}</span>
       </template>
@@ -87,6 +94,12 @@
           <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Document Name <span class="text-rose-500">*</span></label>
           <input v-model="form.document_name" type="text" required :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.document_name}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold tracking-tight" placeholder="e.g., Company License, Trade Agreement, etc.">
           <p v-if="errors.document_name" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.document_name[0] }}</p>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Expiry Date <span class="text-slate-400 font-normal capitalize tracking-normal">(Optional)</span></label>
+          <input v-model="form.expiry_date" type="date" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.expiry_date}" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold tracking-tight text-slate-700 dark:text-slate-300">
+          <p v-if="errors.expiry_date" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.expiry_date[0] }}</p>
         </div>
 
         <div>
@@ -164,11 +177,13 @@ const errors = ref({});
 const selectedFile = ref(null);
 
 const form = ref({
-    document_name: ''
+    document_name: '',
+    expiry_date: ''
 });
 
 const columns = [
   { key: 'document_name', label: 'Document Name', sortable: true },
+  { key: 'expiry_date', label: 'Expiry Date', sortable: true },
   { key: 'created_at', label: 'Upload Date', sortable: true },
   { key: 'uploader', label: 'Uploaded By', sortable: false },
   { key: 'actions', label: 'Actions', sortable: false }
@@ -205,7 +220,7 @@ const debouncedSearch = () => {
 const openUploadModal = () => {
     isEditing.value = false;
     editingItem.value = null;
-    form.value = { document_name: '' };
+    form.value = { document_name: '', expiry_date: '' };
     selectedFile.value = null;
     errors.value = {};
     showModal.value = true;
@@ -214,7 +229,10 @@ const openUploadModal = () => {
 const openEditModal = (item) => {
     isEditing.value = true;
     editingItem.value = item;
-    form.value = { document_name: item.document_name };
+    form.value = { 
+        document_name: item.document_name, 
+        expiry_date: item.expiry_date ? item.expiry_date.split('T')[0] : '' 
+    };
     selectedFile.value = null;
     errors.value = {};
     showModal.value = true;
@@ -245,6 +263,9 @@ const handleUpload = async () => {
         const formData = new FormData();
         formData.append('document_name', form.value.document_name);
         formData.append('category', category.value);
+        if (form.value.expiry_date) {
+            formData.append('expiry_date', form.value.expiry_date);
+        }
         formData.append('file', selectedFile.value);
 
         await generalDocumentService.upload(formData);
@@ -272,6 +293,11 @@ const handleUpdate = async () => {
     try {
         const formData = new FormData();
         formData.append('document_name', form.value.document_name);
+        if (form.value.expiry_date) {
+            formData.append('expiry_date', form.value.expiry_date);
+        } else {
+            formData.append('expiry_date', '');
+        }
         if (selectedFile.value) {
             formData.append('file', selectedFile.value);
         }
@@ -349,6 +375,14 @@ const formatDate = (date) => {
   if (!date) return '-';
   const d = new Date(date);
   return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const isExpired = (date) => {
+    if (!date) return false;
+    const expiry = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return expiry < today;
 };
 
 watch(() => route.params.category, () => {

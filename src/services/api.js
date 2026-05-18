@@ -65,8 +65,11 @@ export const contractService = {
     delete: (id) => api.delete(`/contracts/${id}`),
     getPayments: (id) => api.get(`/contracts/${id}/payments`),
     addPayment: (id, data) => api.post(`/contracts/${id}/payments`, data),
+    updatePayment: (contractId, paymentId, data) => api.put(`/contracts/${contractId}/payments/${paymentId}`, data),
     deletePayment: (contractId, paymentId) => api.delete(`/contracts/${contractId}/payments/${paymentId}`),
-    addAdjustment: (id, data) => api.post(`/contracts/${id}/adjustments`, data)
+    addAdjustment: (id, data) => api.post(`/contracts/${id}/adjustments`, data),
+    updateAdjustment: (contractId, adjustmentId, data) => api.put(`/contracts/${contractId}/adjustments/${adjustmentId}`, data),
+    updateNextDueDate: (id, data) => api.put(`/contracts/${id}/next-due-date`, data)
 };
 
 export const expenseService = {
