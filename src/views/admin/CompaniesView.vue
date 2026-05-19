@@ -55,7 +55,7 @@
         <div class="flex flex-col gap-0.5">
           <div>
             <span class="font-bold text-slate-800 dark:text-white">{{ row.name }}</span>
-            <span v-if="row.branch_number" class="text-[11px] font-black text-[#29166e]">({{ row.branch_number }})</span>
+            <span v-if="row.branch_number != null && row.branch_number !== ''" class="text-[11px] font-black text-[#29166e]">({{ row.branch_number }})</span>
           </div>
           <div v-if="row.computer_card" class="flex items-center gap-1.5 mt-0.5">
             <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">Computer Card: {{ row.computer_card }}</span>
@@ -97,6 +97,10 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </button>
           </template>
+          
+          <button v-if="authStore.hasPermission('company_delete')" @click="confirmDelete(row)" class="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Delete Company">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
         </div>
       </template>
     </DataTable>
@@ -235,6 +239,25 @@
         </svg>
       </template>
     </ConfirmModal>
+
+    <!-- Delete Confirmation Modal -->
+    <ConfirmModal 
+      :show="showDeleteModal" 
+      title="Delete Company"
+      :message="`Are you sure you want to delete ${companyToDelete?.name}?`"
+      description="This action cannot be undone. All related data will be permanently removed."
+      variant="danger"
+      confirm-text="Yes, Delete Company"
+      :loading="saving"
+      @confirm="handleDelete"
+      @cancel="showDeleteModal = false"
+    >
+      <template #icon>
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </template>
+    </ConfirmModal>
     
     <!-- Branches Management Modal -->
     <Modal :show="showBranchModal" :title="`Branches - ${selectedCompany?.name}`" @close="showBranchModal = false" maxWidth="3xl">
@@ -330,6 +353,8 @@ const saving = ref(false);
 const showModal = ref(false);
 const showStatusModal = ref(false);
 const showBranchModal = ref(false);
+const showDeleteModal = ref(false);
+const companyToDelete = ref(null);
 const editMode = ref(false);
 const viewMode = ref(false);
 const errors = ref({});
@@ -495,6 +520,29 @@ const handleStatusToggle = async () => {
         notificationStore.error(errorMsg);
     } finally {
         saving.value = false;
+    }
+};
+
+const confirmDelete = (company) => {
+    companyToDelete.value = company;
+    showDeleteModal.value = true;
+};
+
+const handleDelete = async () => {
+    if (!companyToDelete.value) return;
+    
+    saving.value = true;
+    try {
+        await companyService.delete(companyToDelete.value.id);
+        notificationStore.success('Company deleted successfully');
+        showDeleteModal.value = false;
+        fetchCompanies(pagination.value.current_page);
+    } catch (error) {
+        console.error('Delete failed', error);
+        notificationStore.error(error.response?.data?.message || 'Failed to delete company');
+    } finally {
+        saving.value = false;
+        companyToDelete.value = null;
     }
 };
 

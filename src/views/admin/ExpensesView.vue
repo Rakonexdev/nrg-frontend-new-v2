@@ -141,8 +141,8 @@
             <span class="text-sm font-black text-slate-800 dark:text-white tracking-tight">{{ row.contract.staff?.name }} Contract</span>
             <div class="flex items-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                 <span>{{ row.contract.company?.name || 'Individual' }}</span>
-                <span v-if="row.contract.staff?.branch" class="text-[#29166e] font-black">
-                    ({{ row.contract.staff.branch.name }}<span v-if="row.contract.staff.branch.branch_number">-{{ row.contract.staff.branch.branch_number }}</span>)
+                <span v-if="row.contract.staff?.branch_name" class="text-[#29166e] font-black">
+                    ({{ row.contract.staff.branch_name }}<span v-if="row.contract.staff.branch_number != null && row.contract.staff.branch_number !== ''">-{{ row.contract.staff.branch_number }}</span>)
                 </span>
             </div>
         </div>

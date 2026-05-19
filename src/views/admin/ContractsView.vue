@@ -107,7 +107,7 @@
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[10px] font-black text-[#29166e] dark:text-[#29166e] uppercase tracking-widest mt-1 border border-[#29166e]/10 dark:border-[#29166e]/30">
                             {{ selectedViewContract.staff?.company_name || 'Individual' }} 
                             <span v-if="selectedViewContract.staff?.branch_name" class="ml-1 opacity-60">
-                                ({{ selectedViewContract.staff.branch_name }}<span v-if="selectedViewContract.staff.branch_number">-{{ selectedViewContract.staff.branch_number }}</span>)
+                                ({{ selectedViewContract.staff.branch_name }}<span v-if="selectedViewContract.staff.branch_number != null && selectedViewContract.staff.branch_number !== ''">-{{ selectedViewContract.staff.branch_number }}</span>)
                             </span>
                         </span>
                     </div>
@@ -255,7 +255,7 @@
                         <table class="w-full text-left">
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                                  <tr v-for="payment in selectedViewAdjustmentPayments" :key="payment.id" class="hover:bg-[#29166e]/5 transition-colors">
-                                     <td class="px-6 py-3 text-[11px] font-bold text-slate-500">{{ formatDate(payment.payment_date) }}</td>
+                                     <td class="px-6 py-3 text-[11px] font-bold text-slate-500">{{ formatDateTime(payment.payment_date) }}</td>
                                      <td class="px-6 py-3">
                                          <div class="flex items-center gap-2 flex-wrap">
                                              <span class="text-[11px] font-black text-slate-700 dark:text-slate-300">Personal Due Payment</span>
@@ -290,7 +290,7 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                              <tr v-for="payment in selectedViewAdminPayments" :key="payment.id" class="hover:bg-emerald-50/30 transition-colors">
-                                 <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</td>
+                                 <td class="px-6 py-4 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDateTime(payment.payment_date) }}</td>
                                  <td class="px-6 py-4">
                                      <div v-if="payment.is_settled" class="space-y-1">
                                          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-[8px] font-black text-emerald-600 uppercase tracking-widest border border-emerald-200 dark:border-emerald-800/50">
@@ -341,12 +341,18 @@
             @page-change="fetchContracts"
         >
             <template #staff_name="{ row }">
-                <span class="font-black text-slate-800 dark:text-white tracking-tight">{{ row.staff?.name || 'N/A' }}</span>
+                <div class="flex flex-col">
+                    <span class="font-black text-slate-800 dark:text-white tracking-tight">{{ row.staff?.name || 'N/A' }}</span>
+                    <span v-if="row.staff?.qid_number" class="text-xs font-bold text-slate-500 mt-0.5">QID: {{ row.staff.qid_number }}</span>
+                </div>
             </template>
 
             <template #company_name="{ row }">
                 <div class="flex flex-col">
                     <span class="font-black text-slate-800 dark:text-white tracking-tight">{{ row.staff?.company_name || 'No Company' }}</span>
+                    <span v-if="row.staff?.branch_name" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                        {{ row.staff.branch_name }}<span v-if="row.staff.branch_number != null && row.staff.branch_number !== ''">-{{ row.staff.branch_number }}</span>
+                    </span>
                     <span v-if="row.staff?.company?.computer_card" class="text-xs font-bold text-slate-500 mt-0.5">Card: {{ row.staff.company.computer_card }}</span>
                 </div>
             </template>
@@ -682,10 +688,18 @@
                         <svg class="w-2.5 h-2.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                       </button>
                     </div>
-                    <span v-else class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700">
-                      <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                      Completed
-                    </span>
+                    <div v-else class="flex flex-col items-center gap-1.5 justify-center mb-1.5">
+                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700">
+                        <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        Completed
+                      </span>
+                    </div>
+                    <div class="flex flex-col items-center justify-center mt-1.5">
+                        <button v-if="authStore.hasPermission('contract_edit')" @click="openEditAdjustmentModal(adj)" class="inline-flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 border border-amber-200 dark:border-amber-800 rounded-md transition-all shadow-sm">
+                            <svg class="w-3 h-3 text-amber-500 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <span>Edit</span>
+                        </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -724,7 +738,7 @@
                       </thead>
                       <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                           <tr v-for="payment in filteredAdjustmentPayments" :key="payment.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                              <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</td>
+                              <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDateTime(payment.payment_date) }}</td>
                               <td class="px-5 py-3.5 text-sm font-black text-[#29166e] dark:text-[#29166e] text-right">QAR {{ formatCurrency(payment.amount) }}</td>
                               <td class="px-5 py-3.5">
                                   <span class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] border border-[#29166e]/10 dark:border-[#29166e]/30">
@@ -869,7 +883,7 @@
               </thead>
               <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                 <tr v-for="payment in filteredContractPayments" :key="payment.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                  <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</td>
+                  <td class="px-5 py-3.5 text-xs font-bold text-slate-600 dark:text-slate-400">{{ formatDateTime(payment.payment_date) }}</td>
                   <td class="px-5 py-3.5 text-sm font-black text-emerald-600 dark:text-emerald-400 text-right">QAR {{ formatCurrency(payment.amount) }}</td>
                   <td class="px-5 py-3.5">
                     <span class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter" :class="payment.payment_method === 'Cash' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 border border-amber-200 dark:border-amber-800' : 'bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] border border-[#29166e]/10 dark:border-[#29166e]/30'">
@@ -956,6 +970,54 @@
             <button @click="submitPendingPayment" :disabled="pendingPaymentSaving" class="px-8 py-3.5 bg-[#29166e] hover:bg-[#1d0f4d] disabled:opacity-50 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-[#29166e]/20 flex items-center gap-2">
                 <svg v-if="pendingPaymentSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 {{ pendingPaymentSaving ? 'Processing...' : 'Submit Payment' }}
+            </button>
+        </template>
+    </Modal>
+
+    <!-- Edit Adjustment Modal -->
+    <Modal :show="showEditAdjustmentModal" title="Edit Personal Due" @close="showEditAdjustmentModal = false" maxWidth="md">
+        <div class="p-6 space-y-5 bg-white dark:bg-slate-900">
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Total Amount <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
+                    <input v-model="editAdjustmentForm.amount" :disabled="savingEditAdjustment" type="number" step="0.01" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold text-sm" placeholder="0.00">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Paid Amount</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
+                    <input v-model="editAdjustmentForm.paid_amount" :disabled="savingEditAdjustment" type="number" step="0.01" min="0" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold text-sm" placeholder="0.00">
+                </div>
+                <p class="text-[10px] font-bold mt-1 ml-1" :class="editAdjPendingPreview >= 0 ? 'text-slate-400' : 'text-rose-500'">
+                    Pending after edit: QAR {{ formatCurrency(editAdjPendingPreview >= 0 ? editAdjPendingPreview : 0) }}
+                </p>
+            </div>
+            
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Reason / Description <span class="text-rose-500">*</span></label>
+                <input v-model="editAdjustmentForm.reason" :disabled="savingEditAdjustment" type="text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold text-sm" placeholder="e.g., Traffic Violation">
+            </div>
+
+            <DateInput 
+                label="Date *" 
+                v-model="editAdjustmentForm.adjustment_date" 
+                :disabled="savingEditAdjustment" 
+            />
+
+            <DateInput 
+                label="Next Pay Date (Optional)" 
+                v-model="editAdjustmentForm.next_payment_date" 
+                :disabled="savingEditAdjustment" 
+            />
+        </div>
+        <template #footer>
+            <button @click="showEditAdjustmentModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">Cancel</button>
+            <button @click="submitEditAdjustment" :disabled="savingEditAdjustment" class="px-8 py-3.5 bg-[#29166e] hover:bg-[#1d0f4d] disabled:opacity-50 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-[#29166e]/20 flex items-center gap-2">
+                <svg v-if="savingEditAdjustment" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                {{ savingEditAdjustment ? 'Saving...' : 'Save Changes' }}
             </button>
         </template>
     </Modal>
@@ -1125,7 +1187,10 @@ const companyOptions = computed(() => {
     { id: '', name: 'All Companies' }
   ];
   if (Array.isArray(companies.value)) {
-    companies.value.forEach(c => options.push({ id: c.id, name: c.name }));
+    companies.value.forEach(c => {
+      const displayName = c.branch_number ? `${c.name} (${c.branch_number})` : c.name;
+      options.push({ id: c.id, name: displayName });
+    });
   }
   return options;
 });
@@ -1205,7 +1270,7 @@ const adjustmentForm = ref({
     amount: '',
     paid_amount: '',
     reason: '',
-    adjustment_date: '',
+    adjustment_date: new Date().toISOString().slice(0, 10),
     next_payment_date: '',
     payment_method: 'Cash'
 });
@@ -1223,7 +1288,7 @@ const paymentContract = ref({
 const payments = ref([]);
 const paymentForm = ref({
   amount: '',
-  payment_date: '',
+  payment_date: new Date().toISOString().slice(0, 10),
   payment_method: 'Cash',
   subcategory: 'Monthly Installment',
   next_payment_date: '',
@@ -1235,7 +1300,7 @@ const showPendingPaymentModal = ref(false);
 const payingAdjustment = ref(null);
 const pendingPaymentForm = ref({
     amount: '',
-    payment_date: '',
+    payment_date: new Date().toISOString().slice(0, 10),
     payment_method: 'Cash',
     next_payment_date: ''
 });
@@ -1247,6 +1312,23 @@ const editNextPaymentDateForm = ref({
     next_payment_date: ''
 });
 const savingNextPaymentDate = ref(false);
+
+const showEditAdjustmentModal = ref(false);
+const selectedAdjustmentToEdit = ref(null);
+const editAdjustmentForm = ref({
+    amount: '',
+    paid_amount: '',
+    reason: '',
+    adjustment_date: new Date().toISOString().slice(0, 10),
+    next_payment_date: ''
+});
+const savingEditAdjustment = ref(false);
+
+const editAdjPendingPreview = computed(() => {
+    const total = parseFloat(editAdjustmentForm.value.amount) || 0;
+    const paid = parseFloat(editAdjustmentForm.value.paid_amount) || 0;
+    return Math.round((total - paid) * 100) / 100;
+});
 
 const showUpdateNextDueDateModal = ref(false);
 const nextDueDateForm = ref({
@@ -1648,6 +1730,22 @@ const formatDate = (date) => {
   return `${day}-${month}-${year}`;
 };
 
+const formatDateTime = (date) => {
+  if (!date) return '-';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '-';
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = d.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+  const year = d.getFullYear();
+  let hours = d.getHours();
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const strTime = hours.toString().padStart(2, '0') + ':' + minutes + ' ' + ampm;
+  return `${day}-${month}-${year} ${strTime}`;
+};
+
 const formatCurrency = (value) => {
     return parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
@@ -1702,7 +1800,7 @@ const syncPaymentContract = (contract) => {
 const resetPaymentForm = () => {
     paymentForm.value = {
         amount: '',
-        payment_date: '',
+        payment_date: new Date().toISOString().slice(0, 10),
         payment_method: paymentContract.value.payment_type || 'Cash',
         subcategory: '',
         next_payment_date: '',
@@ -1718,7 +1816,7 @@ const openAdjustmentModal = (contract) => {
     adjustmentForm.value = {
         amount: '',
         reason: '',
-        adjustment_date: ''
+        adjustment_date: new Date().toISOString().slice(0, 10)
     };
     showAdjustmentModal.value = true;
 };
@@ -1791,7 +1889,7 @@ const submitAdjustmentFromModal = async () => {
             amount: '',
             paid_amount: '',
             reason: '',
-            adjustment_date: '',
+            adjustment_date: new Date().toISOString().slice(0, 10),
             next_payment_date: '',
             payment_method: 'Cash'
         };
@@ -1862,6 +1960,68 @@ const submitPendingPayment = async () => {
         showAlertModal.value = true;
     } finally {
         pendingPaymentSaving.value = false;
+    }
+};
+
+const openEditAdjustmentModal = (adj) => {
+    selectedAdjustmentToEdit.value = adj;
+    editAdjustmentForm.value = {
+        amount: adj.amount,
+        paid_amount: adj.paid_amount ?? 0,
+        reason: adj.reason,
+        adjustment_date: adj.adjustment_date ? adj.adjustment_date.substring(0, 10) : '',
+        next_payment_date: adj.next_payment_date ? adj.next_payment_date.substring(0, 10) : ''
+    };
+    showEditAdjustmentModal.value = true;
+};
+
+const submitEditAdjustment = async () => {
+    if (!selectedAdjustmentToEdit.value || !paymentContract.value.id) return;
+    
+    const totalAmt = parseFloat(editAdjustmentForm.value.amount);
+    const paidAmt = parseFloat(editAdjustmentForm.value.paid_amount) || 0;
+
+    if (!editAdjustmentForm.value.amount || totalAmt <= 0) {
+        alertConfig.value = { type: 'error', title: 'Invalid Amount', message: 'Please enter a valid total amount.' };
+        showAlertModal.value = true;
+        return;
+    }
+
+    if (paidAmt > totalAmt) {
+        alertConfig.value = { type: 'error', title: 'Invalid Paid Amount', message: 'Paid amount cannot exceed the total amount.' };
+        showAlertModal.value = true;
+        return;
+    }
+
+    savingEditAdjustment.value = true;
+    try {
+        const payload = {
+            amount: totalAmt,
+            paid_amount: paidAmt,
+            reason: editAdjustmentForm.value.reason,
+            adjustment_date: editAdjustmentForm.value.adjustment_date || null,
+            next_payment_date: editAdjustmentForm.value.next_payment_date || null
+        };
+        await contractService.updateAdjustment(
+            paymentContract.value.id,
+            selectedAdjustmentToEdit.value.id,
+            payload
+        );
+        notificationStore.success('Personal due updated successfully');
+        showEditAdjustmentModal.value = false;
+        
+        await fetchContractPayments(paymentContract.value.id);
+        await fetchContracts(pagination.value.current_page || 1);
+        await fetchSummary();
+    } catch (err) {
+        alertConfig.value = {
+            type: 'error',
+            title: 'Update Error',
+            message: err.response?.data?.message || 'Failed to update personal due'
+        };
+        showAlertModal.value = true;
+    } finally {
+        savingEditAdjustment.value = false;
     }
 };
 

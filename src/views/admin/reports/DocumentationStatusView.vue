@@ -81,7 +81,7 @@
             <span class="text-sm font-black text-slate-800 dark:text-white">{{ row.staff_name }}</span>
             <span v-if="row.staff?.company_name" class="text-[9px] font-bold text-[#29166e] uppercase tracking-widest">{{ row.staff.company_name }}</span>
             <span v-if="row.staff?.branch_name" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-              {{ row.staff.branch_name }}<span v-if="row.staff.branch_number">-{{ row.staff.branch_number }}</span>
+              {{ row.staff.branch_name }}<span v-if="row.staff.branch_number != null && row.staff.branch_number !== ''">-{{ row.staff.branch_number }}</span>
             </span>
           </div>
         </div>

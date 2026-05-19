@@ -130,7 +130,7 @@
                             <p class="text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest mb-1">Assigned Branch</p>
                             <p class="text-sm font-black text-slate-800 dark:text-white">
                                 {{ staff.branch_name }}
-                                <span v-if="staff.branch_number" class="text-[#29166e] ml-1">#{{ staff.branch_number }}</span>
+                                <span v-if="staff.branch_number != null && staff.branch_number !== ''" class="text-[#29166e] ml-1">#{{ staff.branch_number }}</span>
                             </p>
                         </div>
                         <div v-if="staff.company_contact_person">
