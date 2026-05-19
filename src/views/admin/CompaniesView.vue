@@ -12,7 +12,7 @@
     </div>
 
     <!-- Search and Filters -->
-    <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-900/50 backdrop-blur-xl p-4 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
+    <div class="relative z-20 flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-900/50 backdrop-blur-xl p-4 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
         <div class="relative w-full md:w-96">
             <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
