@@ -1,62 +1,62 @@
 <template>
   <div class="admin-layout flex h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-hidden font-outfit">
     <!-- Sidebar -->
-    <aside class="w-72 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl shadow-2xl shadow-[#29166e]/5 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col z-30 transition-all">
-      <div class="p-8 flex items-center justify-center">
+    <aside class="w-56 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl shadow-2xl shadow-[#29166e]/5 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col z-30 transition-all">
+      <div class="p-4 flex items-center justify-center">
         <div class="relative group">
             <div class="absolute -inset-4 bg-[#29166e]/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <img src="@/assets/nrg-logo.png" alt="NRG Logo" class="w-32 h-auto relative drop-shadow-lg transform transition-transform duration-500 hover:scale-105" />
+            <img src="@/assets/nrg-logo.png" alt="NRG Logo" class="w-24 h-auto relative drop-shadow-lg transform transition-transform duration-500 hover:scale-105" />
         </div>
       </div>
       
-      <nav class="flex-1 px-4 space-y-2 mt-4 overflow-y-auto custom-scrollbar">
-        <p class="px-4 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-4 mt-6">Core Operations</p>
+      <nav class="flex-1 px-2 space-y-1 mt-2 overflow-y-auto custom-scrollbar">
+        <p class="px-3 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-2 mt-4">Core Operations</p>
         
         <router-link v-for="link in filteredNavLinks" :key="link.to" :to="link.to" 
-                     class="flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative" 
+                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group relative" 
                      active-class="bg-[#29166e] text-white shadow-xl shadow-[#29166e]/30 scale-[1.02]">
-          <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
-          <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
-          <div v-if="$route.path === link.to" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
+          <div v-html="link.icon" class="w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110"></div>
+          <span class="font-bold tracking-tight text-xs">{{ link.label }}</span>
+          <div v-if="$route.path === link.to" class="absolute left-0 w-1 h-5 bg-white rounded-r-full my-auto inset-y-0"></div>
         </router-link>
 
         <template v-if="filteredDocLinks.length > 0">
-          <p class="px-4 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-4 mt-8">Documentation</p>
+          <p class="px-3 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-2 mt-5">Documentation</p>
           
           <router-link v-for="link in filteredDocLinks" :key="link.to" :to="link.to" 
-                       class="flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group relative" 
                        active-class="bg-[#29166e] text-white shadow-xl shadow-[#29166e]/30 scale-[1.02]">
-            <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
-            <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
-            <div v-if="$route.path === link.to" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
+            <div v-html="link.icon" class="w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110"></div>
+            <span class="font-bold tracking-tight text-xs">{{ link.label }}</span>
+            <div v-if="$route.path === link.to" class="absolute left-0 w-1 h-5 bg-white rounded-r-full my-auto inset-y-0"></div>
           </router-link>
         </template>
 
         <!-- Reports Section -->
         <template v-if="authStore.hasPermission('view_reports') || authStore.isSuperAdmin">
-          <p class="px-4 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-4 mt-8">Reports</p>
+          <p class="px-3 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-2 mt-5">Reports</p>
           
           <router-link v-for="link in filteredReportLinks" :key="link.to" :to="link.to" 
-                       class="flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group relative" 
                        active-class="bg-[#29166e] text-white shadow-xl shadow-[#29166e]/30 scale-[1.02]">
-            <div v-html="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></div>
-            <span class="font-bold tracking-tight text-sm">{{ link.label }}</span>
-            <div v-if="$route.path === link.to" class="absolute left-0 w-1.5 h-6 bg-white rounded-r-full my-auto inset-y-0"></div>
+            <div v-html="link.icon" class="w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110"></div>
+            <span class="font-bold tracking-tight text-xs">{{ link.label }}</span>
+            <div v-if="$route.path === link.to" class="absolute left-0 w-1 h-5 bg-white rounded-r-full my-auto inset-y-0"></div>
           </router-link>
         </template>
       </nav>
 
-      <div class="p-6 mt-auto">
-        <div class="bg-slate-100/50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-200/50 dark:border-slate-700/50">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-full bg-[#29166e]/10 dark:bg-[#29166e]/30 flex items-center justify-center text-[#29166e] dark:text-blue-400 font-bold">{{ userInitials }}</div>
+      <div class="p-3 mt-auto">
+        <div class="bg-slate-100/50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-200/50 dark:border-slate-700/50">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-8 h-8 rounded-full bg-[#29166e]/10 dark:bg-[#29166e]/30 flex items-center justify-center text-[#29166e] dark:text-blue-400 font-bold text-xs flex-shrink-0">{{ userInitials }}</div>
                 <div class="min-w-0">
-                    <p class="text-sm font-bold text-slate-800 dark:text-white truncate">{{ authStore.user?.name || 'Admin User' }}</p>
-                    <p class="text-[10px] font-medium text-slate-500 truncate">{{ roleBadge }}</p>
+                    <p class="text-xs font-bold text-slate-800 dark:text-white truncate">{{ authStore.user?.name || 'Admin User' }}</p>
+                    <p class="text-[9px] font-medium text-slate-500 truncate">{{ roleBadge }}</p>
                 </div>
             </div>
-            <button @click="logout" class="w-full flex items-center justify-center gap-2 py-2.5 bg-rose-50 dark:bg-rose-900/10 text-rose-600 dark:text-rose-400 rounded-xl font-bold text-xs hover:bg-rose-100 dark:hover:bg-rose-900/20 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <button @click="logout" class="w-full flex items-center justify-center gap-2 py-2 bg-rose-50 dark:bg-rose-900/10 text-rose-600 dark:text-rose-400 rounded-lg font-bold text-xs hover:bg-rose-100 dark:hover:bg-rose-900/20 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 Sign Out
             </button>
         </div>
