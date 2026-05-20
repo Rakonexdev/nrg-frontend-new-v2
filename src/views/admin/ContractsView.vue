@@ -711,12 +711,7 @@
                         Completed
                       </span>
                     </div>
-                    <div class="flex flex-col items-center justify-center mt-1.5">
-                        <button v-if="authStore.hasPermission('contract_edit')" @click="openEditAdjustmentModal(adj)" class="inline-flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 border border-amber-200 dark:border-amber-800 rounded-md transition-all shadow-sm">
-                            <svg class="w-3 h-3 text-amber-500 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            <span>Edit</span>
-                        </button>
-                    </div>
+                    
                   </td>
                 </tr>
               </tbody>
@@ -769,9 +764,14 @@
                                   </span>
                               </td>
                               <td class="px-5 py-3.5 text-center">
-                                  <button @click="removePayment(payment)" :disabled="paymentDeletingId === payment.id" class="px-3 py-1.5 text-[10px] font-black text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all disabled:opacity-50 uppercase tracking-widest">
-                                      {{ paymentDeletingId === payment.id ? 'Removing...' : 'Delete' }}
-                                  </button>
+                                  <div class="flex items-center justify-center gap-2">
+                                      <button @click="openEditPersonalPaymentModal(payment)" :disabled="paymentDeletingId === payment.id" class="px-3 py-1.5 text-[10px] font-black text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all uppercase tracking-widest">
+                                          Edit
+                                      </button>
+                                      <button @click="removePayment(payment)" :disabled="paymentDeletingId === payment.id" class="px-3 py-1.5 text-[10px] font-black text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all disabled:opacity-50 uppercase tracking-widest">
+                                          {{ paymentDeletingId === payment.id ? 'Removing...' : 'Delete' }}
+                                      </button>
+                                  </div>
                               </td>
                           </tr>
                       </tbody>
@@ -987,6 +987,43 @@
             <button @click="submitPendingPayment" :disabled="pendingPaymentSaving" class="px-8 py-3.5 bg-[#29166e] hover:bg-[#1d0f4d] disabled:opacity-50 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-[#29166e]/20 flex items-center gap-2">
                 <svg v-if="pendingPaymentSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 {{ pendingPaymentSaving ? 'Processing...' : 'Submit Payment' }}
+            </button>
+        </template>
+    </Modal>
+
+    <!-- Edit Personal Payment Modal -->
+    <Modal :show="showEditPersonalPaymentModal" title="Edit Personal Due Payment" @close="showEditPersonalPaymentModal = false" maxWidth="md">
+        <div class="p-6 space-y-5 bg-white dark:bg-slate-900">
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment Amount <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">QAR</span>
+                    <input v-model="editPersonalPaymentForm.amount" :disabled="editPersonalPaymentSaving" type="number" step="0.01" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold text-sm" placeholder="0.00">
+                </div>
+            </div>
+            <DateInput 
+                label="Paid Date *" 
+                v-model="editPersonalPaymentForm.payment_date" 
+                :disabled="editPersonalPaymentSaving" 
+            />
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Method <span class="text-rose-500">*</span></label>
+                <select v-model="editPersonalPaymentForm.payment_method" :disabled="editPersonalPaymentSaving" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold text-sm">
+                    <option value="Cash">Cash</option>
+                    <option value="Online">Online Transaction</option>
+                </select>
+            </div>
+            <DateInput 
+                label="Next Pay Date (Optional)" 
+                v-model="editPersonalPaymentForm.next_payment_date" 
+                :disabled="editPersonalPaymentSaving" 
+            />
+        </div>
+        <template #footer>
+            <button @click="showEditPersonalPaymentModal = false" class="px-6 py-3 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors">Cancel</button>
+            <button @click="submitEditPersonalPayment" :disabled="editPersonalPaymentSaving" class="px-8 py-3.5 bg-[#29166e] hover:bg-[#1d0f4d] disabled:opacity-50 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-[#29166e]/20 flex items-center gap-2">
+                <svg v-if="editPersonalPaymentSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                {{ editPersonalPaymentSaving ? 'Saving...' : 'Save Changes' }}
             </button>
         </template>
     </Modal>
@@ -1352,6 +1389,16 @@ const pendingPaymentForm = ref({
     next_payment_date: ''
 });
 const pendingPaymentSaving = ref(false);
+
+const showEditPersonalPaymentModal = ref(false);
+const personalPaymentEditingId = ref(null);
+const editPersonalPaymentForm = ref({
+    amount: '',
+    payment_date: '',
+    payment_method: 'Cash',
+    next_payment_date: ''
+});
+const editPersonalPaymentSaving = ref(false);
 
 const showEditNextPaymentDateModal = ref(false);
 const selectedAdjustmentToEditDate = ref(null);
@@ -2007,6 +2054,58 @@ const submitPendingPayment = async () => {
         showAlertModal.value = true;
     } finally {
         pendingPaymentSaving.value = false;
+    }
+};
+
+const openEditPersonalPaymentModal = (payment) => {
+    personalPaymentEditingId.value = payment.id;
+    editPersonalPaymentForm.value = {
+        amount: payment.amount,
+        payment_date: payment.payment_date ? payment.payment_date.substring(0, 10) : '',
+        payment_method: payment.payment_method || 'Cash',
+        next_payment_date: payment.next_payment_date ? payment.next_payment_date.substring(0, 10) : ''
+    };
+    showEditPersonalPaymentModal.value = true;
+};
+
+const submitEditPersonalPayment = async () => {
+    if (!personalPaymentEditingId.value || !paymentContract.value.id) return;
+
+    if (!editPersonalPaymentForm.value.amount || parseFloat(editPersonalPaymentForm.value.amount) <= 0) {
+        alertConfig.value = { type: 'error', title: 'Invalid Amount', message: 'Please enter a valid amount.' };
+        showAlertModal.value = true;
+        return;
+    }
+
+    editPersonalPaymentSaving.value = true;
+    try {
+        const originalPayment = filteredAdjustmentPayments.value.find(p => p.id === personalPaymentEditingId.value);
+        
+        const payload = {
+            amount: parseAmount(editPersonalPaymentForm.value.amount),
+            payment_date: editPersonalPaymentForm.value.payment_date,
+            payment_method: editPersonalPaymentForm.value.payment_method,
+            next_payment_date: editPersonalPaymentForm.value.next_payment_date || null,
+            subcategory: originalPayment?.subcategory || 'Personal Due Payment',
+            contract_adjustment_id: originalPayment?.contract_adjustment_id
+        };
+        
+        await contractService.updatePayment(paymentContract.value.id, personalPaymentEditingId.value, payload);
+        notificationStore.success('Personal due payment updated successfully');
+        showEditPersonalPaymentModal.value = false;
+        
+        await fetchContractPayments(paymentContract.value.id);
+        await fetchContracts(pagination.value.current_page || 1);
+        await fetchSummary();
+    } catch (err) {
+        alertConfig.value = {
+            type: 'error',
+            title: 'Payment Error',
+            message: err.response?.data?.message || 'Failed to update payment'
+        };
+        showAlertModal.value = true;
+    } finally {
+        editPersonalPaymentSaving.value = false;
     }
 };
 
