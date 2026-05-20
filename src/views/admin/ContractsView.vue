@@ -11,14 +11,16 @@
       </button>
     </div>
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div :class="['grid grid-cols-1 gap-6', visibleCardsGridClass]">
       <KpiCard 
+        v-if="authStore.hasPermission('contract_card_total_collected')"
         title="Total Collected" 
         :value="formatCurrencyValue(contractSummary.total_paid)" 
         :icon="summaryIcons.paid" 
         color-class="bg-emerald-600" 
       />
       <KpiCard 
+        v-if="authStore.hasPermission('contract_card_pending_collection')"
         title="Pending Collection" 
         :value="formatCurrencyValue(contractSummary.total_pending)" 
         :icon="summaryIcons.pending" 
@@ -26,6 +28,7 @@
         subtitle="Unpaid balances"
       />
       <KpiCard 
+        v-if="authStore.hasPermission('contract_card_contract_profit')"
         title="Contract Profit" 
         :value="formatCurrencyValue(contractSummary.total_contract_profit)" 
         :icon="summaryIcons.profit" 
@@ -34,6 +37,7 @@
       />
 
       <KpiCard 
+        v-if="authStore.hasPermission('contract_card_general_overheads')"
         title="General Overheads" 
         :value="formatCurrencyValue(contractSummary.total_overheads)" 
         :icon="summaryIcons.overhead" 
@@ -1139,6 +1143,29 @@ const summaryIcons = {
     profit: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`,
     overhead: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>`
 };
+
+const visibleCardsGridClass = computed(() => {
+    const showPaid = authStore.hasPermission('contract_card_total_collected');
+    const showPending = authStore.hasPermission('contract_card_pending_collection');
+    const showProfit = authStore.hasPermission('contract_card_contract_profit');
+    const showOverhead = authStore.hasPermission('contract_card_general_overheads');
+    
+    let count = 0;
+    if (showPaid) count++;
+    if (showPending) count++;
+    if (showProfit) count++;
+    if (showOverhead) count++;
+    
+    if (count === 4) {
+        return 'md:grid-cols-2 lg:grid-cols-4';
+    } else if (count === 3) {
+        return 'md:grid-cols-2 lg:grid-cols-3';
+    } else if (count === 2) {
+        return 'md:grid-cols-2 lg:grid-cols-2';
+    } else {
+        return 'grid-cols-1';
+    }
+});
 
 const fetchSummary = async () => {
     try {

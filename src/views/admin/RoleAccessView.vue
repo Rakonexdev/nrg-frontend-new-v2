@@ -314,6 +314,12 @@ const formatPermissionLabel = (perm) => {
     const action = perm.replace('documentation_', '');
     return action.charAt(0).toUpperCase() + action.slice(1) + ' Documentation';
   }
+
+  // Contracts group overrides
+  if (perm.startsWith('contract_card_')) {
+    const card = perm.replace('contract_card_', '').replace(/_/g, ' ');
+    return 'Show Card: ' + card.replace(/\b\w/g, l => l.toUpperCase());
+  }
   
   // Staff group overrides
   if (perm === 'staff_status') return 'Update Staff Status';
