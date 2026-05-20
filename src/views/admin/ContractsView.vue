@@ -391,12 +391,12 @@
             <template #pending_amount="{ row, value }">
                 <div class="flex flex-col gap-2 py-1">
                   <!-- Main Collection Balance -->
-                  <span class="font-black text-rose-500 text-xl leading-none tracking-tight">{{ formatCurrency(value) }}</span>
+                  <span class="font-black text-rose-500 text-sm leading-none tracking-tight">{{ formatCurrency(value) }}</span>
                   
                   <!-- Maximized Personal Due -->
                   <div v-if="row.adjustment_pending > 0" class="flex items-center gap-2">
-                    <span class="font-black text-[#29166e] dark:text-[#29166e]/80 text-xl leading-none">{{ formatCurrency(row.adjustment_pending) }}</span>
-                    <span class="text-xs font-black text-[#29166e]/60 dark:text-[#29166e]/60 uppercase tracking-widest">Personal Due</span>
+                    <span class="font-black text-[#29166e] dark:text-[#29166e]/80 text-sm leading-none">{{ formatCurrency(row.adjustment_pending) }}</span>
+                    <span class="text-[10px] font-black text-[#29166e]/60 dark:text-[#29166e]/60 uppercase tracking-widest">Personal Due</span>
                   </div>
                 </div>
             </template>
