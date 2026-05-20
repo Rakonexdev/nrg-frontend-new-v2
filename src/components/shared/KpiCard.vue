@@ -7,7 +7,7 @@
       <div :class="[colorClass, 'p-3 rounded-xl text-white shadow-lg']" v-html="icon"></div>
       <div>
         <p class="text-sm font-medium text-slate-500 dark:text-slate-400 capitalize">{{ title }}</p>
-        <p class="text-xl font-bold text-slate-800 dark:text-white mt-1">{{ value }}</p>
+        <p class="text-lg font-bold text-slate-800 dark:text-white mt-1">{{ value }}</p>
       </div>
     </div>
     <div v-if="trend" class="mt-4 flex items-center gap-1 text-xs font-semibold relative z-10">

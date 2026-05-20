@@ -28,7 +28,7 @@
         <div class="w-16 h-16 bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] dark:text-[#29166e]/80 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm font-black text-xl">∑</div>
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Expenses</p>
-          <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
+          <p class="text-lg font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
           <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-widest">This Month</p>
         </div>
       </div>
@@ -40,7 +40,7 @@
         </div>
         <div>
           <p class="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] mb-1">Employee Expenses</p>
-          <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month_employee?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
+          <p class="text-lg font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month_employee?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
           <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Deducted from profit</p>
         </div>
       </div>
@@ -52,7 +52,7 @@
         </div>
         <div>
           <p class="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-1">Personal Due</p>
-          <p class="text-3xl font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month_personal_due?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
+          <p class="text-lg font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month_personal_due?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
           <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Paid on behalf</p>
         </div>
       </div>
@@ -64,7 +64,7 @@
         </div>
         <div>
           <p class="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-1">Company Operations</p>
-          <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month_company?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
+          <p class="text-lg font-black text-slate-800 dark:text-white leading-none">QAR {{ stats.this_month_company?.toLocaleString('en-US', { minimumFractionDigits: 2 }) || '0.00' }}</p>
           <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Paid from profit</p>
         </div>
       </div>
