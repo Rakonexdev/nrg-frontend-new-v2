@@ -15,7 +15,7 @@
     <div :class="[
            'transition-all duration-300 p-5 rounded-2xl border space-y-5 shadow-sm relative',
            isScrolled 
-             ? 'sticky top-[-32px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md py-4 z-30' 
+             ? 'sticky top-[-32px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md z-30' 
              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 z-20'
          ]">
       <!-- Row 1: Search & Main Selects -->
