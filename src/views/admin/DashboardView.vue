@@ -15,81 +15,84 @@
       </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div ref="statsGridRef" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-      <router-link v-if="authStore.hasPermission('dashboard_total_staff')" to="/admin/staff" class="block group h-full">
-        <KpiCard 
-          title="Total Staff" 
-          :value="stats.total_staff" 
-          :icon="icons.users" 
-          color-class="bg-[#29166e]" 
-          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
-        />
-      </router-link>
-      <router-link v-if="authStore.hasPermission('dashboard_qid_expiry')" to="/admin/staff?filter=expiring_qid" class="block group h-full">
-        <KpiCard 
-          title="QID Expiry" 
-          :value="stats.expiring_qid" 
-          :icon="icons.alert" 
-          color-class="bg-amber-500" 
-          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
-        />
-      </router-link>
-      <router-link v-if="authStore.hasPermission('dashboard_passport_expiry')" to="/admin/staff?filter=expiring_passport" class="block group h-full">
-        <KpiCard 
-          title="Passport Expiry" 
-          :value="stats.expiring_passport" 
-          :icon="icons.document" 
-          color-class="bg-rose-500" 
-          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
-        />
-      </router-link>
-      <router-link v-if="authStore.hasPermission('dashboard_renewing_this_month')" to="/admin/staff?filter=renewing_contract" class="block group h-full">
-        <KpiCard 
-          title="Renewing This Month" 
-          :value="stats.renewing_contracts" 
-          :icon="icons.clock" 
-          color-class="bg-[#29166e]" 
-          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
-        />
-      </router-link>
-      <router-link v-if="authStore.hasPermission('dashboard_doc_status')" to="/admin/reports/documentation-status" class="block group h-full">
-        <KpiCard 
-          title="Doc Status" 
-          :value="stats.pending_docs_count" 
-          :icon="icons.document" 
-          color-class="bg-rose-600" 
-          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
-        />
-      </router-link>
-    </div>
-    
-    <!-- Financial Metrics Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-if="authStore.hasPermission('dashboard_total_collected')" class="block h-full">
-        <KpiCard 
-          title="Total Collected" 
-          :value="`QAR ${formatCurrency(stats.total_collected)}`" 
-          :icon="icons.currency" 
-          color-class="bg-emerald-600" 
-        />
+    <!-- Sticky Cards Container -->
+    <div class="sticky top-0 z-30 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-xl py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 space-y-6 border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm transition-all mt-4 mb-8">
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <router-link v-if="authStore.hasPermission('dashboard_total_staff')" to="/admin/staff" class="block group h-full">
+          <KpiCard 
+            title="Total Staff" 
+            :value="stats.total_staff" 
+            :icon="icons.users" 
+            color-class="bg-[#29166e]" 
+            class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+          />
+        </router-link>
+        <router-link v-if="authStore.hasPermission('dashboard_qid_expiry')" to="/admin/staff?filter=expiring_qid" class="block group h-full">
+          <KpiCard 
+            title="QID Expiry" 
+            :value="stats.expiring_qid" 
+            :icon="icons.alert" 
+            color-class="bg-amber-500" 
+            class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+          />
+        </router-link>
+        <router-link v-if="authStore.hasPermission('dashboard_passport_expiry')" to="/admin/staff?filter=expiring_passport" class="block group h-full">
+          <KpiCard 
+            title="Passport Expiry" 
+            :value="stats.expiring_passport" 
+            :icon="icons.document" 
+            color-class="bg-rose-500" 
+            class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+          />
+        </router-link>
+        <router-link v-if="authStore.hasPermission('dashboard_renewing_this_month')" to="/admin/staff?filter=renewing_contract" class="block group h-full">
+          <KpiCard 
+            title="Renewing This Month" 
+            :value="stats.renewing_contracts" 
+            :icon="icons.clock" 
+            color-class="bg-[#29166e]" 
+            class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+          />
+        </router-link>
+        <router-link v-if="authStore.hasPermission('dashboard_doc_status')" to="/admin/reports/documentation-status" class="block group h-full">
+          <KpiCard 
+            title="Doc Status" 
+            :value="stats.pending_docs_count" 
+            :icon="icons.document" 
+            color-class="bg-rose-600" 
+            class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+          />
+        </router-link>
       </div>
-      <router-link v-if="authStore.hasPermission('dashboard_pending_collection')" to="/admin/contracts?filter=pending" class="block group h-full">
-        <KpiCard 
-          title="Pending Collection" 
-          :value="`QAR ${formatCurrency(stats.total_pending)}`" 
-          :icon="icons.clock" 
-          color-class="bg-amber-600" 
-          class="cursor-pointer group-hover:scale-[1.02] transition-transform"
-        />
-      </router-link>
-      <div v-if="authStore.hasPermission('dashboard_contract_profit')" class="block h-full">
-        <KpiCard 
-          title="Contract Profit" 
-          :value="`QAR ${formatCurrency(stats.total_profit)}`" 
-          :icon="icons.trending" 
-          color-class="bg-[#29166e]" 
-        />
+      
+      <!-- Financial Metrics Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-if="authStore.hasPermission('dashboard_total_collected')" class="block h-full">
+          <KpiCard 
+            title="Total Collected" 
+            :value="`QAR ${formatCurrency(stats.total_collected)}`" 
+            :icon="icons.currency" 
+            color-class="bg-emerald-600" 
+          />
+        </div>
+        <router-link v-if="authStore.hasPermission('dashboard_pending_collection')" to="/admin/contracts?filter=pending" class="block group h-full">
+          <KpiCard 
+            title="Pending Collection" 
+            :value="`QAR ${formatCurrency(stats.total_pending)}`" 
+            :icon="icons.clock" 
+            color-class="bg-amber-600" 
+            class="cursor-pointer group-hover:scale-[1.02] transition-transform"
+          />
+        </router-link>
+        <div v-if="authStore.hasPermission('dashboard_contract_profit')" class="block h-full">
+          <KpiCard 
+            title="Contract Profit" 
+            :value="`QAR ${formatCurrency(stats.total_profit)}`" 
+            :icon="icons.trending" 
+            color-class="bg-[#29166e]" 
+          />
+        </div>
       </div>
     </div>
 
@@ -417,28 +420,13 @@ const viewCollectionDetails = async (collection) => {
 };
 
 const statsGridRef = ref(null);
-let observer = null;
 
 onMounted(() => {
     fetchDashboardData();
-    
-    if (statsGridRef.value) {
-        observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                dashboardStore.setShowMiniStats(!entry.isIntersecting);
-            });
-        }, {
-            threshold: 0,
-            rootMargin: '-80px 0px 0px 0px'
-        });
-        observer.observe(statsGridRef.value);
-    }
+    dashboardStore.setShowMiniStats(false);
 });
 
 onUnmounted(() => {
-    if (observer) {
-        observer.disconnect();
-    }
     dashboardStore.setShowMiniStats(false);
 });
 </script>
