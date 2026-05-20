@@ -116,8 +116,14 @@
           {{ value?.replace('_', ' ') }}
         </span>
       </template>
-      <template #payment_date="{ value }">
-        <span class="font-medium text-slate-600 dark:text-slate-400">{{ formatDate(value) }}</span>
+      <template #payment_date="{ row }">
+        <div class="flex flex-col gap-0.5">
+          <span class="font-bold text-slate-800 dark:text-slate-200">{{ formatDate(row.payment_date) }}</span>
+          <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+            <span>🕐</span>
+            <span>{{ formatTime(row.recorded_at || row.created_at) }}</span>
+          </span>
+        </div>
       </template>
       <template #creator="{ value }">
         <div class="flex items-center gap-3">
@@ -225,6 +231,12 @@ const formatDate = (date) => {
   const month = d.toLocaleString('en-US', { month: 'short' }).toLowerCase();
   const year = d.getFullYear();
   return `${day}-${month}-${year}`;
+};
+
+const formatTime = (dateStr) => {
+  if (!dateStr) return '-';
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 };
 
 onMounted(() => {

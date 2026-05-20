@@ -102,8 +102,14 @@
 
     <!-- Data Table -->
     <DataTable :columns="columns" :data="records" :loading="loading" :pagination="pagination" @page-change="handlePageChange">
-      <template #date="{ value }">
-        <span class="font-bold text-slate-800 dark:text-white">{{ formatDate(value) }}</span>
+      <template #date="{ value, row }">
+        <div class="flex flex-col">
+          <span class="font-bold text-slate-800 dark:text-white">{{ formatDate(value) }}</span>
+          <span v-if="row.recorded_at || row.created_at" class="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+            <span>🕐</span>
+            <span>{{ formatTime(row.recorded_at || row.created_at) }}</span>
+          </span>
+        </div>
       </template>
       <template #type="{ value }">
         <span class="px-3 py-1 rounded-lg text-[11px] font-bold capitalize"
@@ -182,6 +188,12 @@ const formatDate = (dateStr) => {
   if (!dateStr) return '—';
   const d = new Date(dateStr);
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const formatTime = (dateStr) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 };
 
 const fetchReport = async () => {

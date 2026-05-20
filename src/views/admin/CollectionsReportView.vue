@@ -80,7 +80,12 @@
             <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
               <tr v-for="item in collections" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                 <td class="px-6 py-4">
-                  <span class="text-sm font-bold text-slate-800 dark:text-white">{{ formatDate(item.payment_date) }}</span>
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-sm font-bold text-slate-800 dark:text-white">{{ formatDate(item.payment_date) }}</span>
+                    <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                      🕐 {{ formatTime(item.recorded_at || item.created_at) }}
+                    </span>
+                  </div>
                 </td>
                 <td class="px-6 py-4">
                   <div>
@@ -196,6 +201,12 @@ const formatDate = (dateStr) => {
   if (!dateStr) return '—';
   const d = new Date(dateStr);
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const formatTime = (dateStr) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 };
 
 const toggleSort = () => {
