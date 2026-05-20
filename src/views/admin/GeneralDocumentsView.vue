@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6">
-    <div class="flex items-center justify-between">
+    <div ref="headerRef" class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">{{ categoryTitle }}</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage and upload documents for {{ categoryName }}</p>
@@ -12,13 +12,28 @@
     </div>
 
     <!-- Search & Filters -->
-    <div class="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-      <div class="relative w-full md:w-96 group">
-        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </span>
-        <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search documents by name..." 
-               class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
+    <div :class="[
+           'transition-all duration-300 flex flex-col md:flex-row gap-4 items-center justify-between p-4 rounded-2xl border shadow-sm relative z-30 animate-fade-in',
+           isScrolled 
+             ? 'sticky top-[-32px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md py-3' 
+             : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+         ]">
+      <div class="flex items-center gap-3 w-full xl:max-w-xl">
+        <div class="relative w-full md:w-96 group">
+          <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </span>
+          <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search documents by name..." 
+                 class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
+        </div>
+        <transition name="fade-slide-horizontal">
+            <div v-if="isScrolled" class="flex gap-2 shrink-0">
+                <button v-if="authStore.hasPermission('documentation_create')" @click="openUploadModal" class="flex items-center gap-2 px-5 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-black uppercase tracking-widest text-[10px] shrink-0 transform hover:-translate-y-0.5">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0l-4 4m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  Upload New Document
+                </button>
+            </div>
+        </transition>
       </div>
       <div class="flex items-center gap-2 md:ml-auto">
         <select v-model="perPage" @change="fetchDocuments(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none dark:text-white font-bold h-[50px] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
@@ -143,7 +158,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
@@ -155,6 +170,10 @@ import { useAuthStore } from '@/stores/auth';
 const route = useRoute();
 const notificationStore = useNotificationStore();
 const authStore = useAuthStore();
+
+const headerRef = ref(null);
+const isScrolled = ref(false);
+let observer = null;
 
 const category = computed(() => route.params.category || 'company');
 const categoryTitle = computed(() => category.value === 'company' ? 'Company Documentation' : 'Other Documentation');
@@ -374,7 +393,10 @@ const viewDocument = async (doc) => {
 const formatDate = (date) => {
   if (!date) return '-';
   const d = new Date(date);
-  return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = d.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
 };
 
 const isExpired = (date) => {
@@ -390,6 +412,24 @@ watch(() => route.params.category, () => {
 });
 
 onMounted(() => {
+    if (headerRef.value) {
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                isScrolled.value = !entry.isIntersecting;
+            });
+        }, {
+            threshold: 0,
+            rootMargin: '-80px 0px 0px 0px'
+        });
+        observer.observe(headerRef.value);
+    }
+    
     fetchDocuments();
+});
+
+onUnmounted(() => {
+    if (observer) {
+        observer.disconnect();
+    }
 });
 </script>

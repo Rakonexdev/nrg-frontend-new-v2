@@ -11,7 +11,7 @@
       </button>
     </div>
     <!-- Summary Cards -->
-    <div :class="['grid grid-cols-1 gap-6', visibleCardsGridClass]">
+    <div ref="statsContainerRef" :class="['grid grid-cols-1 gap-6', visibleCardsGridClass]">
       <KpiCard 
         v-if="authStore.hasPermission('contract_card_total_collected')"
         title="Total Collected" 
@@ -46,14 +46,27 @@
       />
     </div>
     <!-- Filters & Search -->
-    <div class="flex flex-col xl:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative z-30 animate-fade-in">
+    <div :class="[
+           'transition-all duration-300 flex flex-col xl:flex-row gap-4 items-center justify-between p-4 rounded-2xl border shadow-sm relative z-30 animate-fade-in',
+           isScrolled 
+             ? 'sticky top-[-32px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md py-3' 
+             : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+         ]">
       <div class="flex flex-col md:flex-row gap-3 w-full xl:w-auto">
-        <div class="relative w-full md:w-80 group">
-          <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-          </span>
-          <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search staff, QID or company..." 
-                 class="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
+        <div class="flex items-center gap-3 w-full xl:max-w-xl">
+          <div class="relative w-full md:w-80 group">
+            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </span>
+            <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search staff, QID or company..." 
+                   class="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
+          </div>
+          <transition name="fade-slide-horizontal">
+            <button v-if="isScrolled && authStore.hasPermission('contract_create')" @click="openModal()" class="flex items-center gap-2 px-5 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs shrink-0 transform hover:-translate-y-0.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              New Contract
+            </button>
+          </transition>
         </div>
         <div class="w-full md:w-64">
           <SearchableSelect 
@@ -1108,7 +1121,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import KpiCard from '@/components/shared/KpiCard.vue';
 import DataTable from '@/components/shared/DataTable.vue';
@@ -1118,13 +1131,19 @@ import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import AlertModal from '@/components/shared/AlertModal.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useDashboardStore } from '@/stores/dashboard';
 import { contractService, staffService, companyService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 
 const authStore = useAuthStore();
+const dashboardStore = useDashboardStore();
 const notificationStore = useNotificationStore();
 const route = useRoute();
 const router = useRouter();
+
+const statsContainerRef = ref(null);
+const isScrolled = ref(false);
+let observer = null;
 
 const contractSummary = ref({
     total_contracts: 0,
@@ -1171,6 +1190,7 @@ const fetchSummary = async () => {
     try {
         const res = await contractService.getSummary();
         contractSummary.value = res.data;
+        dashboardStore.setContractStats(res.data);
     } catch (err) {
         console.error('Failed to load contract summary', err);
     }
@@ -2154,10 +2174,41 @@ onMounted(() => {
     fetchContracts();
     fetchResources();
     fetchSummary();
+
+    if (statsContainerRef.value) {
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const scrolledPast = !entry.isIntersecting;
+                isScrolled.value = scrolledPast;
+                dashboardStore.setShowContractMiniStats(scrolledPast);
+            });
+        }, {
+            threshold: 0,
+            rootMargin: '-80px 0px 0px 0px'
+        });
+        observer.observe(statsContainerRef.value);
+    }
+});
+
+onUnmounted(() => {
+    dashboardStore.setShowContractMiniStats(false);
+    if (observer) {
+        observer.disconnect();
+    }
 });
 </script>
 
 <style scoped>
+.fade-slide-horizontal-enter-active,
+.fade-slide-horizontal-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-slide-horizontal-enter-from,
+.fade-slide-horizontal-leave-to {
+  opacity: 0;
+  transform: translateX(-15px);
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }

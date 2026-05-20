@@ -16,7 +16,7 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+    <div ref="statsGridRef" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
       <router-link v-if="authStore.hasPermission('dashboard_total_staff')" to="/admin/staff" class="block group h-full">
         <KpiCard 
           title="Total Staff" 
@@ -310,13 +310,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useDashboardStore } from '@/stores/dashboard';
 import KpiCard from '@/components/shared/KpiCard.vue';
 import Modal from '@/components/shared/Modal.vue';
 import api, { companyService } from '@/services/api';
 
 const authStore = useAuthStore();
+const dashboardStore = useDashboardStore();
 const loading = ref(false);
 const lastSync = ref(new Date().toLocaleTimeString());
 const stats = ref({
@@ -379,6 +381,7 @@ const fetchDashboardData = async () => {
     try {
         const res = await api.get('/dashboard');
         stats.value = res.data.stats;
+        dashboardStore.setStats(res.data.stats);
         recentCollections.value = res.data.recentCollections;
         upcomingExpirations.value = res.data.upcomingExpirations || [];
         renewingContracts.value = res.data.renewingContracts || [];
@@ -413,5 +416,29 @@ const viewCollectionDetails = async (collection) => {
     }
 };
 
-onMounted(() => fetchDashboardData());
+const statsGridRef = ref(null);
+let observer = null;
+
+onMounted(() => {
+    fetchDashboardData();
+    
+    if (statsGridRef.value) {
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                dashboardStore.setShowMiniStats(!entry.isIntersecting);
+            });
+        }, {
+            threshold: 0,
+            rootMargin: '-80px 0px 0px 0px'
+        });
+        observer.observe(statsGridRef.value);
+    }
+});
+
+onUnmounted(() => {
+    if (observer) {
+        observer.disconnect();
+    }
+    dashboardStore.setShowMiniStats(false);
+});
 </script>

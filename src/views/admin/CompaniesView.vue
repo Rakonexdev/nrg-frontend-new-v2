@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6">
-    <div class="flex items-center justify-between">
+    <div ref="headerRef" class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Company management</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage business partners and clients</p>
@@ -12,13 +12,27 @@
     </div>
 
     <!-- Search and Filters -->
-    <div class="relative z-20 flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-900/50 backdrop-blur-xl p-4 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
-        <div class="relative w-full md:w-96">
-            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            </span>
-            <input v-model="searchQuery" @input="fetchCompanies(1)" type="text" placeholder="Search companies by name or card..." 
-                   class="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+    <div :class="[
+           'relative flex flex-col md:flex-row gap-4 items-center justify-between p-4 rounded-2xl border transition-all duration-300 shadow-sm',
+           isScrolled 
+             ? 'sticky top-[-32px] bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md py-3 z-30' 
+             : 'bg-white dark:bg-slate-900/50 backdrop-blur-xl border-slate-200/50 dark:border-slate-800/50 z-20'
+         ]">
+        <div class="flex items-center gap-4 w-full md:w-auto flex-1">
+            <div class="relative w-full md:w-96">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </span>
+                <input v-model="searchQuery" @input="fetchCompanies(1)" type="text" placeholder="Search companies by name or card..." 
+                       class="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+            </div>
+            
+            <transition name="fade-slide-horizontal">
+              <button v-if="isScrolled && authStore.hasPermission('company_create')" @click="openModal()" class="flex items-center gap-2 px-5 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs shrink-0 transform hover:-translate-y-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                Add Company
+              </button>
+            </transition>
         </div>
         
         <div class="flex items-center gap-3 w-full md:w-auto">
@@ -322,7 +336,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { companyService, branchService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 import DataTable from '@/components/shared/DataTable.vue';
@@ -361,6 +375,9 @@ const errors = ref({});
 const searchQuery = ref('');
 const statusFilter = ref('');
 const perPage = ref(10);
+const headerRef = ref(null);
+const isScrolled = ref(false);
+let observer = null;
 const pagination = ref({
     current_page: 1,
     last_page: 1,
@@ -622,5 +639,35 @@ const formatMobile = (val) => {
 onMounted(() => {
     console.log('CompaniesView mounted, fetching data...');
     fetchCompanies();
+    
+    if (headerRef.value) {
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                isScrolled.value = !entry.isIntersecting;
+            });
+        }, {
+            threshold: 0,
+            rootMargin: '-80px 0px 0px 0px'
+        });
+        observer.observe(headerRef.value);
+    }
+});
+
+onUnmounted(() => {
+    if (observer) {
+        observer.disconnect();
+    }
 });
 </script>
+
+<style scoped>
+.fade-slide-horizontal-enter-active,
+.fade-slide-horizontal-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-slide-horizontal-enter-from,
+.fade-slide-horizontal-leave-to {
+  opacity: 0;
+  transform: translateX(-15px);
+}
+</style>

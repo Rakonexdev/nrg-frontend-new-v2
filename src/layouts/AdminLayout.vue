@@ -73,6 +73,46 @@
             <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
             <h2 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ $route.meta.title || 'Overview' }}</h2>
         </div>
+        
+        <!-- Mini Stats Bar in Header -->
+        <transition name="fade-scale" mode="out-in">
+          <div v-if="$route.name === 'admin-dashboard' && dashboardStore.showMiniStats" 
+               class="flex-1 hidden lg:flex items-center justify-center gap-2 mx-6 overflow-x-auto no-scrollbar py-1" key="dashboard">
+            <div v-for="stat in activeMiniStats" :key="stat.key" 
+                 class="flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
+              <span class="w-2 h-2 rounded-full" :class="stat.color"></span>
+              <div class="flex items-baseline gap-1.5">
+                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{{ stat.label }}</span>
+                <span class="text-xs font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div v-else-if="$route.name === 'admin-contracts' && dashboardStore.showContractMiniStats" 
+               class="flex-1 hidden lg:flex items-center justify-center gap-2 mx-6 overflow-x-auto no-scrollbar py-1" key="contracts">
+            <div v-for="stat in activeContractMiniStats" :key="stat.key" 
+                 class="flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
+              <span class="w-2 h-2 rounded-full" :class="stat.color"></span>
+              <div class="flex items-baseline gap-1.5">
+                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{{ stat.label }}</span>
+                <span class="text-xs font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="$route.name === 'admin-expenses' && dashboardStore.showExpenseMiniStats" 
+               class="flex-1 hidden lg:flex items-center justify-center gap-2 mx-6 overflow-x-auto no-scrollbar py-1" key="expenses">
+            <div v-for="stat in activeExpenseMiniStats" :key="stat.key" 
+                 class="flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
+              <span class="w-2 h-2 rounded-full" :class="stat.color"></span>
+              <div class="flex items-baseline gap-1.5">
+                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{{ stat.label }}</span>
+                <span class="text-xs font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
+              </div>
+            </div>
+          </div>
+        </transition>
+
         <div class="flex items-center gap-6">
           <button @click="toggleDarkMode" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group">
             <svg v-if="isDark" class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -102,8 +142,151 @@
 import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
+import { useDashboardStore } from '@/stores/dashboard';
 
 const authStore = useAuthStore();
+const dashboardStore = useDashboardStore();
+
+const formatCurrency = (val) => {
+  if (val === undefined || val === null) return '0';
+  return parseFloat(val).toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
+};
+
+const miniStats = computed(() => [
+  {
+    key: 'total_staff',
+    label: 'Staff',
+    value: dashboardStore.stats.total_staff,
+    permission: 'dashboard_total_staff',
+    color: 'bg-[#29166e]',
+  },
+  {
+    key: 'expiring_qid',
+    label: 'QID Exp',
+    value: dashboardStore.stats.expiring_qid,
+    permission: 'dashboard_qid_expiry',
+    color: 'bg-amber-500',
+  },
+  {
+    key: 'expiring_passport',
+    label: 'Pass Exp',
+    value: dashboardStore.stats.expiring_passport,
+    permission: 'dashboard_passport_expiry',
+    color: 'bg-rose-500',
+  },
+  {
+    key: 'renewing_contracts',
+    label: 'Renewing',
+    value: dashboardStore.stats.renewing_contracts,
+    permission: 'dashboard_renewing_this_month',
+    color: 'bg-[#29166e]',
+  },
+  {
+    key: 'pending_docs_count',
+    label: 'Docs',
+    value: dashboardStore.stats.pending_docs_count,
+    permission: 'dashboard_doc_status',
+    color: 'bg-rose-600',
+  },
+  {
+    key: 'total_collected',
+    label: 'Collected',
+    value: `QAR ${formatCurrency(dashboardStore.stats.total_collected)}`,
+    permission: 'dashboard_total_collected',
+    color: 'bg-emerald-600',
+  },
+  {
+    key: 'total_pending',
+    label: 'Pending',
+    value: `QAR ${formatCurrency(dashboardStore.stats.total_pending)}`,
+    permission: 'dashboard_pending_collection',
+    color: 'bg-amber-600',
+  },
+  {
+    key: 'total_profit',
+    label: 'Profit',
+    value: `QAR ${formatCurrency(dashboardStore.stats.total_profit)}`,
+    permission: 'dashboard_contract_profit',
+    color: 'bg-[#29166e]',
+  }
+]);
+
+const activeMiniStats = computed(() => {
+  return miniStats.value.filter(stat => authStore.hasPermission(stat.permission));
+});
+
+const contractMiniStats = computed(() => [
+  {
+    key: 'total_collected',
+    label: 'Collected',
+    value: `QAR ${formatCurrency(dashboardStore.contractStats.total_paid)}`,
+    permission: 'contract_card_total_collected',
+    color: 'bg-emerald-600',
+  },
+  {
+    key: 'pending_collection',
+    label: 'Pending',
+    value: `QAR ${formatCurrency(dashboardStore.contractStats.total_pending)}`,
+    permission: 'contract_card_pending_collection',
+    color: 'bg-amber-500',
+  },
+  {
+    key: 'contract_profit',
+    label: 'Profit',
+    value: `QAR ${formatCurrency(dashboardStore.contractStats.total_contract_profit)}`,
+    permission: 'contract_card_contract_profit',
+    color: 'bg-[#29166e]',
+  },
+  {
+    key: 'general_overheads',
+    label: 'Overheads',
+    value: `QAR ${formatCurrency(dashboardStore.contractStats.total_overheads)}`,
+    permission: 'contract_card_general_overheads',
+    color: 'bg-rose-500',
+  }
+]);
+
+const activeContractMiniStats = computed(() => {
+  return contractMiniStats.value.filter(stat => authStore.hasPermission(stat.permission));
+});
+
+const expenseMiniStats = computed(() => [
+  {
+    key: 'total_expenses',
+    label: 'Total Exp',
+    value: `QAR ${formatCurrency(dashboardStore.expenseStats.this_month)}`,
+    permission: 'view_expenses',
+    color: 'bg-[#29166e]',
+  },
+  {
+    key: 'employee_exp',
+    label: 'Emp Exp',
+    value: `QAR ${formatCurrency(dashboardStore.expenseStats.this_month_employee)}`,
+    permission: 'view_expenses',
+    color: 'bg-rose-500',
+  },
+  {
+    key: 'personal_due',
+    label: 'Pers Due',
+    value: `QAR ${formatCurrency(dashboardStore.expenseStats.this_month_personal_due)}`,
+    permission: 'view_expenses',
+    color: 'bg-amber-500',
+  },
+  {
+    key: 'company_exp',
+    label: 'Comp Exp',
+    value: `QAR ${formatCurrency(dashboardStore.expenseStats.this_month_company)}`,
+    permission: 'view_expenses',
+    color: 'bg-emerald-600',
+  }
+]);
+
+const activeExpenseMiniStats = computed(() => {
+  return expenseMiniStats.value.filter(stat => authStore.hasPermission(stat.permission));
+});
 const router = useRouter();
 const isDark = ref(document.documentElement.classList.contains('dark'));
 
@@ -175,6 +358,25 @@ const logout = async () => {
 </script>
 
 <style>
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9) translateY(-10px);
+}
+
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);

@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6">
-    <div class="flex items-center justify-between">
+    <div ref="headerRef" class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Staff Management</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage employees, documents and assignments</p>
@@ -12,15 +12,29 @@
     </div>
 
     <!-- Filters & Search -->
-    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-5">
+    <div :class="[
+           'transition-all duration-300 p-5 rounded-2xl border space-y-5 shadow-sm relative',
+           isScrolled 
+             ? 'sticky top-[-32px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md py-4 z-30' 
+             : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 z-20'
+         ]">
       <!-- Row 1: Search & Main Selects -->
       <div class="flex flex-col xl:flex-row gap-4 items-center">
-        <div class="relative w-full xl:max-w-md">
-          <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-          </span>
-          <input v-model="search" @input="fetchStaff(1)" type="text" placeholder="Search by name, QID, profession..." 
-                 class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#29166e]/20 outline-none dark:text-white font-medium">
+        <div class="flex items-center gap-4 w-full xl:max-w-xl">
+          <div class="relative w-full">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </span>
+            <input v-model="search" @input="fetchStaff(1)" type="text" placeholder="Search by name, QID, profession..." 
+                   class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#29166e]/20 outline-none dark:text-white font-medium">
+          </div>
+          
+          <transition name="fade-slide-horizontal">
+            <button v-if="isScrolled && authStore.hasPermission('staff_create')" @click="openModal()" class="flex items-center gap-2 px-5 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs shrink-0 transform hover:-translate-y-0.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              Add Staff
+            </button>
+          </transition>
         </div>
 
         <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto xl:ml-auto">
@@ -535,6 +549,10 @@ const statusOptions = [
 ];
 const companyFilter = ref('');
 const route = useRoute();
+
+const headerRef = ref(null);
+const isScrolled = ref(false);
+let observer = null;
 
 const showModal = ref(false);
 const showConfirmModal = ref(false);
@@ -1061,9 +1079,36 @@ onMounted(async () => {
         console.error('Failed to auto-open edit modal', err);
     }
   }
+
+  if (headerRef.value) {
+      observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+              isScrolled.value = !entry.isIntersecting;
+          });
+      }, {
+          threshold: 0,
+          rootMargin: '-80px 0px 0px 0px'
+      });
+      observer.observe(headerRef.value);
+  }
 });
 
 onUnmounted(() => {
   cleanPreviews();
+  if (observer) {
+      observer.disconnect();
+  }
 });
 </script>
+
+<style scoped>
+.fade-slide-horizontal-enter-active,
+.fade-slide-horizontal-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-slide-horizontal-enter-from,
+.fade-slide-horizontal-leave-to {
+  opacity: 0;
+  transform: translateX(-15px);
+}
+</style>

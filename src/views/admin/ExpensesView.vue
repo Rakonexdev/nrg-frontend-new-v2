@@ -22,7 +22,7 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div ref="statsContainerRef" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <!-- Total Expenses -->
       <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex items-center gap-6 group transition-all hover:shadow-md hover:-translate-y-1">
         <div class="w-16 h-16 bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] dark:text-[#29166e]/80 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm font-black text-xl">∑</div>
@@ -71,16 +71,38 @@
     </div>
 
     <!-- Search & Filters -->
-    <div class="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
-      <div class="relative w-full md:w-96 group">
-        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </span>
-        <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search by contract or category..." 
-               class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
+    <div :class="[
+           'transition-all duration-300 flex flex-col md:flex-row gap-4 items-center justify-between p-4 rounded-2xl border shadow-sm relative z-30 animate-fade-in',
+           isScrolled 
+             ? 'sticky top-[-32px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md py-3' 
+             : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+         ]">
+      <div class="flex flex-col md:flex-row gap-3 w-full xl:w-auto">
+        <div class="flex items-center gap-3 w-full xl:max-w-2xl">
+          <div class="relative w-full md:w-80 group">
+            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </span>
+            <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search by contract or category..." 
+                   class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
+          </div>
+
+          <transition name="fade-slide-horizontal">
+            <div v-if="isScrolled" class="flex gap-2 shrink-0">
+                <button v-if="authStore.hasPermission('expense_create')" @click="openModal(null, 'Company')" class="flex items-center gap-2 px-4 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs transform hover:-translate-y-0.5">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  Company Exp
+                </button>
+                <button v-if="authStore.hasPermission('expense_create')" @click="openModal(null, 'Employee')" class="flex items-center gap-2 px-4 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs transform hover:-translate-y-0.5">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  Employee Exp
+                </button>
+            </div>
+          </transition>
+        </div>
       </div>
 
-      <div class="flex items-center gap-4 w-full md:w-auto md:ml-auto">
+      <div class="flex items-center gap-4 w-full xl:w-auto mt-4 xl:mt-0">
         <div class="flex items-center gap-2">
             <DateInput 
               label="Start Date"
@@ -412,7 +434,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
@@ -422,9 +444,11 @@ import DateInput from '@/components/shared/DateInput.vue';
 import { expenseService, expenseCategoryService, contractService } from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
 import { useNotificationStore } from '@/stores/notification';
+import { useDashboardStore } from '@/stores/dashboard';
 
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
+const dashboardStore = useDashboardStore();
 const route = useRoute();
 
 const expenses = ref([]);
@@ -441,7 +465,9 @@ const startDate = ref('');
 const endDate = ref('');
 const perPage = ref(10);
 const pagination = ref({});
-
+const statsContainerRef = ref(null);
+const isScrolled = ref(false);
+let observer = null;
 const showModal = ref(false);
 const showConfirmModal = ref(false);
 const itemToDelete = ref(null);
@@ -636,11 +662,17 @@ const fetchExpenses = async (page = 1) => {
       contract_id: filterType.value === 'overheads' ? 'null' : undefined
     });
     // Our updated controller returns { expenses, stats }
-    expenses.value = res.data.expenses.data;
-    pagination.value = res.data.expenses;
+    if (res.data.expenses) {
+      expenses.value = res.data.expenses.data;
+      pagination.value = res.data.expenses;
+    } else {
+      expenses.value = [];
+      pagination.value = {};
+    }
     stats.value = res.data.stats;
+    dashboardStore.setExpenseStats(res.data.stats);
   } catch (err) {
-    console.error('Failed to fetch expenses', err);
+    console.error('Failed to fetch expenses:', err);
     notificationStore.error(err.response?.data?.message || 'Failed to load expenses');
   } finally {
     loading.value = false;
@@ -801,25 +833,49 @@ const formatCurrency = (value) => {
     }).format(value);
 };
 
-onMounted(async () => {
-    await fetchResources();
-    await fetchExpenses();
-    
-    // Check if we came from categories page with a quick-add request
-    const urlParams = new URLSearchParams(window.location.search);
-    const categoryId = urlParams.get('category_id');
-    if (categoryId) {
-        const cat = allCategories.value.find(c => c.id == categoryId);
-        if (cat) {
-            openModal(null, cat.target_type);
-            form.value.category_id = categoryId;
-        }
+onMounted(() => {
+    if (statsContainerRef.value) {
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const scrolledPast = !entry.isIntersecting;
+                isScrolled.value = scrolledPast;
+                dashboardStore.setShowExpenseMiniStats(scrolledPast);
+            });
+        }, {
+            threshold: 0,
+            rootMargin: '-80px 0px 0px 0px'
+        });
+        observer.observe(statsContainerRef.value);
     }
 
-    const overheadsFilter = urlParams.get('filter');
-    if (overheadsFilter === 'overheads') {
-        filterType.value = 'overheads';
-        await fetchExpenses(1);
+    // Async data fetching
+    (async () => {
+        await fetchResources();
+        await fetchExpenses();
+        
+        // Check if we came from categories page with a quick-add request
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryId = urlParams.get('category_id');
+        if (categoryId) {
+            const cat = allCategories.value.find(c => c.id == categoryId);
+            if (cat) {
+                openModal(null, cat.target_type);
+                form.value.category_id = categoryId;
+            }
+        }
+
+        const overheadsFilter = urlParams.get('filter');
+        if (overheadsFilter === 'overheads') {
+            filterType.value = 'overheads';
+            await fetchExpenses(1);
+        }
+    })();
+});
+
+onUnmounted(() => {
+    dashboardStore.setShowExpenseMiniStats(false);
+    if (observer) {
+        observer.disconnect();
     }
 });
 </script>
@@ -828,5 +884,23 @@ onMounted(async () => {
 /* Custom animations for the summary cards */
 .grid > div {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fade-slide-horizontal-enter-active,
+.fade-slide-horizontal-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-slide-horizontal-enter-from,
+.fade-slide-horizontal-leave-to {
+  opacity: 0;
+  transform: translateX(-15px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 </style>

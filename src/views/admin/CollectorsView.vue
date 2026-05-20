@@ -1,28 +1,43 @@
 <template>
   <div class="space-y-6">
-    <div class="flex items-center justify-between">
+    <div ref="headerRef" class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Collectors Management</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage collector accounts and mobile logins</p>
       </div>
-      <button v-if="authStore.hasPermission('collector_create')" @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-lg shadow-lg shadow-[#29166e]/30 transition-all font-semibold">
+      <button v-if="authStore.hasPermission('collector_create')" @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-sm transform hover:-translate-y-0.5">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         Add Collector
       </button>
     </div>
 
     <!-- Filters & Search -->
-    <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-      <div class="relative w-full md:w-96">
-        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </span>
-        <input v-model="search" @input="fetchCollectors(1)" type="text" placeholder="Search by name, email, or mobile..." 
-               class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-[#29166e]/20 outline-none dark:text-white">
+    <div :class="[
+           'transition-all duration-300 flex flex-col md:flex-row gap-4 items-center justify-between p-4 rounded-2xl border shadow-sm relative z-30 animate-fade-in',
+           isScrolled 
+             ? 'sticky top-[-32px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md py-3' 
+             : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+         ]">
+      <div class="flex items-center gap-3 w-full xl:max-w-xl">
+        <div class="relative w-full md:w-96 group">
+          <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </span>
+          <input v-model="search" @input="fetchCollectors(1)" type="text" placeholder="Search by name, email, or mobile..." 
+                 class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
+        </div>
+        <transition name="fade-slide-horizontal">
+            <div v-if="isScrolled" class="flex gap-2 shrink-0">
+                <button v-if="authStore.hasPermission('collector_create')" @click="openModal()" class="flex items-center gap-2 px-5 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs shrink-0 transform hover:-translate-y-0.5">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  Add Collector
+                </button>
+            </div>
+        </transition>
       </div>
 
       <div class="flex items-center gap-2">
-        <select v-model="perPage" @change="fetchCollectors(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none dark:text-white">
+        <select v-model="perPage" @change="fetchCollectors(1)" class="w-full h-[50px] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-black outline-none dark:text-white focus:ring-4 focus:ring-[#29166e]/10 transition-all">
           <option :value="10">10 per page</option>
           <option :value="25">25 per page</option>
           <option :value="50">50 per page</option>
@@ -186,7 +201,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
@@ -196,6 +211,10 @@ import { useNotificationStore } from '@/stores/notification';
 
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
+
+const headerRef = ref(null);
+const isScrolled = ref(false);
+let observer = null;
 
 const collectors = ref([]);
 const loading = ref(true);
@@ -372,6 +391,24 @@ const formatMobile = (val) => {
 };
 
 onMounted(() => {
+  if (headerRef.value) {
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        isScrolled.value = !entry.isIntersecting;
+      });
+    }, {
+      threshold: 0,
+      rootMargin: '-80px 0px 0px 0px'
+    });
+    observer.observe(headerRef.value);
+  }
+
   fetchCollectors();
+});
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+  }
 });
 </script>
