@@ -74,7 +74,7 @@
     <div :class="[
            'transition-all duration-300 flex flex-col md:flex-row gap-4 items-center justify-between p-4 rounded-2xl border shadow-sm relative z-30 animate-fade-in',
            isScrolled 
-             ? 'sticky top-[-32px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md py-3' 
+             ? 'sticky top-[-32px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md' 
              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
          ]">
       <div class="flex flex-col md:flex-row gap-3 w-full xl:w-auto">
