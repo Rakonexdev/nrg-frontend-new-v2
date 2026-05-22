@@ -178,6 +178,18 @@
         </div>
       </template>
 
+      <template #description="{ value, row }">
+        <div class="flex flex-col">
+            <span class="text-sm font-medium text-slate-800 dark:text-white">{{ value }}</span>
+        </div>
+      </template>
+
+      <template #recorded_by="{ row }">
+        <div class="flex flex-col">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ row.recorder ? row.recorder.name : 'System' }}</span>
+        </div>
+      </template>
+
       <template #amount="{ value, row }">
         <div class="flex flex-col items-end gap-1">
             <div class="flex items-baseline gap-1">
@@ -557,6 +569,7 @@ const columns = [
   { key: 'category', label: 'Category', sortable: false },
   { key: 'description', label: 'Reason', sortable: true },
   { key: 'amount', label: 'Amount', sortable: true },
+  { key: 'recorded_by', label: 'Added By', sortable: true },
   { key: 'actions', label: 'Actions', sortable: false }
 ];
 
