@@ -384,8 +384,23 @@
 
 
 
-            <template #paid_amount="{ value }">
-                <span class="font-black text-emerald-600">{{ formatCurrency(value) }}</span>
+            <template #paid_amount="{ row, value }">
+                <div class="flex flex-col gap-2 py-1">
+                    <!-- Company Paid -->
+                    <div v-if="row.latest_company_payment">
+                        <span class="font-black text-emerald-600 text-sm leading-none tracking-tight">{{ formatCurrency(row.latest_company_payment.amount) }}</span>
+                        <span class="text-[9px] font-black text-emerald-600/60 uppercase tracking-widest block mt-0.5" title="Company to NRG">COMPANY: {{ formatDateTime(row.latest_company_payment.payment_date) }}</span>
+                    </div>
+                    <div v-else>
+                        <span class="font-black text-emerald-600 text-sm leading-none tracking-tight">0.00</span>
+                    </div>
+
+                    <!-- Personal Paid -->
+                    <div v-if="row.latest_personal_payment" class="mt-1">
+                        <span class="font-black text-[#29166e] text-sm leading-none tracking-tight">{{ formatCurrency(row.latest_personal_payment.amount) }}</span>
+                        <span class="text-[9px] font-black text-[#29166e]/60 uppercase tracking-widest block mt-0.5" title="Personal to NRG">PERSONAL: {{ formatDateTime(row.latest_personal_payment.payment_date) }}</span>
+                    </div>
+                </div>
             </template>
 
             <template #pending_amount="{ row, value }">
