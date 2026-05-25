@@ -80,20 +80,18 @@
       </div>
       <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto mt-4 xl:mt-0">
 
-        <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-700/50">
-          <span class="text-slate-400 font-black text-[11px] uppercase tracking-widest pl-2">From</span>
-          <div class="relative">
-            <input v-model="fromDate" @change="fetchContracts(1)" type="date" 
-                   class="bg-transparent border-none rounded-lg px-4 py-2 text-sm font-black outline-none dark:text-white focus:ring-0 transition-all w-[150px]"
-                   title="From Date">
-          </div>
-          <span class="text-slate-400 font-black text-[11px] uppercase tracking-widest px-1">To</span>
-          <div class="relative">
-            <input v-model="toDate" @change="fetchContracts(1)" type="date" 
-                   class="bg-transparent border-none rounded-lg px-4 py-2 text-sm font-black outline-none dark:text-white focus:ring-0 transition-all w-[150px]"
-                   title="To Date">
-          </div>
-        </div>
+        <DateInput 
+          label="From Date" 
+          v-model="fromDate" 
+          @update:modelValue="fetchContracts(1)" 
+          class="min-w-[140px] xl:w-[150px]" 
+        />
+        <DateInput 
+          label="To Date" 
+          v-model="toDate" 
+          @update:modelValue="fetchContracts(1)" 
+          class="min-w-[140px] xl:w-[150px]" 
+        />
 
         <div class="w-full md:w-32">
           <select v-model="perPage" @change="fetchContracts(1)" class="w-full h-[50px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-black outline-none dark:text-white focus:ring-4 focus:ring-[#29166e]/10 transition-all">

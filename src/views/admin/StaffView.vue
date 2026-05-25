@@ -122,6 +122,9 @@
           <span v-if="row.branch_name" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
             {{ row.branch_name }}<span v-if="row.branch_number != null && row.branch_number !== ''">-{{ row.branch_number }}</span>
           </span>
+          <span v-if="row.company?.computer_card" class="text-xs text-slate-500 font-medium tracking-wider">
+            CC: <span class="font-bold">{{ row.company.computer_card }}</span>
+          </span>
         </div>
       </template>
 

@@ -100,6 +100,9 @@
       <template #staff_info="{ row }">
         <div class="flex flex-col">
             <span class="font-bold text-slate-800 dark:text-slate-200">{{ row.contract?.staff?.name || 'N/A' }}</span>
+            <span v-if="row.contract?.staff?.qid_number" class="text-xs text-slate-500 font-bold mb-1 tracking-wider">
+                QID: <span class="text-slate-600 dark:text-slate-400 font-black">{{ row.contract.staff.qid_number }}</span>
+            </span>
             <span class="text-[10px] font-black text-[#29166e] uppercase tracking-widest">{{ row.contract?.staff?.company?.name || 'Individual' }}</span>
         </div>
       </template>

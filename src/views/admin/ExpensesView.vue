@@ -161,6 +161,9 @@
       <template #contract="{ row }">
         <div v-if="row.contract" class="flex flex-col">
             <span class="text-sm font-black text-slate-800 dark:text-white tracking-tight">{{ row.contract.staff?.name }} Contract</span>
+            <span v-if="row.contract.staff?.qid_number" class="text-xs text-slate-500 font-bold mb-1 tracking-wider">
+                QID: <span class="text-slate-600 dark:text-slate-400 font-black">{{ row.contract.staff.qid_number }}</span>
+            </span>
             <div class="flex items-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                 <span>{{ row.contract.company?.name || 'Individual' }}</span>
                 <span v-if="row.contract.staff?.branch_name" class="text-[#29166e] font-black">

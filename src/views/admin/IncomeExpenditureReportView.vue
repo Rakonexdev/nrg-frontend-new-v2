@@ -87,6 +87,7 @@
           <option value="bank_transfer">Bank Transfer</option>
           <option value="cheque">Cheque</option>
           <option value="online">Online</option>
+          <option value="card">Card</option>
         </select>
       </div>
 
