@@ -63,26 +63,32 @@
       <!-- Row 2: Date Filters & Applied Badges -->
       <div class="flex flex-col md:flex-row gap-4 items-center pt-5 border-t border-slate-100 dark:border-slate-700/50">
         <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center gap-2 mr-2">
+          <div class="flex items-center gap-2 mr-2 mt-5">
             <div class="w-1.5 h-1.5 rounded-full bg-[#29166e]"></div>
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Expiry Filters:</span>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Expiry:</span>
           </div>
 
-          <select v-model="dateType" @change="fetchStaff(1)" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none dark:text-white font-bold h-9">
-            <option value="both">Both (QID/PP)</option>
-            <option value="qid_expiry">QID Expiry Only</option>
-            <option value="passport_expiry">Passport Expiry Only</option>
-          </select>
-
-          <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 h-9">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">From</label>
-            <input v-model="fromDate" @change="fetchStaff(1)" type="date" class="bg-transparent border-none text-xs outline-none dark:text-white font-bold">
+          <div class="flex flex-col gap-1.5">
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Type</label>
+            <select v-model="dateType" @change="fetchStaff(1)" class="px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] transition-all dark:text-white font-medium text-sm h-[46px]">
+              <option value="both">Both (QID/PP)</option>
+              <option value="qid_expiry">QID Expiry</option>
+              <option value="passport_expiry">Passport Expiry</option>
+            </select>
           </div>
 
-          <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 h-9">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">To</label>
-            <input v-model="toDate" @change="fetchStaff(1)" type="date" class="bg-transparent border-none text-xs outline-none dark:text-white font-bold">
-          </div>
+          <DateInput 
+            label="From Date" 
+            v-model="fromDate" 
+            @update:modelValue="fetchStaff(1)" 
+            class="min-w-[150px]" 
+          />
+          <DateInput 
+            label="To Date" 
+            v-model="toDate" 
+            @update:modelValue="fetchStaff(1)" 
+            class="min-w-[150px]" 
+          />
         </div>
 
         <div v-if="filter" class="md:ml-auto flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-xl animate-in fade-in slide-in-from-right-4">
