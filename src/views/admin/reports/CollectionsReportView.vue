@@ -42,14 +42,14 @@
         <DateInput 
           label="From Date"
           v-model="filters.from_date"
-          class="min-w-[140px]"
+          class="min-w-[160px]"
         />
 
         <!-- To Date -->
         <DateInput 
           label="To Date"
           v-model="filters.to_date"
-          class="min-w-[140px]"
+          class="min-w-[160px]"
         />
 
         <!-- Per Page selector -->
@@ -141,6 +141,15 @@
           </div>
         </div>
       </template>
+      <template #status="{ row }">
+        <select v-if="authStore.isSuperAdmin" v-model="row.status" @change="updateStatus(row)" class="px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-[#29166e]/20 transition-all cursor-pointer w-full max-w-[140px]">
+          <option value="not_collected">Not Collected</option>
+          <option value="collected">Amount Collected</option>
+        </select>
+        <span v-else class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+          {{ row.status === 'not_collected' ? 'Not Collected' : 'Amount Collected' }}
+        </span>
+      </template>
     </DataTable>
   </div>
 </template>
@@ -151,7 +160,12 @@ import { reportService } from '@/services/api';
 import DataTable from '@/components/shared/DataTable.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 import debounce from 'lodash/debounce';
+import { useNotificationStore } from '@/stores/notification';
+import { useAuthStore } from '@/stores/auth';
+import { computed } from 'vue';
 
+const notificationStore = useNotificationStore();
+const authStore = useAuthStore();
 const loading = ref(false);
 const exporting = ref(false);
 const collections = ref([]);
@@ -165,15 +179,24 @@ const filters = reactive({
   per_page: 10
 });
 
-const columns = [
-  { key: 'payment_date', label: 'Date', sortable: true },
-  { key: 'staff_info', label: 'Staff / Company' },
-  { key: 'amount', label: 'Amount' },
-  { key: 'personal_due', label: 'Personal Due' },
-  { key: 'payment_method', label: 'Method' },
-  { key: 'creator', label: 'Collector' },
-  { key: 'notes', label: 'Notes' }
-];
+const columns = computed(() => {
+  const cols = [
+    { key: 'payment_date', label: 'Date', sortable: true },
+    { key: 'staff_info', label: 'Staff / Company' },
+    { key: 'amount', label: 'Amount' },
+    { key: 'personal_due', label: 'Personal Due' },
+    { key: 'payment_method', label: 'Method' },
+    { key: 'creator', label: 'Collector' },
+  ];
+  
+  if (authStore.isSuperAdmin) {
+    cols.push({ key: 'status', label: 'Status' });
+  }
+  
+  cols.push({ key: 'notes', label: 'Notes' });
+  
+  return cols;
+});
 
 const fetchCollections = async () => {
   loading.value = true;
@@ -203,6 +226,16 @@ const exportCSV = async () => {
     console.error('Error exporting collections:', error);
   } finally {
     exporting.value = false;
+  }
+};
+
+const updateStatus = async (item) => {
+  try {
+    await reportService.updateCollectionStatus(item.id, item.status);
+    notificationStore.success('Status updated successfully');
+  } catch (error) {
+    console.error('Failed to update status', error);
+    notificationStore.error('Failed to update status');
   }
 };
 

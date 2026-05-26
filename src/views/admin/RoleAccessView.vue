@@ -200,13 +200,48 @@
           <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Email</label>
           <input v-model="userForm.email" type="email" placeholder="admin@nrg.com" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all dark:text-white" />
         </div>
-        <div class="space-y-2">
+        <!-- Password field for Creating new user -->
+        <div v-if="!showEditUser" class="space-y-2">
           <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Password</label>
           <div class="relative">
             <input v-model="userForm.password" :type="showPassword ? 'text' : 'password'" placeholder="Min 8 characters" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 focus:border-[#29166e] outline-none transition-all dark:text-white pr-12" />
             <button type="button" @click="showPassword = !showPassword" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
               <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
               <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.51-2.711m1.8-1.8A10.015 10.015 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.015 10.015 0 01-1.332 2.316m-2.115 2.115l-4.5-4.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Password change block for Editing existing user -->
+        <div v-else class="p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/30 space-y-4 mt-2">
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Change Password (Optional)</p>
+          
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Old Password</label>
+            <div class="relative">
+              <input v-model="userForm.old_password" :type="showPassword ? 'text' : 'password'" placeholder="Current password" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all dark:text-white pr-10" />
+            </div>
+          </div>
+          
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">New Password</label>
+            <div class="relative">
+              <input v-model="userForm.password" :type="showPassword ? 'text' : 'password'" placeholder="New password (min 8 chars)" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all dark:text-white pr-10" />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Confirm New Password</label>
+            <div class="relative">
+              <input v-model="userForm.confirm_password" :type="showPassword ? 'text' : 'password'" placeholder="Confirm new password" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all dark:text-white pr-10" />
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end">
+            <button type="button" @click="showPassword = !showPassword" class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors uppercase tracking-widest">
+              <svg v-if="!showPassword" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+              <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.51-2.711m1.8-1.8A10.015 10.015 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.015 10.015 0 01-1.332 2.316m-2.115 2.115l-4.5-4.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" /></svg>
+              {{ showPassword ? 'Hide Passwords' : 'Show Passwords' }}
             </button>
           </div>
         </div>
@@ -267,7 +302,7 @@ const editingUser = ref(null);
 const showPassword = ref(false);
 
 const roleForm = ref({ name: '', permissions: [] });
-const userForm = ref({ name: '', email: '', password: '', mobile: '', role: '', is_active: true });
+const userForm = ref({ name: '', email: '', password: '', confirm_password: '', old_password: '', mobile: '', role: '', is_active: true });
 
 const handleMobileInput = (e) => {
   let val = e.target.value.replace(/\D/g, '');
@@ -402,7 +437,7 @@ const closeUserModal = () => {
   showCreateUser.value = false;
   showEditUser.value = false;
   editingUser.value = null;
-  userForm.value = { name: '', email: '', password: '', mobile: '', role: '', is_active: true };
+  userForm.value = { name: '', email: '', password: '', confirm_password: '', old_password: '', mobile: '', role: '', is_active: true };
   showPassword.value = false;
 };
 
@@ -414,7 +449,9 @@ const editUser = (user) => {
     mobile: user.mobile || '',
     role: user.role || '',
     is_active: user.is_active,
-    password: '' // Password blank unless changing
+    password: '', // Password blank unless changing
+    confirm_password: '', // Confirm password blank
+    old_password: '' // Old password blank
   };
   showPassword.value = false;
   showEditUser.value = true;
@@ -438,9 +475,19 @@ const saveAdminUser = async () => {
   saving.value = true;
   try {
     if (showEditUser.value && editingUser.value) {
+      if (userForm.value.password && userForm.value.password !== userForm.value.confirm_password) {
+        notify.error("New password and confirm password do not match.");
+        saving.value = false;
+        return;
+      }
+
       // For update, password is optional
       const updateData = { ...userForm.value };
-      if (!updateData.password) delete updateData.password;
+      if (!updateData.password) {
+        delete updateData.password;
+        delete updateData.old_password;
+      }
+      delete updateData.confirm_password;
       
       await adminUserService.update(editingUser.value.id, updateData);
       notify.success('Admin user updated successfully.');

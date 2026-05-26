@@ -84,13 +84,13 @@
           label="From Date" 
           v-model="fromDate" 
           @update:modelValue="fetchContracts(1)" 
-          class="min-w-[140px] xl:w-[150px]" 
+          class="min-w-[160px] xl:w-[180px]" 
         />
         <DateInput 
           label="To Date" 
           v-model="toDate" 
           @update:modelValue="fetchContracts(1)" 
-          class="min-w-[140px] xl:w-[150px]" 
+          class="min-w-[160px] xl:w-[180px]" 
         />
 
         <div class="w-full md:w-32">
