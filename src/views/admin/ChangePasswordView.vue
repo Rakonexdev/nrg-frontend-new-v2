@@ -13,14 +13,15 @@
           <div class="relative group">
             <input 
               v-model="form.current_password"
-              type="password"
+              :type="showPasswords.current ? 'text' : 'password'"
               placeholder="••••••••"
-              class="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-[#29166e] dark:focus:border-[#29166e] rounded-2xl px-6 py-4 text-slate-800 dark:text-white font-bold outline-none transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+              class="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-[#29166e] dark:focus:border-[#29166e] rounded-2xl px-6 py-4 text-slate-800 dark:text-white font-bold outline-none transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600 pr-14"
               required
             />
-            <div class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#29166e] transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            </div>
+            <button type="button" @click="showPasswords.current = !showPasswords.current" class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 group-focus-within:text-[#29166e] transition-colors">
+              <svg v-if="showPasswords.current" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.51-2.711m1.8-1.8A10.015 10.015 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.015 10.015 0 01-1.332 2.316m-2.115 2.115l-4.5-4.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" /></svg>
+            </button>
           </div>
         </div>
 
@@ -31,14 +32,15 @@
             <div class="relative group">
               <input 
                 v-model="form.new_password"
-                type="password"
+                :type="showPasswords.new ? 'text' : 'password'"
                 placeholder="••••••••"
-                class="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-blue-500 dark:focus:border-blue-500 rounded-2xl px-6 py-4 text-slate-800 dark:text-white font-bold outline-none transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                class="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-blue-500 dark:focus:border-blue-500 rounded-2xl px-6 py-4 text-slate-800 dark:text-white font-bold outline-none transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600 pr-14"
                 required
               />
-              <div class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-              </div>
+              <button type="button" @click="showPasswords.new = !showPasswords.new" class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 group-focus-within:text-blue-500 transition-colors">
+                <svg v-if="showPasswords.new" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.51-2.711m1.8-1.8A10.015 10.015 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.015 10.015 0 01-1.332 2.316m-2.115 2.115l-4.5-4.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" /></svg>
+              </button>
             </div>
           </div>
 
@@ -48,14 +50,15 @@
             <div class="relative group">
               <input 
                 v-model="form.new_password_confirmation"
-                type="password"
+                :type="showPasswords.confirm ? 'text' : 'password'"
                 placeholder="••••••••"
-                class="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-blue-500 dark:focus:border-blue-500 rounded-2xl px-6 py-4 text-slate-800 dark:text-white font-bold outline-none transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                class="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-blue-500 dark:focus:border-blue-500 rounded-2xl px-6 py-4 text-slate-800 dark:text-white font-bold outline-none transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600 pr-14"
                 required
               />
-              <div class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-              </div>
+              <button type="button" @click="showPasswords.confirm = !showPasswords.confirm" class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 group-focus-within:text-blue-500 transition-colors">
+                <svg v-if="showPasswords.confirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.51-2.711m1.8-1.8A10.015 10.015 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.015 10.015 0 01-1.332 2.316m-2.115 2.115l-4.5-4.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" /></svg>
+              </button>
             </div>
           </div>
         </div>
@@ -84,6 +87,11 @@ import { useNotificationStore } from '@/stores/notification';
 
 const notificationStore = useNotificationStore();
 const loading = ref(false);
+const showPasswords = reactive({
+  current: false,
+  new: false,
+  confirm: false
+});
 
 const form = reactive({
   current_password: '',

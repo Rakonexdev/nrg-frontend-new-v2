@@ -55,6 +55,10 @@
                     <p class="text-[9px] font-medium text-slate-500 truncate">{{ roleBadge }}</p>
                 </div>
             </div>
+            <router-link to="/admin/change-password" class="w-full flex items-center justify-center gap-2 py-2 mb-2 bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] dark:text-blue-400 rounded-lg font-bold text-xs hover:bg-[#29166e]/10 dark:hover:bg-[#29166e]/30 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                Change Password
+            </router-link>
             <button @click="logout" class="w-full flex items-center justify-center gap-2 py-2 bg-rose-50 dark:bg-rose-900/10 text-rose-600 dark:text-rose-400 rounded-lg font-bold text-xs hover:bg-rose-100 dark:hover:bg-rose-900/20 transition-colors">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 Sign Out

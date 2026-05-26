@@ -97,6 +97,13 @@ const router = createRouter({
           name: 'admin-role-access',
           component: () => import('../views/admin/RoleAccessView.vue'),
           meta: { title: 'Role Access', superAdminOnly: true }
+        },
+        // Change Password
+        {
+          path: 'change-password',
+          name: 'admin-change-password',
+          component: () => import('../views/admin/ChangePasswordView.vue'),
+          meta: { title: 'Security Settings' }
         }
       ]
     },
@@ -124,6 +131,12 @@ const router = createRouter({
           path: 'settle',
           name: 'collector-settle',
           component: () => import('../views/collector/SettlementView.vue')
+        },
+        {
+          path: 'change-password',
+          name: 'collector-change-password',
+          component: () => import('../views/admin/ChangePasswordView.vue'),
+          meta: { title: 'Security Settings' }
         }
       ]
     }
