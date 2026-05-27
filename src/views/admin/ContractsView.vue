@@ -359,6 +359,7 @@
                 <div class="flex flex-col">
                     <span class="font-black text-slate-800 dark:text-white tracking-tight">{{ row.staff?.name || 'N/A' }}</span>
                     <span v-if="row.staff?.qid_number" class="text-xs font-bold text-slate-500 mt-0.5">QID: {{ row.staff.qid_number }}</span>
+                    <span v-if="row.staff?.mobile" class="text-xs font-bold text-slate-500 mt-0.5">Mobile: {{ row.staff.mobile }}</span>
                 </div>
             </template>
 
