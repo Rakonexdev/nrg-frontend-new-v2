@@ -27,7 +27,20 @@
                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group relative" 
                        active-class="bg-[#29166e] text-white shadow-xl shadow-[#29166e]/30 scale-[1.02]">
             <div v-html="link.icon" class="w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110"></div>
-            <span class="font-bold tracking-tight text-xs">{{ link.label }}</span>
+            <span class="font-bold tracking-tight text-xs flex-1">{{ link.label }}</span>
+            <div v-if="$route.path === link.to" class="absolute left-0 w-1 h-5 bg-white rounded-r-full my-auto inset-y-0"></div>
+          </router-link>
+        </template>
+
+        <template v-if="filteredImmigrationLinks.length > 0">
+          <p class="px-3 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-2 mt-5">Immigration</p>
+          
+          <router-link v-for="link in filteredImmigrationLinks" :key="link.to" :to="link.to" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group relative" 
+                       active-class="bg-[#29166e] text-white shadow-xl shadow-[#29166e]/30 scale-[1.02]">
+            <div v-html="link.icon" class="w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110"></div>
+            <span class="font-bold tracking-tight text-xs flex-1">{{ link.label }}</span>
+            <span v-if="link.badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full min-w-[1.5rem] text-center" :class="$route.path === link.to ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'">{{ link.badge }}</span>
             <div v-if="$route.path === link.to" class="absolute left-0 w-1 h-5 bg-white rounded-r-full my-auto inset-y-0"></div>
           </router-link>
         </template>
@@ -328,6 +341,13 @@ const allDocLinks = [
     { to: '/admin/documentation/other', label: 'Other Docs', permission: 'view_documentation', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>' },
 ];
 
+const allImmigrationLinks = [
+    { to: '/admin/immigration/sponsorship-change', label: 'Sponsorship Change', permission: 'view_immigration', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>' },
+    { to: '/admin/immigration/visa-applications', label: 'Visa Applications', permission: 'view_visa_applications', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>' },
+    { to: '/admin/immigration/company-visas', label: 'Company Visas', permission: 'view_immigration', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>' },
+    { to: '/admin/immigration/vehicle-tracking', label: 'Vehicle Tracking', permission: 'view_vehicles', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 8h4a1 1 0 01.8.4l3 4V16h-1.8m-4.4 0H11"></path></svg>' },
+];
+
 // Filter navigation links based on user permissions
 const filteredNavLinks = computed(() => {
     return allNavLinks.filter(link => authStore.hasPermission(link.permission));
@@ -342,6 +362,10 @@ const filteredReportLinks = computed(() => {
 
 const filteredDocLinks = computed(() => {
     return allDocLinks.filter(link => authStore.hasPermission(link.permission));
+});
+
+const filteredImmigrationLinks = computed(() => {
+    return allImmigrationLinks.filter(link => authStore.hasPermission(link.permission) || authStore.isSuperAdmin);
 });
 
 

@@ -154,4 +154,20 @@ export const generalDocumentService = {
     download: (id) => api.get(`/general-documents/${id}/download`, { responseType: 'blob' })
 };
 
+export const vehicleService = {
+    getAll: (params) => api.get('/vehicles', { params }),
+    getById: (id) => api.get(`/vehicles/${id}`),
+    create: (data) => api.post('/vehicles', data),
+    update: (id, data) => api.put(`/vehicles/${id}`, data),
+    delete: (id) => api.delete(`/vehicles/${id}`)
+};
+
+export const visaApplicationService = {
+    getAll: (params) => api.get('/visa-applications', { params }),
+    getById: (id) => api.get(`/visa-applications/${id}`),
+    create: (data) => api.post('/visa-applications', data),
+    update: (id, data) => api.put(`/visa-applications/${id}`, data),
+    delete: (id) => api.delete(`/visa-applications/${id}`)
+};
+
 export default api;

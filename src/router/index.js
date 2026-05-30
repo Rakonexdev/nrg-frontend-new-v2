@@ -72,6 +72,31 @@ const router = createRouter({
           component: () => import('../views/admin/GeneralDocumentsView.vue'),
           meta: { title: 'Documentation Upload' }
         },
+        // Immigration
+        {
+          path: 'immigration/vehicle-tracking',
+          name: 'admin-immigration-vehicle-tracking',
+          component: () => import('../views/admin/VehicleTrackingView.vue'),
+          meta: { title: 'Vehicle Tracking' }
+        },
+        {
+          path: 'immigration/sponsorship-change',
+          name: 'admin-immigration-sponsorship-change',
+          component: () => import('../views/admin/ComingSoonView.vue'),
+          meta: { title: 'Sponsorship Change' }
+        },
+        {
+          path: 'immigration/visa-applications',
+          name: 'admin-immigration-visa-applications',
+          component: () => import('../views/admin/VisaApplicationsView.vue'),
+          meta: { title: 'Visa Applications' }
+        },
+        {
+          path: 'immigration/company-visas',
+          name: 'admin-immigration-company-visas',
+          component: () => import('../views/admin/ComingSoonView.vue'),
+          meta: { title: 'Company Visas' }
+        },
         // Reports
         {
           path: 'reports/collections',
