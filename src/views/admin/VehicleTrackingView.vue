@@ -161,12 +161,12 @@
 
                 <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Company & Computer No. <span class="text-red-500">*</span></label>
-                    <select v-model="form.company_id" required class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold appearance-none cursor-pointer">
-                        <option value="" disabled>Select Company</option>
-                        <option v-for="c in companies" :key="c.id" :value="c.id">
-                            {{ c.name }} - {{ c.computer_card || 'N/A' }}
-                        </option>
-                    </select>
+                    <SearchableSelect 
+                        v-model="form.company_id" 
+                        :options="computedCompanies" 
+                        placeholder="Select Company" 
+                        class="w-full font-bold"
+                    />
                 </div>
             </div>
         </div>
@@ -230,7 +230,7 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Handover Date & Time</label>
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Starting date & time</label>
                     <DateTimeInput v-model="form.handover_datetime" />
                 </div>
                 
@@ -295,7 +295,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { vehicleService, companyService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 import DataTable from '@/components/shared/DataTable.vue';
@@ -318,6 +318,13 @@ const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 const vehicles = ref([]);
 const companies = ref([]);
+const computedCompanies = computed(() => {
+    return companies.value.map(c => ({
+        ...c,
+        original_name: c.name,
+        name: `${c.name} - ${c.computer_card || 'N/A'}`
+    }));
+});
 const loading = ref(true);
 const saving = ref(false);
 const showModal = ref(false);
