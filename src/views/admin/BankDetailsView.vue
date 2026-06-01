@@ -1,14 +1,25 @@
 <template>
   <div class="space-y-6">
-    <div ref="headerRef" class="flex items-center justify-between">
+    <div ref="headerRef" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Bank Details</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage bank details and card information</p>
       </div>
-      <button v-if="authStore.hasPermission('bank_detail_create') || authStore.isSuperAdmin" @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        Add Bank Detail
-      </button>
+      <div class="flex flex-col sm:flex-row items-center gap-3">
+        <!-- Search -->
+        <div class="relative w-full sm:w-64">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </div>
+          <input v-model="searchQuery" @input="debouncedSearch" type="text" placeholder="Search details..." 
+                 class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all dark:text-white shadow-sm font-medium">
+        </div>
+        <!-- Action Buttons -->
+        <button v-if="authStore.hasPermission('bank_detail_create') || authStore.isSuperAdmin" @click="openModal()" class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          Add Bank Detail
+        </button>
+      </div>
     </div>
 
     <!-- Data Table -->
@@ -18,15 +29,12 @@
       :pagination="pagination"
       @page-change="fetchBankDetails">
       
-      <template #company_info="{ row }">
-        <div class="flex flex-col">
-          <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.company?.name || 'N/A' }}</span>
-        </div>
-      </template>
-      
-      <template #person_info="{ row }">
-        <div class="flex flex-col">
-          <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.person_name }}</span>
+      <template #details_for="{ row }">
+        <div class="flex flex-col gap-1.5">
+          <span class="px-2 py-0.5 rounded-md bg-[#29166e]/10 dark:bg-[#29166e]/30 text-[#29166e] dark:text-blue-400 text-[10px] font-bold uppercase tracking-widest w-fit border border-[#29166e]/20">{{ row.bank_details_for || 'Company' }}</span>
+          <span class="font-bold text-slate-700 dark:text-slate-300">
+             {{ row.bank_details_for === 'Person' ? row.person_name : (row.company?.name || 'N/A') }}
+          </span>
         </div>
       </template>
 
@@ -79,7 +87,21 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div class="md:col-span-1">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Bank Details For <span class="text-red-500">*</span></label>
+                    <div class="flex gap-4">
+                        <label class="flex-1 flex items-center gap-3 p-4 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer transition-all" :class="form.bank_details_for === 'Company' ? 'bg-[#29166e]/5 border-[#29166e]/30' : 'bg-white dark:bg-slate-900'">
+                            <input type="radio" v-model="form.bank_details_for" value="Company" class="w-4 h-4 text-[#29166e] focus:ring-[#29166e] border-slate-300">
+                            <span class="font-bold text-sm text-slate-700 dark:text-slate-300">Company</span>
+                        </label>
+                        <label class="flex-1 flex items-center gap-3 p-4 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer transition-all" :class="form.bank_details_for === 'Person' ? 'bg-[#29166e]/5 border-[#29166e]/30' : 'bg-white dark:bg-slate-900'">
+                            <input type="radio" v-model="form.bank_details_for" value="Person" class="w-4 h-4 text-[#29166e] focus:ring-[#29166e] border-slate-300">
+                            <span class="font-bold text-sm text-slate-700 dark:text-slate-300">Person</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="md:col-span-1" v-if="form.bank_details_for === 'Company'">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Company Name <span class="text-red-500">*</span></label>
                     <SearchableSelect 
                         v-model="form.company_id" 
@@ -89,7 +111,7 @@
                     />
                 </div>
                 
-                <div class="md:col-span-1">
+                <div class="md:col-span-1" v-if="form.bank_details_for === 'Person'">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Person Name <span class="text-red-500">*</span></label>
                     <input v-model="form.person_name" type="text" required
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
@@ -164,6 +186,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { debounce } from 'lodash';
 import bankDetailService from '@/services/bankDetail.service';
 import { companyService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
@@ -175,8 +198,7 @@ import DateInput from '@/components/shared/DateInput.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const columns = [
-    { key: 'company_info', label: 'Company', sortable: false },
-    { key: 'person_info', label: 'Person Name', sortable: false },
+    { key: 'details_for', label: 'Details For', sortable: false },
     { key: 'bank_info', label: 'Bank & Account', sortable: false },
     { key: 'financial_info', label: 'Balance & Card', sortable: false },
     { key: 'updated_date', label: 'Updated Date', sortable: false },
@@ -201,14 +223,21 @@ const showDeleteModal = ref(false);
 const itemToDelete = ref(null);
 const editMode = ref(false);
 const viewMode = ref(false);
+const searchQuery = ref('');
 const pagination = ref({
     current_page: 1,
     last_page: 1,
     total: 0,
-    per_page: 100
+    per_page: 15
 });
 
+const debouncedSearch = debounce(() => {
+    pagination.value.current_page = 1;
+    fetchBankDetails();
+}, 500);
+
 const form = ref({
+    bank_details_for: 'Company',
     company_id: '',
     person_name: '',
     bank_name: '',
@@ -227,11 +256,24 @@ const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
 };
 
-const fetchBankDetails = async () => {
+const fetchBankDetails = async (page = null) => {
+    if (page && typeof page === 'number') {
+        pagination.value.current_page = page;
+    }
     loading.value = true;
     try {
-        const response = await bankDetailService.getAll();
-        bankDetails.value = response.data;
+        const response = await bankDetailService.getAll({
+            page: pagination.value.current_page,
+            search: searchQuery.value,
+            per_page: pagination.value.per_page
+        });
+        bankDetails.value = response.data.data || [];
+        pagination.value = {
+            current_page: response.data.current_page,
+            last_page: response.data.last_page,
+            total: response.data.total,
+            per_page: response.data.per_page
+        };
     } catch (error) {
         console.error('Failed to fetch bank details:', error);
         notificationStore.error(error.response?.data?.message || 'Failed to load bank details');
@@ -257,6 +299,7 @@ const openModal = (item = null, isView = false) => {
     } else {
         editMode.value = false;
         form.value = {
+            bank_details_for: 'Company',
             company_id: '',
             person_name: '',
             bank_name: '',

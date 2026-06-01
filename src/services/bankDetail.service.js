@@ -1,8 +1,8 @@
 import api from './api';
 
 export default {
-    getAll() {
-        return api.get('/bank-details');
+    getAll(params = {}) {
+        return api.get('/bank-details', { params });
     },
 
     getById(id) {
