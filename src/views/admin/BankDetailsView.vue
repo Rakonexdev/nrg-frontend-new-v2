@@ -57,6 +57,7 @@
           <span class="font-bold text-slate-700 dark:text-slate-300">
              {{ row.bank_details_for === 'Person' ? row.person_name : (row.company?.name || 'N/A') }}
           </span>
+          <span v-if="row.bank_details_for === 'Person' && row.qid" class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">QID: {{ row.qid }}</span>
         </div>
       </template>
 
@@ -69,14 +70,25 @@
       <template #bank_info="{ row }">
         <div class="flex flex-col gap-0.5">
           <span class="font-bold text-slate-800 dark:text-white">{{ row.bank_name }}</span>
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ row.account_number }}</span>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-0.5">{{ row.account_number }}</span>
         </div>
       </template>
 
-      <template #financial_info="{ row }">
+      <template #balance_info="{ row }">
+        <span class="font-bold text-slate-700 dark:text-slate-300">{{ formatCurrency(row.balance) }}</span>
+      </template>
+
+      <template #card_info="{ row }">
         <div class="flex flex-col">
-          <span class="font-bold text-slate-700 dark:text-slate-300">QAR {{ formatCurrency(row.balance) }}</span>
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ row.card_type || 'N/A' }}</span>
+          <span v-if="row.card_type" 
+                :class="[
+                  'px-2 py-0.5 rounded-md text-white text-[10px] font-bold uppercase tracking-widest w-fit mt-1',
+                  row.card_type === 'Credit Card' ? 'bg-[#1d0f4d]' : 'bg-[#1e40af]'
+                ]">
+            {{ row.card_type }}
+          </span>
+          <span v-else class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">N/A</span>
+          <span v-if="row.card_number" class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-0.5">{{ row.card_number }}</span>
         </div>
       </template>
       
@@ -145,6 +157,13 @@
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                 </div>
 
+                <div class="md:col-span-1" v-if="form.bank_details_for === 'Person'">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">QID Number <span class="text-red-500">*</span></label>
+                    <input v-model="form.qid" type="text" required pattern="[0-9]{11}" title="Must be exactly 11 digits" maxlength="11"
+                           placeholder="11-digit QID"
+                           class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                </div>
+
                 <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Mobile Number <span class="text-red-500">*</span></label>
                     <div class="flex items-center">
@@ -192,6 +211,12 @@
                         <option value="Credit Card">Credit Card</option>
                         <option value="Debit Card">Debit Card</option>
                     </select>
+                </div>
+
+                <div class="md:col-span-1" v-if="form.card_type">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Card Number <span class="text-red-500">*</span></label>
+                    <input v-model="form.card_number" type="text" required
+                           class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                 </div>
                 
                 <div class="md:col-span-1">
@@ -251,7 +276,8 @@ const columns = [
     { key: 'details_for', label: 'Details For', sortable: false },
     { key: 'mobile_number', label: 'Mobile Number', sortable: false },
     { key: 'bank_info', label: 'Bank & Account', sortable: false },
-    { key: 'financial_info', label: 'Balance & Card', sortable: false },
+    { key: 'balance_info', label: 'Balance (QAR)', sortable: false },
+    { key: 'card_info', label: 'Card Information', sortable: false },
     { key: 'updated_date', label: 'Updated Date', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
@@ -295,11 +321,13 @@ const form = ref({
     bank_details_for: 'Company',
     company_id: '',
     person_name: '',
+    qid: '',
     mobile_number: '',
     bank_name: '',
     account_number: '',
     balance: 0,
     card_type: '',
+    card_number: '',
     updated_date: ''
 });
 
@@ -361,11 +389,13 @@ const openModal = (item = null, isView = false) => {
             bank_details_for: 'Company',
             company_id: '',
             person_name: '',
+            qid: '',
             mobile_number: '',
             bank_name: '',
             account_number: '',
             balance: 0,
             card_type: '',
+            card_number: '',
             updated_date: ''
         };
     }
