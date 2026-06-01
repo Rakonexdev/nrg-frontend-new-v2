@@ -22,6 +22,28 @@
       </div>
     </div>
 
+    <!-- Summary Cards -->
+    <div v-if="!loading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-gradient-to-br from-[#29166e] to-[#1d0f4d] rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+        <div class="absolute top-0 right-0 p-4 opacity-10 transform group-hover:scale-110 transition-transform duration-500">
+          <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+        </div>
+        <div class="relative z-10">
+            <h3 class="text-white/70 font-black text-xs tracking-widest uppercase mb-2">Total Credit Balance</h3>
+            <p class="text-3xl font-bold text-white">QAR {{ formatCurrency(summary.credit_total) }}</p>
+        </div>
+      </div>
+      <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+        <div class="absolute top-0 right-0 p-4 opacity-10 transform group-hover:scale-110 transition-transform duration-500">
+          <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+        </div>
+        <div class="relative z-10">
+            <h3 class="text-white/70 font-black text-xs tracking-widest uppercase mb-2">Total Debit Balance</h3>
+            <p class="text-3xl font-bold text-white">QAR {{ formatCurrency(summary.debit_total) }}</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Data Table -->
     <DataTable v-if="!loading"
       :columns="columns" 
@@ -36,6 +58,12 @@
              {{ row.bank_details_for === 'Person' ? row.person_name : (row.company?.name || 'N/A') }}
           </span>
         </div>
+      </template>
+
+      <template #mobile_number="{ row }">
+        <span class="font-bold text-slate-700 dark:text-slate-300">
+          {{ row.mobile_number ? `+974 ${row.mobile_number}` : 'N/A' }}
+        </span>
       </template>
 
       <template #bank_info="{ row }">
@@ -118,9 +146,31 @@
                 </div>
 
                 <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Mobile Number <span class="text-red-500">*</span></label>
+                    <div class="flex items-center">
+                        <span class="flex items-center justify-center px-4 py-3.5 bg-slate-100 dark:bg-slate-800 border border-r-0 border-slate-200 dark:border-slate-700 rounded-l-xl text-sm font-bold text-slate-500">
+                            +974
+                        </span>
+                        <input v-model="form.mobile_number" type="text" pattern="[0-9]{8}" title="Must be exactly 8 digits" maxlength="8" required
+                               placeholder="8-digit number"
+                               class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-r-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                    </div>
+                </div>
+
+                <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Bank Name <span class="text-red-500">*</span></label>
-                    <input v-model="form.bank_name" type="text" required
+                    <select v-model="form.bank_name" required
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                        <option value="">Select Bank</option>
+                        <option value="Qatar National Bank (QNB)">Qatar National Bank (QNB)</option>
+                        <option value="Qatar Islamic Bank(QIB)">Qatar Islamic Bank(QIB)</option>
+                        <option value="Qatar International Islamic Bank(QIIB)">Qatar International Islamic Bank(QIIB)</option>
+                        <option value="Commercial Bank of Qatar(CBQ)">Commercial Bank of Qatar(CBQ)</option>
+                        <option value="Al Rayan">Al Rayan</option>
+                        <option value="Doha Bank">Doha Bank</option>
+                        <option value="Ahlibank">Ahlibank</option>
+                        <option value="Dukhan Bank">Dukhan Bank</option>
+                    </select>
                 </div>
 
                 <div class="md:col-span-1">
@@ -136,8 +186,8 @@
                 </div>
 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Credit / Debit Card</label>
-                    <select v-model="form.card_type" class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Credit / Debit Card <span class="text-red-500">*</span></label>
+                    <select v-model="form.card_type" required class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                         <option value="">Select Card Type</option>
                         <option value="Credit Card">Credit Card</option>
                         <option value="Debit Card">Debit Card</option>
@@ -199,6 +249,7 @@ import { useAuthStore } from '@/stores/auth';
 
 const columns = [
     { key: 'details_for', label: 'Details For', sortable: false },
+    { key: 'mobile_number', label: 'Mobile Number', sortable: false },
     { key: 'bank_info', label: 'Bank & Account', sortable: false },
     { key: 'financial_info', label: 'Balance & Card', sortable: false },
     { key: 'updated_date', label: 'Updated Date', sortable: false },
@@ -224,6 +275,10 @@ const itemToDelete = ref(null);
 const editMode = ref(false);
 const viewMode = ref(false);
 const searchQuery = ref('');
+const summary = ref({
+    credit_total: 0,
+    debit_total: 0
+});
 const pagination = ref({
     current_page: 1,
     last_page: 1,
@@ -240,6 +295,7 @@ const form = ref({
     bank_details_for: 'Company',
     company_id: '',
     person_name: '',
+    mobile_number: '',
     bank_name: '',
     account_number: '',
     balance: 0,
@@ -268,6 +324,9 @@ const fetchBankDetails = async (page = null) => {
             per_page: pagination.value.per_page
         });
         bankDetails.value = response.data.data || [];
+        if (response.data.summary) {
+            summary.value = response.data.summary;
+        }
         pagination.value = {
             current_page: response.data.current_page,
             last_page: response.data.last_page,
@@ -302,6 +361,7 @@ const openModal = (item = null, isView = false) => {
             bank_details_for: 'Company',
             company_id: '',
             person_name: '',
+            mobile_number: '',
             bank_name: '',
             account_number: '',
             balance: 0,
