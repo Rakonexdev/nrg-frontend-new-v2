@@ -80,6 +80,12 @@ const router = createRouter({
           meta: { title: 'Vehicle Tracking' }
         },
         {
+          path: 'immigration/bank-details',
+          name: 'admin-immigration-bank-details',
+          component: () => import('../views/admin/BankDetailsView.vue'),
+          meta: { title: 'Bank Details' }
+        },
+        {
           path: 'immigration/sponsorship-change',
           name: 'admin-immigration-sponsorship-change',
           component: () => import('../views/admin/ComingSoonView.vue'),
