@@ -165,8 +165,23 @@ export const vehicleService = {
 export const visaApplicationService = {
     getAll: (params) => api.get('/visa-applications', { params }),
     getById: (id) => api.get(`/visa-applications/${id}`),
-    create: (data) => api.post('/visa-applications', data),
-    update: (id, data) => api.put(`/visa-applications/${id}`, data),
+    create: (data) => {
+        if (data instanceof FormData) {
+            return api.post('/visa-applications', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+        return api.post('/visa-applications', data);
+    },
+    update: (id, data) => {
+        if (data instanceof FormData) {
+            data.append('_method', 'PUT');
+            return api.post(`/visa-applications/${id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+        return api.put(`/visa-applications/${id}`, data);
+    },
     delete: (id) => api.delete(`/visa-applications/${id}`)
 };
 

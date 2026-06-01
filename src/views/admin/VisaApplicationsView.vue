@@ -205,6 +205,65 @@
                     <input v-model="form.visa_number" type="text"
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                 </div>
+
+                <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-5 mt-2 border-t border-slate-200 dark:border-slate-700 pt-6">
+                    <div class="col-span-1">
+                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Passport Photo <span v-if="!editMode && !viewMode" class="text-red-500">*</span></label>
+                        <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'passport_photo')" accept=".jpg,.jpeg,.png,.pdf" :required="!editMode && !form.passport_photo"
+                               class="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-wider file:bg-[#29166e]/10 file:text-[#29166e] hover:file:bg-[#29166e]/20 transition-all outline-none">
+                        <div v-if="filePreviews.passport_photo || typeof form.passport_photo === 'string'" class="mt-3">
+                            <img v-if="filePreviews.passport_photo" :src="filePreviews.passport_photo" class="h-24 object-cover rounded-lg border border-slate-200 shadow-sm mb-2">
+                            <img v-else-if="typeof form.passport_photo === 'string' && form.passport_photo.match(/\.(jpeg|jpg|gif|png)$/i)" :src="getStorageUrl(form.passport_photo)" class="h-24 object-cover rounded-lg border border-slate-200 shadow-sm mb-2">
+                            <a v-if="typeof form.passport_photo === 'string'" :href="getStorageUrl(form.passport_photo)" target="_blank" class="text-[10px] font-bold text-blue-500 inline-flex items-center gap-1 hover:text-blue-600">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                View Document
+                            </a>
+                        </div>
+                        <div v-else-if="viewMode" class="text-sm text-slate-500 italic mt-2">No document uploaded</div>
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Personal Photo <span v-if="!editMode && !viewMode" class="text-red-500">*</span></label>
+                        <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'personal_photo')" accept=".jpg,.jpeg,.png,.pdf" :required="!editMode && !form.personal_photo"
+                               class="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-wider file:bg-[#29166e]/10 file:text-[#29166e] hover:file:bg-[#29166e]/20 transition-all outline-none">
+                        <div v-if="filePreviews.personal_photo || typeof form.personal_photo === 'string'" class="mt-3">
+                            <img v-if="filePreviews.personal_photo" :src="filePreviews.personal_photo" class="h-24 object-cover rounded-lg border border-slate-200 shadow-sm mb-2">
+                            <img v-else-if="typeof form.personal_photo === 'string' && form.personal_photo.match(/\.(jpeg|jpg|gif|png)$/i)" :src="getStorageUrl(form.personal_photo)" class="h-24 object-cover rounded-lg border border-slate-200 shadow-sm mb-2">
+                            <a v-if="typeof form.personal_photo === 'string'" :href="getStorageUrl(form.personal_photo)" target="_blank" class="text-[10px] font-bold text-blue-500 inline-flex items-center gap-1 hover:text-blue-600">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                View Document
+                            </a>
+                        </div>
+                        <div v-else-if="viewMode" class="text-sm text-slate-500 italic mt-2">No document uploaded</div>
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Appointment Page</label>
+                        <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'medical_appointment_page')" accept=".jpg,.jpeg,.png,.pdf"
+                               class="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-wider file:bg-[#29166e]/10 file:text-[#29166e] hover:file:bg-[#29166e]/20 transition-all outline-none">
+                        <div v-if="filePreviews.medical_appointment_page || typeof form.medical_appointment_page === 'string'" class="mt-3">
+                            <img v-if="filePreviews.medical_appointment_page" :src="filePreviews.medical_appointment_page" class="h-24 object-cover rounded-lg border border-slate-200 shadow-sm mb-2">
+                            <img v-else-if="typeof form.medical_appointment_page === 'string' && form.medical_appointment_page.match(/\.(jpeg|jpg|gif|png)$/i)" :src="getStorageUrl(form.medical_appointment_page)" class="h-24 object-cover rounded-lg border border-slate-200 shadow-sm mb-2">
+                            <a v-if="typeof form.medical_appointment_page === 'string'" :href="getStorageUrl(form.medical_appointment_page)" target="_blank" class="text-[10px] font-bold text-blue-500 inline-flex items-center gap-1 hover:text-blue-600">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                View Document
+                            </a>
+                        </div>
+                        <div v-else-if="viewMode" class="text-sm text-slate-500 italic mt-2">No document uploaded</div>
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Visa Copy</label>
+                        <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'visa_copy')" accept=".jpg,.jpeg,.png,.pdf"
+                               class="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-wider file:bg-[#29166e]/10 file:text-[#29166e] hover:file:bg-[#29166e]/20 transition-all outline-none">
+                        <div v-if="filePreviews.visa_copy || typeof form.visa_copy === 'string'" class="mt-3">
+                            <img v-if="filePreviews.visa_copy" :src="filePreviews.visa_copy" class="h-24 object-cover rounded-lg border border-slate-200 shadow-sm mb-2">
+                            <img v-else-if="typeof form.visa_copy === 'string' && form.visa_copy.match(/\.(jpeg|jpg|gif|png)$/i)" :src="getStorageUrl(form.visa_copy)" class="h-24 object-cover rounded-lg border border-slate-200 shadow-sm mb-2">
+                            <a v-if="typeof form.visa_copy === 'string'" :href="getStorageUrl(form.visa_copy)" target="_blank" class="text-[10px] font-bold text-blue-500 inline-flex items-center gap-1 hover:text-blue-600">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                View Document
+                            </a>
+                        </div>
+                        <div v-else-if="viewMode" class="text-sm text-slate-500 italic mt-2">No document uploaded</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -400,6 +459,8 @@ const statusOptions = [
     { id: 'inactive', name: 'Inactive' }
 ];
 
+const filePreviews = ref({});
+
 const companyOptions = computed(() => {
     return companies.value.map(c => ({
         id: c.id,
@@ -433,6 +494,10 @@ const form = ref({
     total_amount: null,
     total_pay: null,
     due_amount: null,
+    passport_photo: null,
+    personal_photo: null,
+    medical_appointment_page: null,
+    visa_copy: null,
     is_active: true
 });
 
@@ -527,20 +592,61 @@ const openModal = (application = null, isView = false) => {
             total_amount: null,
             total_pay: null,
             due_amount: null,
+            passport_photo: null,
+            personal_photo: null,
+            medical_appointment_page: null,
+            visa_copy: null,
             is_active: true
         };
     }
+    filePreviews.value = {};
     showModal.value = true;
+};
+
+const handleFileChange = (e, field) => {
+    const file = e.target.files[0];
+    if (file) {
+        form.value[field] = file;
+        if (file.type.startsWith('image/')) {
+            filePreviews.value[field] = URL.createObjectURL(file);
+        } else {
+            filePreviews.value[field] = null;
+        }
+    } else {
+        form.value[field] = null;
+        filePreviews.value[field] = null;
+    }
+};
+
+const getStorageUrl = (path) => {
+    if (!path) return '';
+    return `${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${path}`;
 };
 
 const saveApplication = async () => {
     saving.value = true;
     try {
+        let submitData = new FormData();
+        const fileFields = ['passport_photo', 'personal_photo', 'medical_appointment_page', 'visa_copy'];
+        
+        Object.keys(form.value).forEach(key => {
+            const val = form.value[key];
+            if (val !== null && val !== undefined && val !== '') {
+                if (fileFields.includes(key)) {
+                    if (val instanceof File) {
+                        submitData.append(key, val);
+                    }
+                } else {
+                    submitData.append(key, val === true ? 1 : val === false ? 0 : val);
+                }
+            }
+        });
+
         if (editMode.value) {
-            await visaApplicationService.update(selectedApplication.value.id, form.value);
+            await visaApplicationService.update(selectedApplication.value.id, submitData);
             notificationStore.addNotification('Application updated successfully', 'success');
         } else {
-            await visaApplicationService.create(form.value);
+            await visaApplicationService.create(submitData);
             notificationStore.addNotification('Application created successfully', 'success');
         }
         showModal.value = false;
