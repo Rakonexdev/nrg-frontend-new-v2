@@ -24,7 +24,7 @@
       <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center w-6 h-6">
         <input
           type="datetime-local"
-          :value="modelValue"
+          :value="normalizedDateTime"
           @input="onNativeInput"
           :disabled="disabled"
           class="absolute inset-0 opacity-0 cursor-pointer z-20 w-full h-full"
@@ -90,6 +90,18 @@ const displayValue = computed(() => {
       return `${dParts[2]}/${dParts[1]}/${dParts[0]} ${hourStr}:${mm} ${ampm}`;
   }
   return `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
+});
+
+const normalizedDateTime = computed(() => {
+  if (!props.modelValue) return '';
+  let dt = props.modelValue;
+  if (dt.includes('Z')) dt = dt.split('Z')[0];
+  if (dt.includes('.')) dt = dt.split('.')[0];
+  if (dt.includes(' ')) dt = dt.replace(' ', 'T');
+  if (dt.length > 16) {
+      dt = dt.substring(0, 16);
+  }
+  return dt;
 });
 
 const onNativeInput = (e) => {

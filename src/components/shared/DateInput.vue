@@ -24,7 +24,7 @@
       <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center w-6 h-6">
         <input
           type="date"
-          :value="modelValue"
+          :value="normalizedDate"
           @input="onNativeInput"
           :disabled="disabled"
           class="absolute inset-0 opacity-0 cursor-pointer z-20 w-full h-full"
@@ -60,9 +60,15 @@ const nativeDateInput = ref(null);
 // Display value in DD/MM/YYYY
 const displayValue = computed(() => {
   if (!props.modelValue) return '';
-  const parts = props.modelValue.split('-');
+  const dateOnly = props.modelValue.split('T')[0].split(' ')[0];
+  const parts = dateOnly.split('-');
   if (parts.length !== 3) return props.modelValue;
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
+});
+
+const normalizedDate = computed(() => {
+  if (!props.modelValue) return '';
+  return props.modelValue.split('T')[0].split(' ')[0];
 });
 
 const onNativeInput = (e) => {

@@ -89,6 +89,13 @@
         </div>
       </template>
 
+      <template #contract_info="{ row }">
+        <div class="flex flex-col">
+          <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.contract_person || 'N/A' }}</span>
+          <span v-if="row.contract_person_phone" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ row.contract_person_phone }}</span>
+        </div>
+      </template>
+
       <template #is_active="{ value }">
         <span :class="[
           'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest',
@@ -132,8 +139,8 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Serial No. <span class="text-red-500">*</span></label>
-                    <input v-model="form.serial_no" type="text" required
-                           class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                    <input v-model="form.serial_no" type="text" required readonly
+                           class="w-full px-4 py-3.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none transition-all font-bold cursor-not-allowed text-slate-500">
                 </div>
                 
                 <div class="md:col-span-1">
@@ -194,8 +201,8 @@
                 </div>
 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Visa Number <span class="text-red-500">*</span></label>
-                    <input v-model="form.visa_number" type="text" required
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Visa Number</label>
+                    <input v-model="form.visa_number" type="text"
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                 </div>
             </div>
@@ -210,19 +217,28 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Appointment Date & Time <span class="text-red-500">*</span></label>
-                    <DateTimeInput v-model="form.appointment_date" required />
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Appointment Date & Time</label>
+                    <DateTimeInput v-model="form.appointment_date" />
                 </div>
 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Contract Person <span class="text-red-500">*</span></label>
-                    <input v-model="form.contract_person" type="text" required
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Contract Person</label>
+                    <input v-model="form.contract_person" type="text"
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                 </div>
                 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Report <span class="text-red-500">*</span></label>
-                    <select v-model="form.medical_report" required class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold appearance-none cursor-pointer">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Contract Person Phone</label>
+                    <div class="flex">
+                        <span class="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-sm">+974</span>
+                        <input :value="form.contract_person_phone" @input="e => { let val = e.target.value.replace(/\\D/g, ''); e.target.value = val; form.contract_person_phone = val; }" type="text" maxlength="8" placeholder="Phone Number"
+                               class="flex-1 w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-r-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                    </div>
+                </div>
+                
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Report</label>
+                    <select v-model="form.medical_report" class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold appearance-none cursor-pointer">
                         <option value="" disabled>-- Select --</option>
                         <option value="FIT">FIT</option>
                         <option value="UNFIT">UNFIT</option>
@@ -234,8 +250,8 @@
                 </div>
 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Attestation Details <span class="text-red-500">*</span></label>
-                    <select v-model="form.attestation_details" required class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold appearance-none cursor-pointer">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Attestation Details</label>
+                    <select v-model="form.attestation_details" class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold appearance-none cursor-pointer">
                         <option value="" disabled>-- Select --</option>
                         <option value="Attested Complete">Attested Complete</option>
                         <option value="Pending Attestation">Pending Attestation</option>
@@ -244,8 +260,8 @@
                 </div>
                 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Payment Date & Time <span class="text-red-500">*</span></label>
-                    <DateTimeInput v-model="form.payment_date" required />
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Payment Date & Time</label>
+                    <DateTimeInput v-model="form.payment_date" />
                 </div>
                 
                 <div class="md:col-span-1">
@@ -343,6 +359,7 @@ const columns = [
     { key: 'vp_info', label: 'VP Record', sortable: false },
     { key: 'person_info', label: 'Person Info', sortable: false },
     { key: 'company_info', label: 'Company', sortable: false },
+    { key: 'contract_info', label: 'Contract Person', sortable: false },
     { key: 'is_active', label: 'Status', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
@@ -393,7 +410,7 @@ const countryOptions = [
 const selectedApplication = ref(null);
 
 const form = ref({
-    serial_no: '',
+    serial_no: '001',
     vp_expiry_date: '',
     vp_number: '',
     position: '',
@@ -405,6 +422,7 @@ const form = ref({
     description: '',
     appointment_date: '',
     contract_person: '',
+    contract_person_phone: '',
     medical_report: '',
     attestation_details: '',
     payment_date: '',
@@ -457,6 +475,24 @@ const fetchCompanies = async () => {
     }
 };
 
+const getNextSerialNumber = () => {
+    if (!applications.value || applications.value.length === 0) {
+        return '001';
+    }
+    
+    let maxSerial = 0;
+    for (const app of applications.value) {
+        if (app.serial_no) {
+            const num = parseInt(app.serial_no, 10);
+            if (!isNaN(num) && num > maxSerial) {
+                maxSerial = num;
+            }
+        }
+    }
+    
+    return String(maxSerial + 1).padStart(3, '0');
+};
+
 const openModal = (application = null, isView = false) => {
     viewMode.value = isView;
     if (application) {
@@ -468,7 +504,7 @@ const openModal = (application = null, isView = false) => {
         viewMode.value = false;
         selectedApplication.value = null;
         form.value = {
-            serial_no: '',
+            serial_no: getNextSerialNumber(),
             vp_expiry_date: '',
             vp_number: '',
             position: '',
@@ -480,6 +516,7 @@ const openModal = (application = null, isView = false) => {
             description: '',
             appointment_date: '',
             contract_person: '',
+            contract_person_phone: '',
             medical_report: '',
             attestation_details: '',
             payment_date: '',
