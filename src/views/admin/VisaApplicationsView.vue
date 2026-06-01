@@ -222,22 +222,22 @@
                 </div>
 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Contract Person</label>
-                    <input v-model="form.contract_person" type="text"
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Contract Person <span class="text-red-500">*</span></label>
+                    <input v-model="form.contract_person" type="text" required
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                 </div>
                 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Contract Person Phone</label>
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Contract Person Phone <span class="text-red-500">*</span></label>
                     <div class="flex">
                         <span class="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-sm">+974</span>
-                        <input :value="form.contract_person_phone" @input="e => { let val = e.target.value.replace(/\\D/g, ''); e.target.value = val; form.contract_person_phone = val; }" type="text" maxlength="8" placeholder="Phone Number"
+                        <input :value="form.contract_person_phone" @input="e => { let val = e.target.value.replace(/\\D/g, ''); e.target.value = val; form.contract_person_phone = val; }" type="text" maxlength="8" placeholder="Phone Number" required
                                class="flex-1 w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-r-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                     </div>
                 </div>
                 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Report</label>
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Report and Visa Status</label>
                     <select v-model="form.medical_report" class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold appearance-none cursor-pointer">
                         <option value="" disabled>-- Select --</option>
                         <option value="FIT">FIT</option>
@@ -246,6 +246,10 @@
                         <option value="DEFERRED / FURTHER EXAM REQUIRED">DEFERRED / FURTHER EXAM REQUIRED</option>
                         <option value="FIT WITH CONDITIONS">FIT WITH CONDITIONS</option>
                         <option value="INCOMPLETE DOCUMENTS">INCOMPLETE DOCUMENTS</option>
+                        <option value="RE VISIT">RE VISIT</option>
+                        <option value="UNDER PROCESS">UNDER PROCESS</option>
+                        <option value="OUT SIDE PROCESS">OUT SIDE PROCESS</option>
+                        <option value="INSIDE COUNTRY">INSIDE COUNTRY</option>
                     </select>
                 </div>
 
