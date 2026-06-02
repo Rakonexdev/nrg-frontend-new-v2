@@ -157,8 +157,23 @@ export const generalDocumentService = {
 export const vehicleService = {
     getAll: (params) => api.get('/vehicles', { params }),
     getById: (id) => api.get(`/vehicles/${id}`),
-    create: (data) => api.post('/vehicles', data),
-    update: (id, data) => api.put(`/vehicles/${id}`, data),
+    create: (data) => {
+        if (data instanceof FormData) {
+            return api.post('/vehicles', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+        return api.post('/vehicles', data);
+    },
+    update: (id, data) => {
+        if (data instanceof FormData) {
+            data.append('_method', 'PUT');
+            return api.post(`/vehicles/${id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+        return api.put(`/vehicles/${id}`, data);
+    },
     delete: (id) => api.delete(`/vehicles/${id}`)
 };
 

@@ -169,8 +169,23 @@
                 </div>
 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Reg. Expiry Date <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Istimara Expiry Date <span class="text-red-500">*</span></label>
                     <DateInput v-model="form.reg_expiry_date" required />
+                </div>
+
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Vehicle Document</label>
+                    <input v-if="!viewMode" type="file" @change="e => handleFileChange(e, 'vehicle_document')" accept=".jpg,.jpeg,.png,.pdf"
+                           class="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-wider file:bg-[#29166e]/10 file:text-[#29166e] hover:file:bg-[#29166e]/20 transition-all outline-none">
+                    <div v-if="filePreviews.vehicle_document || (typeof form.vehicle_document === 'string' && form.vehicle_document)" class="mt-3">
+                        <img v-if="filePreviews.vehicle_document" :src="filePreviews.vehicle_document" class="h-24 object-cover rounded-lg border border-slate-200 shadow-sm mb-2">
+                        <img v-else-if="typeof form.vehicle_document === 'string' && form.vehicle_document.match(/\.(jpeg|jpg|gif|png)$/i)" :src="getStorageUrl(form.vehicle_document)" class="h-24 object-cover rounded-lg border border-slate-200 shadow-sm mb-2">
+                        <a v-if="typeof form.vehicle_document === 'string' && form.vehicle_document" :href="getStorageUrl(form.vehicle_document)" target="_blank" class="text-[10px] font-bold text-blue-500 inline-flex items-center gap-1 hover:text-blue-600">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            View Document
+                        </a>
+                    </div>
+                    <div v-else-if="viewMode" class="text-sm text-slate-500 italic mt-2">No document uploaded</div>
                 </div>
 
                 <div class="md:col-span-1">
@@ -323,7 +338,7 @@ import { useAuthStore } from '@/stores/auth';
 const columns = [
     { key: 'vehicle_info', label: 'Vehicle Info', sortable: false },
     { key: 'driver_info', label: 'Driver Info', sortable: false },
-    { key: 'istimara_date', label: 'Expiry Date', sortable: false },
+    { key: 'istimara_date', label: 'Istimara Expiry Date', sortable: false },
     { key: 'company_info', label: 'Company', sortable: false },
     { key: 'starting_date', label: 'Starting Date', sortable: false },
     { key: 'is_active', label: 'Status', sortable: false },
@@ -380,6 +395,27 @@ const statusOptions = [
 ];
 
 const selectedVehicle = ref(null);
+const filePreviews = ref({});
+
+const getStorageUrl = (path) => {
+    if (!path) return '';
+    return `${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${path}`;
+};
+
+const handleFileChange = (e, field) => {
+    const file = e.target.files[0];
+    if (file) {
+        form.value[field] = file;
+        if (file.type.startsWith('image/')) {
+            filePreviews.value[field] = URL.createObjectURL(file);
+        } else {
+            filePreviews.value[field] = null;
+        }
+    } else {
+        form.value[field] = null;
+        filePreviews.value[field] = null;
+    }
+};
 
 const form = ref({
     plate_number: '',
@@ -394,6 +430,7 @@ const form = ref({
     driver_alt_phone: '',
     handover_datetime: '',
     return_datetime: '',
+    vehicle_document: null,
     is_active: true
 });
 
@@ -460,20 +497,38 @@ const openModal = (vehicle = null, isView = false) => {
             driver_alt_phone: '',
             handover_datetime: '',
             return_datetime: '',
+            vehicle_document: null,
             is_active: true
         };
     }
+    filePreviews.value = {};
     showModal.value = true;
 };
 
 const saveVehicle = async () => {
     saving.value = true;
     try {
+        let submitData = new FormData();
+        const fileFields = ['vehicle_document'];
+        
+        Object.keys(form.value).forEach(key => {
+            const val = form.value[key];
+            if (val !== null && val !== undefined && val !== '') {
+                if (fileFields.includes(key)) {
+                    if (val instanceof File) {
+                        submitData.append(key, val);
+                    }
+                } else {
+                    submitData.append(key, val === true ? 1 : val === false ? 0 : val);
+                }
+            }
+        });
+
         if (editMode.value) {
-            await vehicleService.update(selectedVehicle.value.id, form.value);
+            await vehicleService.update(selectedVehicle.value.id, submitData);
             notificationStore.addNotification('Vehicle updated successfully', 'success');
         } else {
-            await vehicleService.create(form.value);
+            await vehicleService.create(submitData);
             notificationStore.addNotification('Vehicle created successfully', 'success');
         }
         showModal.value = false;
