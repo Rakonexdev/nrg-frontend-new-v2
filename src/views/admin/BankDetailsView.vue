@@ -23,7 +23,7 @@
     </div>
 
     <!-- Summary Cards -->
-    <div v-if="!loading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div v-if="!loading" class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-gradient-to-br from-[#29166e] to-[#1d0f4d] rounded-2xl p-6 shadow-xl relative overflow-hidden group">
         <div class="absolute top-0 right-0 p-4 opacity-10 transform group-hover:scale-110 transition-transform duration-500">
           <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
@@ -40,6 +40,15 @@
         <div class="relative z-10">
             <h3 class="text-white/70 font-black text-xs tracking-widest uppercase mb-2">Total Debit Balance</h3>
             <p class="text-3xl font-bold text-white">QAR {{ formatCurrency(summary.debit_total) }}</p>
+        </div>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+        <div class="absolute top-0 right-0 p-4 opacity-10 transform group-hover:scale-110 transition-transform duration-500">
+          <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+        </div>
+        <div class="relative z-10">
+            <h3 class="text-white/70 font-black text-xs tracking-widest uppercase mb-2">Total Amount</h3>
+            <p class="text-3xl font-bold text-white">QAR {{ formatCurrency(summary.total_balance) }}</p>
         </div>
       </div>
     </div>
@@ -325,7 +334,8 @@ const searchQuery = ref('');
 const documentFile = ref(null);
 const summary = ref({
     credit_total: 0,
-    debit_total: 0
+    debit_total: 0,
+    total_balance: 0
 });
 const pagination = ref({
     current_page: 1,
