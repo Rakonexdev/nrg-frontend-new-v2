@@ -96,6 +96,14 @@
         <span class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ formatDate(row.updated_date) }}</span>
       </template>
 
+      <template #document="{ row }">
+        <a v-if="row.document" :href="getDocumentUrl(row.document)" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors w-fit">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            View
+        </a>
+        <span v-else class="text-xs font-bold text-slate-400 uppercase tracking-widest">N/A</span>
+      </template>
+
       <template #actions="{ row }">
         <div class="flex items-center gap-3">
           <button v-if="authStore.hasPermission('view_bank_details') || authStore.isSuperAdmin" @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="View Bank Detail">
@@ -223,6 +231,18 @@
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Updated Date</label>
                     <DateInput v-model="form.updated_date" />
                 </div>
+
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Document Upload <span class="text-xs lowercase text-slate-400 font-medium">(PNG, JPG, PDF)</span></label>
+                    <input type="file" @change="handleFileUpload" accept=".png,.jpg,.jpeg,.pdf"
+                           class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#29166e]/10 file:text-[#29166e] hover:file:bg-[#29166e]/20 cursor-pointer">
+                    <div v-if="form.document && typeof form.document === 'string'" class="mt-2 text-xs font-bold text-blue-600 dark:text-blue-400">
+                        <a :href="getDocumentUrl(form.document)" target="_blank" class="hover:underline flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            View Current Document
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         </fieldset>
@@ -263,7 +283,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { debounce } from 'lodash';
 import bankDetailService from '@/services/bankDetail.service';
-import { companyService } from '@/services/api';
+import { companyService, BASE_URL } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
@@ -279,6 +299,7 @@ const columns = [
     { key: 'balance_info', label: 'Balance (QAR)', sortable: false },
     { key: 'card_info', label: 'Card Information', sortable: false },
     { key: 'updated_date', label: 'Updated Date', sortable: false },
+    { key: 'document', label: 'Document', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
 
@@ -301,6 +322,7 @@ const itemToDelete = ref(null);
 const editMode = ref(false);
 const viewMode = ref(false);
 const searchQuery = ref('');
+const documentFile = ref(null);
 const summary = ref({
     credit_total: 0,
     debit_total: 0
@@ -328,8 +350,18 @@ const form = ref({
     balance: 0,
     card_type: '',
     card_number: '',
-    updated_date: ''
+    updated_date: '',
+    document: null
 });
+
+const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        documentFile.value = file;
+    } else {
+        documentFile.value = null;
+    }
+};
 
 const formatCurrency = (val) => {
     return parseFloat(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -342,6 +374,12 @@ const formatDate = (dateString) => {
     const month = date.toLocaleString('en-US', { month: 'short' });
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
+};
+
+const getDocumentUrl = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return `${BASE_URL}${path}`;
 };
 
 const fetchBankDetails = async (page = null) => {
@@ -384,6 +422,7 @@ const fetchCompanies = async () => {
 
 const openModal = (item = null, isView = false) => {
     viewMode.value = isView;
+    documentFile.value = null;
     if (item) {
         editMode.value = !isView;
         form.value = { ...item };
@@ -400,7 +439,8 @@ const openModal = (item = null, isView = false) => {
             balance: 0,
             card_type: '',
             card_number: '',
-            updated_date: ''
+            updated_date: '',
+            document: null
         };
     }
     showModal.value = true;
@@ -409,11 +449,28 @@ const openModal = (item = null, isView = false) => {
 const saveBankDetail = async () => {
     saving.value = true;
     try {
+        let submitData = { ...form.value };
+        
+        if (typeof submitData.document === 'string' || !submitData.document) {
+            delete submitData.document;
+        }
+
+        if (documentFile.value) {
+            const formData = new FormData();
+            for (const key in submitData) {
+                if (submitData[key] !== null && submitData[key] !== undefined) {
+                    formData.append(key, submitData[key]);
+                }
+            }
+            formData.append('document', documentFile.value);
+            submitData = formData;
+        }
+
         if (editMode.value) {
-            await bankDetailService.update(form.value.id, form.value);
+            await bankDetailService.update(form.value.id, submitData);
             notificationStore.addNotification('Bank detail updated successfully', 'success');
         } else {
-            await bankDetailService.create(form.value);
+            await bankDetailService.create(submitData);
             notificationStore.addNotification('Bank detail created successfully', 'success');
         }
         showModal.value = false;
