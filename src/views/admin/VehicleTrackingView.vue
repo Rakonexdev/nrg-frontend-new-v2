@@ -80,12 +80,26 @@
         <div class="flex flex-col">
           <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.driver_name }}</span>
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ row.driver_phone }}</span>
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">QID: {{ row.driver_qid || 'N/A' }}</span>
+        </div>
+      </template>
+
+      <template #istimara_date="{ row }">
+        <div class="flex flex-col">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ formatDate(row.reg_expiry_date) }}</span>
         </div>
       </template>
       
       <template #company_info="{ row }">
         <div class="flex flex-col">
           <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.company?.name || 'N/A' }}</span>
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">CC: {{ row.company?.computer_card || 'N/A' }}</span>
+        </div>
+      </template>
+
+      <template #starting_date="{ row }">
+        <div class="flex flex-col">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ formatDate(row.handover_datetime) }}</span>
         </div>
       </template>
 
@@ -155,8 +169,8 @@
                 </div>
 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Reg. Expiry Date</label>
-                    <DateInput v-model="form.reg_expiry_date" />
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Reg. Expiry Date <span class="text-red-500">*</span></label>
+                    <DateInput v-model="form.reg_expiry_date" required />
                 </div>
 
                 <div class="md:col-span-1">
@@ -309,10 +323,22 @@ import { useAuthStore } from '@/stores/auth';
 const columns = [
     { key: 'vehicle_info', label: 'Vehicle Info', sortable: false },
     { key: 'driver_info', label: 'Driver Info', sortable: false },
+    { key: 'istimara_date', label: 'Expiry Date', sortable: false },
     { key: 'company_info', label: 'Company', sortable: false },
+    { key: 'starting_date', label: 'Starting Date', sortable: false },
     { key: 'is_active', label: 'Status', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
+
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+    return `${day}-${month.toUpperCase()}-${year}`;
+};
 
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();

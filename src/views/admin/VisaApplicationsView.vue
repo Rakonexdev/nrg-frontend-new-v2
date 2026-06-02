@@ -37,6 +37,13 @@
         
         <div class="flex items-center gap-3 w-full md:w-auto">
             <SearchableSelect 
+                v-model="visaStatusFilter"
+                :options="visaStatusOptions"
+                @change="fetchApplications(1)"
+                placeholder="All Visa Status"
+                class="flex-1 md:w-48"
+            />
+            <SearchableSelect 
                 v-model="statusFilter"
                 :options="statusOptions"
                 @change="fetchApplications(1)"
@@ -73,6 +80,7 @@
           <div class="flex items-center gap-1.5 mt-0.5">
             <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">Serial: {{ row.serial_no }}</span>
           </div>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Exp: {{ formatDate(row.vp_expiry_date) }}</span>
         </div>
       </template>
 
@@ -80,12 +88,16 @@
         <div class="flex flex-col">
           <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.full_name }}</span>
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ row.nationality || 'N/A' }}</span>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">PPT: {{ row.passport_number || 'N/A' }}</span>
+          <span v-if="row.visa_number" class="text-xs font-bold text-slate-500 uppercase tracking-widest">Visa: {{ row.visa_number }}</span>
+          <span v-if="row.visa_expiry_date" class="text-xs font-bold text-slate-500 uppercase tracking-widest">Visa Exp: {{ formatDate(row.visa_expiry_date) }}</span>
         </div>
       </template>
       
       <template #company_info="{ row }">
         <div class="flex flex-col">
           <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.company?.name || 'N/A' }}</span>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">CC: {{ row.company?.computer_card || 'N/A' }}</span>
         </div>
       </template>
 
@@ -93,6 +105,12 @@
         <div class="flex flex-col">
           <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.contract_person || 'N/A' }}</span>
           <span v-if="row.contract_person_phone" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ row.contract_person_phone }}</span>
+        </div>
+      </template>
+
+      <template #visa_status="{ row }">
+        <div class="flex flex-col">
+          <span class="font-bold text-slate-700 dark:text-slate-300 text-xs">{{ row.medical_report || 'N/A' }}</span>
         </div>
       </template>
 
@@ -204,6 +222,11 @@
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Visa Number</label>
                     <input v-model="form.visa_number" type="text"
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                </div>
+
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Visa Expiry Date</label>
+                    <DateInput v-model="form.visa_expiry_date" />
                 </div>
 
                 <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-5 mt-2 border-t border-slate-200 dark:border-slate-700 pt-6">
@@ -422,6 +445,7 @@ const columns = [
     { key: 'vp_info', label: 'VP Record', sortable: false },
     { key: 'person_info', label: 'Person Info', sortable: false },
     { key: 'company_info', label: 'Company', sortable: false },
+    { key: 'visa_status', label: 'Visa Status', sortable: false },
     { key: 'contract_info', label: 'Contract Person', sortable: false },
     { key: 'is_active', label: 'Status', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
@@ -442,6 +466,7 @@ const editMode = ref(false);
 const viewMode = ref(false);
 const searchQuery = ref('');
 const statusFilter = ref('');
+const visaStatusFilter = ref('');
 const perPage = ref(10);
 const headerRef = ref(null);
 const isScrolled = ref(false);
@@ -459,6 +484,20 @@ const statusOptions = [
     { id: 'inactive', name: 'Inactive' }
 ];
 
+const visaStatusOptions = [
+    { id: '', name: 'All Visa Status' },
+    { id: 'FIT', name: 'FIT' },
+    { id: 'UNFIT', name: 'UNFIT' },
+    { id: 'PENDING', name: 'PENDING' },
+    { id: 'DEFERRED / FURTHER EXAM REQUIRED', name: 'DEFERRED / FURTHER EXAM REQUIRED' },
+    { id: 'FIT WITH CONDITIONS', name: 'FIT WITH CONDITIONS' },
+    { id: 'INCOMPLETE DOCUMENTS', name: 'INCOMPLETE DOCUMENTS' },
+    { id: 'RE VISIT', name: 'RE VISIT' },
+    { id: 'UNDER PROCESS', name: 'UNDER PROCESS' },
+    { id: 'OUT SIDE PROCESS', name: 'OUT SIDE PROCESS' },
+    { id: 'INSIDE COUNTRY', name: 'INSIDE COUNTRY' }
+];
+
 const filePreviews = ref({});
 
 const companyOptions = computed(() => {
@@ -472,6 +511,16 @@ const countryOptions = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Côte d'Ivoire", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini (fmr. 'Swaziland')", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (formerly Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", "Other"
 ].map(c => ({ id: c, name: c }));
 
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+    return `${day}-${month.toLowerCase()}-${year}`;
+};
+
 const selectedApplication = ref(null);
 
 const form = ref({
@@ -484,6 +533,7 @@ const form = ref({
     full_name: '',
     passport_number: '',
     visa_number: '',
+    visa_expiry_date: '',
     description: '',
     appointment_date: '',
     contract_person: '',
@@ -512,6 +562,7 @@ const fetchApplications = async (page = 1) => {
     try {
         const response = await visaApplicationService.getAll({ 
             status: statusFilter.value,
+            visa_status: visaStatusFilter.value,
             page,
             per_page: perPage.value,
             search: searchQuery.value
@@ -582,6 +633,7 @@ const openModal = (application = null, isView = false) => {
             full_name: '',
             passport_number: '',
             visa_number: '',
+            visa_expiry_date: '',
             description: '',
             appointment_date: '',
             contract_person: '',
