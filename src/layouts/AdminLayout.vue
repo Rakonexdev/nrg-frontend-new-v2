@@ -96,11 +96,11 @@
           <div v-if="$route.name === 'admin-dashboard' && dashboardStore.showMiniStats" 
                class="flex-1 hidden lg:flex items-center justify-center gap-2 mx-6 overflow-x-auto no-scrollbar py-1" key="dashboard">
             <div v-for="stat in activeMiniStats" :key="stat.key" 
-                 class="flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
-              <span class="w-2 h-2 rounded-full" :class="stat.color"></span>
-              <div class="flex items-baseline gap-1.5">
-                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{{ stat.label }}</span>
-                <span class="text-xs font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
+                 class="flex items-center gap-2.5 px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
+              <span class="w-2.5 h-2.5 rounded-full" :class="stat.color"></span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ stat.label }}</span>
+                <span class="text-base font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
               </div>
             </div>
           </div>
@@ -108,11 +108,11 @@
           <div v-else-if="$route.name === 'admin-contracts' && dashboardStore.showContractMiniStats" 
                class="flex-1 hidden lg:flex items-center justify-center gap-2 mx-6 overflow-x-auto no-scrollbar py-1" key="contracts">
             <div v-for="stat in activeContractMiniStats" :key="stat.key" 
-                 class="flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
-              <span class="w-2 h-2 rounded-full" :class="stat.color"></span>
-              <div class="flex items-baseline gap-1.5">
-                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{{ stat.label }}</span>
-                <span class="text-xs font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
+                 class="flex items-center gap-2.5 px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
+              <span class="w-2.5 h-2.5 rounded-full" :class="stat.color"></span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ stat.label }}</span>
+                <span class="text-base font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
               </div>
             </div>
           </div>
@@ -120,11 +120,11 @@
           <div v-else-if="$route.name === 'admin-expenses' && dashboardStore.showExpenseMiniStats" 
                class="flex-1 hidden lg:flex items-center justify-center gap-2 mx-6 overflow-x-auto no-scrollbar py-1" key="expenses">
             <div v-for="stat in activeExpenseMiniStats" :key="stat.key" 
-                 class="flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
-              <span class="w-2 h-2 rounded-full" :class="stat.color"></span>
-              <div class="flex items-baseline gap-1.5">
-                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{{ stat.label }}</span>
-                <span class="text-xs font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
+                 class="flex items-center gap-2.5 px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
+              <span class="w-2.5 h-2.5 rounded-full" :class="stat.color"></span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ stat.label }}</span>
+                <span class="text-base font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
               </div>
             </div>
           </div>
@@ -132,11 +132,11 @@
           <div v-else-if="$route.name === 'admin-immigration-bank-details' && dashboardStore.showBankMiniStats" 
                class="flex-1 hidden lg:flex items-center justify-center gap-2 mx-6 overflow-x-auto no-scrollbar py-1" key="bank">
             <div v-for="stat in activeBankMiniStats" :key="stat.key" 
-                 class="flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
-              <span class="w-2 h-2 rounded-full" :class="stat.color"></span>
-              <div class="flex items-baseline gap-1.5">
-                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{{ stat.label }}</span>
-                <span class="text-xs font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
+                 class="flex items-center gap-2.5 px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
+              <span class="w-2.5 h-2.5 rounded-full" :class="stat.color"></span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ stat.label }}</span>
+                <span class="text-base font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
               </div>
             </div>
           </div>

@@ -82,7 +82,7 @@
             </h4>
           </div>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
              <div v-for="prof in row.professions" :key="prof.id" class="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 transition-colors shadow-sm group">
                <div class="flex items-center justify-between flex-1 pr-3 border-r border-slate-100 dark:border-slate-700 overflow-hidden">
                  <div class="flex flex-col truncate pr-2">
