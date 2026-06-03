@@ -84,19 +84,25 @@
           
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
              <div v-for="prof in row.professions" :key="prof.id" class="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 transition-colors shadow-sm group">
-               <div class="flex items-center justify-between flex-1 pr-3 border-r border-slate-100 dark:border-slate-700">
-                 <span class="font-medium text-sm text-slate-700 dark:text-slate-300 truncate">{{ prof.profession }}</span>
+               <div class="flex items-center justify-between flex-1 pr-3 border-r border-slate-100 dark:border-slate-700 overflow-hidden">
+                 <div class="flex flex-col truncate pr-2">
+                   <span class="font-bold text-[15px] text-slate-700 dark:text-slate-200 truncate">{{ prof.profession }}</span>
+                   <span v-if="prof.vp_number" class="text-[11px] font-bold uppercase tracking-widest mt-1.5 truncate flex items-center gap-2">
+                     <span class="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">VP: {{ prof.vp_number }}</span>
+                     <span v-if="prof.vp_expiry_date" class="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-1.5 py-0.5 rounded">EXP: {{ formatDate(prof.vp_expiry_date) }}</span>
+                   </span>
+                 </div>
                  <span class="font-mono text-sm font-bold whitespace-nowrap ml-3"
                        :class="(prof.available - (prof.used || 0)) <= 0 ? 'text-red-600 dark:text-red-400' : (prof.available - (prof.used || 0)) <= 2 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-500'">
                    {{ prof.used || 0 }} / {{ prof.available }}
                  </span>
                </div>
-               <div class="flex items-center gap-1 pl-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                 <button @click="openModal(prof)" class="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all" title="Edit Slots">
-                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+               <div class="flex items-center gap-1.5 pl-2 border-l border-slate-100 dark:border-slate-700 ml-2">
+                 <button @click="openModal(prof)" class="p-1.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-lg transition-all" title="Edit Slots">
+                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                  </button>
-                 <button @click="deleteSlot(prof)" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all" title="Delete Slots">
-                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                 <button @click="deleteSlot(prof)" class="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-lg transition-all" title="Delete Slots">
+                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                  </button>
                </div>
              </div>
@@ -116,21 +122,15 @@
                 <h3 class="text-xs font-black text-blue-600 dark:text-blue-500 uppercase tracking-widest">Company Information</h3>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Company Name <span class="text-red-500">*</span></label>
+            <div class="grid grid-cols-1 gap-5">
+                <div class="col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Company Name / Computer Card <span class="text-red-500">*</span></label>
                     <SearchableSelect 
                         v-model="form.company_id" 
                         :options="companyOptions" 
                         placeholder="Search & Select Company" 
                         class="w-full font-bold"
                     />
-                </div>
-                
-                <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Computer / Code No. <span class="text-red-500">*</span></label>
-                    <input v-model="form.computer_code" type="text" required placeholder="e.g. 17167711"
-                           class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                 </div>
             </div>
         </div>
@@ -161,6 +161,19 @@
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold text-center">
                 </div>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">VP Number <span class="text-red-500">*</span></label>
+                    <input v-model="form.vp_number" type="text" required placeholder="e.g. VP2023XXXXXX"
+                           class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                </div>
+                
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">VP Expiry Date <span class="text-red-500">*</span></label>
+                    <DateInput v-model="form.vp_expiry_date" required />
+                </div>
+            </div>
         </div>
 
         <div class="flex justify-end gap-4 mt-8 border-t border-slate-200 dark:border-slate-700 pt-6">
@@ -184,6 +197,7 @@ import { companyService, companyVisaService } from '@/services/api';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import SearchableSelect from '@/components/shared/SearchableSelect.vue';
+import DateInput from '@/components/shared/DateInput.vue';
 
 const columns = [
     { key: 'company_info', label: 'Company Info', sortable: false },
@@ -206,7 +220,7 @@ const companies = ref([]);
 const companyOptions = computed(() => {
     return companies.value.map(c => ({
         id: c.id,
-        name: c.name
+        name: `${c.name} - ${c.computer_card || 'N/A'}`
     }));
 });
 
@@ -270,7 +284,9 @@ const filteredVisas = computed(() => {
             used: v.used_slots || 0,
             company_id: v.company_id,
             company_name: companyName,
-            computer_code: computerCode
+            computer_code: computerCode,
+            vp_number: v.vp_number,
+            vp_expiry_date: v.vp_expiry_date
         });
         map[key].total_slots += v.available_slots;
         map[key].total_used += (v.used_slots || 0);
@@ -278,6 +294,16 @@ const filteredVisas = computed(() => {
     
     return Object.values(map);
 });
+
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+    return `${day}-${month.toUpperCase()}-${year}`;
+};
 
 const fetchVisas = async () => {
     loading.value = true;
@@ -312,9 +338,10 @@ const selectedVisa = ref(null);
 const form = ref({
     company_id: '',
     company_name: '',
-    computer_code: '',
     profession: '',
-    available: 0
+    available: 0,
+    vp_number: '',
+    vp_expiry_date: ''
 });
 
 watch(() => form.value.company_id, (newId) => {
@@ -322,7 +349,6 @@ watch(() => form.value.company_id, (newId) => {
         const company = companies.value.find(c => c.id === newId);
         if (company) {
             form.value.company_name = company.name;
-            form.value.computer_code = company.computer_card || '';
         }
     }
 });
@@ -334,9 +360,10 @@ const openModal = (visa = null) => {
         form.value = { 
             company_id: visa.company_id,
             company_name: visa.company_name,
-            computer_code: visa.computer_code || '',
             profession: visa.profession,
-            available: visa.available
+            available: visa.available,
+            vp_number: visa.vp_number || '',
+            vp_expiry_date: visa.vp_expiry_date || ''
         };
     } else {
         editMode.value = false;
@@ -344,9 +371,10 @@ const openModal = (visa = null) => {
         form.value = {
             company_id: '',
             company_name: '',
-            computer_code: '',
             profession: '',
-            available: 0
+            available: 0,
+            vp_number: '',
+            vp_expiry_date: ''
         };
     }
     showModal.value = true;
@@ -358,7 +386,9 @@ const saveVisaSlot = async () => {
         const payload = {
             company_id: form.value.company_id,
             profession: form.value.profession,
-            available_slots: form.value.available
+            available_slots: form.value.available,
+            vp_number: form.value.vp_number,
+            vp_expiry_date: form.value.vp_expiry_date
         };
 
         if (editMode.value) {

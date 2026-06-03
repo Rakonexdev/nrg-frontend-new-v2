@@ -81,7 +81,7 @@
           <div class="flex items-center gap-1.5 mt-0.5">
             <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">Serial: {{ row.serial_no }}</span>
           </div>
-          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Exp: {{ formatDate(row.vp_expiry_date) }}</span>
+          <span class="text-xs font-bold text-red-500 dark:text-red-400 uppercase tracking-widest mt-1">Exp: {{ formatDate(row.vp_expiry_date) }}</span>
         </div>
       </template>
 
@@ -161,26 +161,6 @@
                     <input v-model="form.serial_no" type="text" required readonly
                            class="w-full px-4 py-3.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none transition-all font-bold cursor-not-allowed text-slate-500">
                 </div>
-                
-                <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">VP Expiry Date <span class="text-red-500">*</span></label>
-                    <DateInput v-model="form.vp_expiry_date" required />
-                </div>
-
-                <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">VP Number <span class="text-red-500">*</span></label>
-                    <input v-model="form.vp_number" type="text" required placeholder="VP2023XXXXXX"
-                           class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold placeholder:font-normal placeholder:text-slate-400">
-                </div>
-
-                <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nationality <span class="text-red-500">*</span></label>
-                    <SearchableSelect 
-                        v-model="form.nationality"
-                        :options="countryOptions"
-                        placeholder="Select Nationality"
-                    />
-                </div>
 
                 <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">CC / Company <span class="text-red-500">*</span></label>
@@ -209,6 +189,28 @@
                             </div>
                         </template>
                     </SearchableSelect>
+                </div>
+
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">VP Number <span class="text-red-500">*</span></label>
+                    <input v-model="form.vp_number" type="text" required readonly placeholder="Auto-filled"
+                           class="w-full px-4 py-3.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none transition-all font-bold cursor-not-allowed text-slate-500">
+                </div>
+                
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">VP Expiry Date <span class="text-red-500">*</span></label>
+                    <div class="pointer-events-none opacity-80 cursor-not-allowed">
+                        <DateInput v-model="form.vp_expiry_date" required />
+                    </div>
+                </div>
+                
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nationality <span class="text-red-500">*</span></label>
+                    <SearchableSelect 
+                        v-model="form.nationality"
+                        :options="countryOptions"
+                        placeholder="Select Nationality"
+                    />
                 </div>
             </div>
         </div>
@@ -334,8 +336,8 @@
                 </div>
                 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Report and Visa Status</label>
-                    <select v-model="form.medical_report" class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold appearance-none cursor-pointer">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Report and Visa Status <span class="text-red-500">*</span></label>
+                    <select v-model="form.medical_report" required class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold appearance-none cursor-pointer">
                         <option value="" disabled>-- Select --</option>
                         <option value="FIT">FIT</option>
                         <option value="UNFIT">UNFIT</option>
@@ -345,7 +347,7 @@
                         <option value="INCOMPLETE DOCUMENTS">INCOMPLETE DOCUMENTS</option>
                         <option value="RE VISIT">RE VISIT</option>
                         <option value="UNDER PROCESS">UNDER PROCESS</option>
-                        <option value="OUT SIDE PROCESS">OUT SIDE PROCESS</option>
+                        <option value="OUTSIDE PROCESS">OUTSIDE PROCESS</option>
                         <option value="INSIDE COUNTRY">INSIDE COUNTRY</option>
                     </select>
                 </div>
@@ -512,7 +514,7 @@ const visaStatusOptions = [
     { id: 'INCOMPLETE DOCUMENTS', name: 'INCOMPLETE DOCUMENTS' },
     { id: 'RE VISIT', name: 'RE VISIT' },
     { id: 'UNDER PROCESS', name: 'UNDER PROCESS' },
-    { id: 'OUT SIDE PROCESS', name: 'OUT SIDE PROCESS' },
+    { id: 'OUTSIDE PROCESS', name: 'OUTSIDE PROCESS' },
     { id: 'INSIDE COUNTRY', name: 'INSIDE COUNTRY' }
 ];
 
@@ -608,6 +610,16 @@ watch(() => form.value.company_id, async (newCompanyId) => {
         console.error('Failed to fetch company professions', error);
         companyProfessionOptions.value = [];
         companyVisaRecords.value = [];
+    }
+});
+
+watch(() => form.value.position, (newProfession) => {
+    if (!editMode.value && newProfession && form.value.company_id && companyVisaRecords.value.length > 0) {
+        const match = companyVisaRecords.value.find(v => v.profession === newProfession);
+        if (match) {
+            form.value.vp_number = match.vp_number || '';
+            form.value.vp_expiry_date = match.vp_expiry_date || '';
+        }
     }
 });
 

@@ -119,6 +119,16 @@
         </span>
       </template>
 
+      <template #document="{ row }">
+        <div class="flex flex-col">
+          <a v-if="row.vehicle_document" :href="getStorageUrl(row.vehicle_document)" target="_blank" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 rounded-lg text-xs font-bold transition-colors w-max">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            View
+          </a>
+          <span v-else class="text-xs font-bold text-slate-400 uppercase tracking-widest">N/A</span>
+        </div>
+      </template>
+
       <template #actions="{ row }">
         <div class="flex items-center gap-3">
           <button v-if="authStore.hasPermission('view_vehicles') || authStore.isSuperAdmin" @click="openModal(row, true)" class="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="View Vehicle">
@@ -356,6 +366,7 @@ const columns = [
     { key: 'starting_date', label: 'Starting Date', sortable: false },
     { key: 'fine_amount', label: 'Fine', sortable: false },
     { key: 'is_active', label: 'Status', sortable: false },
+    { key: 'document', label: 'Document', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
 
