@@ -12,7 +12,7 @@
     </div>
 
     <!-- Search and Filters -->
-    <div :class="[
+    <div ref="searchBarRef" :class="[
            'relative flex flex-col md:flex-row gap-4 items-center justify-between p-4 rounded-2xl border transition-all duration-300 shadow-sm',
            isScrolled 
              ? 'sticky top-[-32px] bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md z-30' 
@@ -63,6 +63,7 @@
       :columns="columns" 
       :data="vehicles"
       :pagination="pagination"
+      :stickyTop="tableStickyTop"
       @page-change="fetchVehicles">
       
       <template #vehicle_info="{ row }">
@@ -100,6 +101,12 @@
       <template #starting_date="{ row }">
         <div class="flex flex-col">
           <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ formatDate(row.handover_datetime) }}</span>
+        </div>
+      </template>
+
+      <template #fine_amount="{ row }">
+        <div class="flex flex-col">
+          <span class="text-xs font-bold" :class="row.fine_amount > 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'">QAR {{ row.fine_amount || '0' }}</span>
         </div>
       </template>
 
@@ -171,6 +178,12 @@
                 <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Istimara Expiry Date <span class="text-red-500">*</span></label>
                     <DateInput v-model="form.reg_expiry_date" required />
+                </div>
+
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Fine Amount (QAR)</label>
+                    <input v-model="form.fine_amount" type="number" min="0" step="0.01" placeholder="0.00"
+                           class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold placeholder:font-normal">
                 </div>
 
                 <div class="md:col-span-1">
@@ -324,7 +337,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { vehicleService, companyService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 import DataTable from '@/components/shared/DataTable.vue';
@@ -341,6 +354,7 @@ const columns = [
     { key: 'istimara_date', label: 'Istimara Expiry Date', sortable: false },
     { key: 'company_info', label: 'Company', sortable: false },
     { key: 'starting_date', label: 'Starting Date', sortable: false },
+    { key: 'fine_amount', label: 'Fine', sortable: false },
     { key: 'is_active', label: 'Status', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
@@ -379,8 +393,11 @@ const searchQuery = ref('');
 const statusFilter = ref('');
 const perPage = ref(10);
 const headerRef = ref(null);
+const searchBarRef = ref(null);
+const tableStickyTop = ref('0px');
 const isScrolled = ref(false);
 let observer = null;
+let resizeObserver = null;
 const pagination = ref({
     current_page: 1,
     last_page: 1,
@@ -431,6 +448,7 @@ const form = ref({
     handover_datetime: '',
     return_datetime: '',
     vehicle_document: null,
+    fine_amount: 0,
     is_active: true
 });
 
@@ -498,6 +516,7 @@ const openModal = (vehicle = null, isView = false) => {
             handover_datetime: '',
             return_datetime: '',
             vehicle_document: null,
+            fine_amount: 0,
             is_active: true
         };
     }
@@ -604,11 +623,36 @@ onMounted(() => {
         });
         observer.observe(headerRef.value);
     }
+
+    resizeObserver = new ResizeObserver(() => {
+        if (isScrolled.value && searchBarRef.value) {
+            const height = searchBarRef.value.getBoundingClientRect().height;
+            tableStickyTop.value = `${height - 32}px`;
+        } else {
+            tableStickyTop.value = '0px';
+        }
+    });
+    
+    if (searchBarRef.value) {
+        resizeObserver.observe(searchBarRef.value);
+    }
+
+    watch(isScrolled, () => {
+        if (isScrolled.value && searchBarRef.value) {
+            const height = searchBarRef.value.getBoundingClientRect().height;
+            tableStickyTop.value = `${height - 32}px`;
+        } else {
+            tableStickyTop.value = '0px';
+        }
+    });
 });
 
 onUnmounted(() => {
     if (observer) {
         observer.disconnect();
+    }
+    if (resizeObserver) {
+        resizeObserver.disconnect();
     }
 });
 </script>

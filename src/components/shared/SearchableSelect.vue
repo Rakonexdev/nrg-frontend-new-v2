@@ -41,7 +41,8 @@
     >
       <div 
         v-if="isOpen"
-        class="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden"
+        class="absolute z-50 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden"
+        :class="placement === 'top' ? 'bottom-full mb-2' : 'mt-2'"
       >
         <div class="p-2 border-b border-slate-100 dark:border-slate-700">
           <div class="relative">
@@ -135,6 +136,10 @@
    allowCustom: {
      type: Boolean,
      default: false
+   },
+   placement: {
+     type: String,
+     default: 'bottom'
    },
    error: String
  });

@@ -100,7 +100,7 @@ const router = createRouter({
         {
           path: 'immigration/company-visas',
           name: 'admin-immigration-company-visas',
-          component: () => import('../views/admin/ComingSoonView.vue'),
+          component: () => import('../views/admin/CompanyVisasView.vue'),
           meta: { title: 'Company Visas' }
         },
         // Reports

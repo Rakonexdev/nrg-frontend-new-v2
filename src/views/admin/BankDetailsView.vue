@@ -1,19 +1,11 @@
 <template>
   <div class="space-y-6">
-    <div ref="headerRef" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Bank Details</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage bank details and card information</p>
       </div>
       <div class="flex flex-col sm:flex-row items-center gap-3">
-        <!-- Search -->
-        <div class="relative w-full sm:w-64">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-          </div>
-          <input v-model="searchQuery" @input="debouncedSearch" type="text" placeholder="Search details..." 
-                 class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all dark:text-white shadow-sm font-medium">
-        </div>
         <!-- Action Buttons -->
         <button v-if="authStore.hasPermission('bank_detail_create') || authStore.isSuperAdmin" @click="openModal()" class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -23,7 +15,7 @@
     </div>
 
     <!-- Summary Cards -->
-    <div v-if="!loading" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div ref="statsContainerRef" v-show="!loading" class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-gradient-to-br from-[#29166e] to-[#1d0f4d] rounded-2xl p-6 shadow-xl relative overflow-hidden group">
         <div class="absolute top-0 right-0 p-4 opacity-10 transform group-hover:scale-110 transition-transform duration-500">
           <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
@@ -53,11 +45,57 @@
       </div>
     </div>
 
+    <!-- Search & Filters -->
+    <div ref="searchBarRef" :class="[
+           'transition-all duration-300 flex flex-col md:flex-row gap-4 items-center justify-between p-4 rounded-2xl border shadow-sm relative z-30 animate-fade-in',
+           isScrolled 
+             ? 'sticky top-[-32px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md' 
+             : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+         ]">
+      <div class="flex flex-col md:flex-row gap-3 w-full xl:w-auto">
+        <div class="flex items-center gap-3 w-full xl:max-w-2xl">
+          <div class="relative w-full md:w-80 group">
+            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </span>
+            <input v-model="searchQuery" @input="debouncedSearch" type="text" placeholder="Search by QID, phone, company, or person name..." 
+                   class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
+          </div>
+
+          <div class="w-full md:w-48">
+            <select v-model="filterType" @change="debouncedSearch" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all cursor-pointer">
+              <option value="">All Card Types</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Debit Card">Debit Card</option>
+            </select>
+          </div>
+
+          <transition name="fade-slide-horizontal">
+            <div v-if="isScrolled" class="flex gap-2 shrink-0">
+                <button v-if="authStore.hasPermission('bank_detail_create') || authStore.isSuperAdmin" @click="openModal()" class="flex items-center gap-2 px-4 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs transform hover:-translate-y-0.5">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  Add Bank Detail
+                </button>
+            </div>
+          </transition>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <select v-model="pagination.per_page" @change="debouncedSearch" class="w-full md:w-auto px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all cursor-pointer">
+          <option :value="10">10 per page</option>
+          <option :value="25">25 per page</option>
+          <option :value="50">50 per page</option>
+        </select>
+      </div>
+    </div>
+
     <!-- Data Table -->
     <DataTable v-if="!loading"
       :columns="columns" 
       :data="bankDetails"
       :pagination="pagination"
+      :stickyTop="tableStickyTop"
       @page-change="fetchBankDetails">
       
       <template #details_for="{ row }">
@@ -98,6 +136,7 @@
           </span>
           <span v-else class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">N/A</span>
           <span v-if="row.card_number" class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-0.5">{{ row.card_number }}</span>
+          <span v-if="row.card_expiry_date" class="text-[10px] font-bold text-rose-500 uppercase tracking-widest mt-0.5">Exp: {{ formatMonthYear(row.card_expiry_date) }}</span>
         </div>
       </template>
       
@@ -236,6 +275,12 @@
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                 </div>
                 
+                <div class="md:col-span-1" v-if="form.card_type">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Card Expiry Date</label>
+                    <input v-model="form.card_expiry_date" type="month"
+                           class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                </div>
+                
                 <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Updated Date</label>
                     <DateInput v-model="form.updated_date" />
@@ -289,7 +334,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
 import { debounce } from 'lodash';
 import bankDetailService from '@/services/bankDetail.service';
 import { companyService, BASE_URL } from '@/services/api';
@@ -300,6 +345,7 @@ import ConfirmModal from '@/components/shared/ConfirmModal.vue';
 import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useDashboardStore } from '@/stores/dashboard';
 
 const columns = [
     { key: 'details_for', label: 'Details For', sortable: false },
@@ -314,6 +360,7 @@ const columns = [
 
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
+const dashboardStore = useDashboardStore();
 const bankDetails = ref([]);
 const companies = ref([]);
 const computedCompanies = computed(() => {
@@ -331,7 +378,14 @@ const itemToDelete = ref(null);
 const editMode = ref(false);
 const viewMode = ref(false);
 const searchQuery = ref('');
+const filterType = ref('');
 const documentFile = ref(null);
+const statsContainerRef = ref(null);
+const searchBarRef = ref(null);
+const tableStickyTop = ref('0px');
+const isScrolled = ref(false);
+let observer = null;
+let resizeObserver = null;
 const summary = ref({
     credit_total: 0,
     debit_total: 0,
@@ -341,7 +395,9 @@ const pagination = ref({
     current_page: 1,
     last_page: 1,
     total: 0,
-    per_page: 15
+    per_page: 10,
+    from: 0,
+    to: 0
 });
 
 const debouncedSearch = debounce(() => {
@@ -360,6 +416,7 @@ const form = ref({
     balance: 0,
     card_type: '',
     card_number: '',
+    card_expiry_date: '',
     updated_date: '',
     document: null
 });
@@ -375,6 +432,14 @@ const handleFileUpload = (event) => {
 
 const formatCurrency = (val) => {
     return parseFloat(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const formatMonthYear = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString().slice(-2);
+    return `${month}/${year}`;
 };
 
 const formatDate = (dateString) => {
@@ -401,21 +466,25 @@ const fetchBankDetails = async (page = null) => {
         const response = await bankDetailService.getAll({
             page: pagination.value.current_page,
             search: searchQuery.value,
+            card_type: filterType.value,
             per_page: pagination.value.per_page
         });
         bankDetails.value = response.data.data || [];
         if (response.data.summary) {
             summary.value = response.data.summary;
+            dashboardStore.setBankStats(response.data.summary);
         }
         pagination.value = {
             current_page: response.data.current_page,
             last_page: response.data.last_page,
             total: response.data.total,
-            per_page: response.data.per_page
+            per_page: response.data.per_page,
+            from: response.data.from,
+            to: response.data.to
         };
     } catch (error) {
         console.error('Failed to fetch bank details:', error);
-        notificationStore.error(error.response?.data?.message || 'Failed to load bank details');
+        notificationStore.error(error?.response?.data?.message || error?.message || 'Failed to load bank details');
     } finally {
         loading.value = false;
     }
@@ -436,6 +505,9 @@ const openModal = (item = null, isView = false) => {
     if (item) {
         editMode.value = !isView;
         form.value = { ...item };
+        if (form.value.card_expiry_date) {
+            form.value.card_expiry_date = form.value.card_expiry_date.substring(0, 7);
+        }
     } else {
         editMode.value = false;
         form.value = {
@@ -449,6 +521,7 @@ const openModal = (item = null, isView = false) => {
             balance: 0,
             card_type: '',
             card_number: '',
+            card_expiry_date: '',
             updated_date: '',
             document: null
         };
@@ -460,6 +533,10 @@ const saveBankDetail = async () => {
     saving.value = true;
     try {
         let submitData = { ...form.value };
+        
+        if (submitData.card_expiry_date && submitData.card_expiry_date.length === 7) {
+            submitData.card_expiry_date = `${submitData.card_expiry_date}-01`;
+        }
         
         if (typeof submitData.document === 'string' || !submitData.document) {
             delete submitData.document;
@@ -515,9 +592,54 @@ const handleDelete = async () => {
         itemToDelete.value = null;
     }
 };
-
 onMounted(() => {
+    if (statsContainerRef.value) {
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const scrolledPast = !entry.isIntersecting;
+                isScrolled.value = scrolledPast;
+                dashboardStore.setShowBankMiniStats(scrolledPast);
+            });
+        }, {
+            threshold: 0,
+            rootMargin: '-80px 0px 0px 0px'
+        });
+        observer.observe(statsContainerRef.value);
+    }
+
+    resizeObserver = new ResizeObserver(() => {
+        if (isScrolled.value && searchBarRef.value) {
+            const height = searchBarRef.value.getBoundingClientRect().height;
+            tableStickyTop.value = `${height - 32}px`;
+        } else {
+            tableStickyTop.value = '0px';
+        }
+    });
+    
+    if (searchBarRef.value) {
+        resizeObserver.observe(searchBarRef.value);
+    }
+
+    watch(isScrolled, () => {
+        if (isScrolled.value && searchBarRef.value) {
+            const height = searchBarRef.value.getBoundingClientRect().height;
+            tableStickyTop.value = `${height - 32}px`;
+        } else {
+            tableStickyTop.value = '0px';
+        }
+    });
+
     fetchBankDetails();
     fetchCompanies();
+});
+
+onUnmounted(() => {
+    if (observer) {
+        observer.disconnect();
+    }
+    if (resizeObserver) {
+        resizeObserver.disconnect();
+    }
+    dashboardStore.setShowBankMiniStats(false);
 });
 </script>

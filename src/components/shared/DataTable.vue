@@ -1,9 +1,9 @@
 <template>
-  <div class="overflow-hidden bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm">
-    <div class="overflow-x-auto">
+  <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm">
+    <div class="w-full">
       <table class="w-full text-left border-collapse">
-        <thead>
-          <tr class="bg-slate-50/50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-700">
+        <thead class="sticky z-20 shadow-sm transition-all duration-300" :style="{ top: stickyTop }">
+          <tr class="bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-700">
             <th v-for="col in columns" :key="col.key" 
                 @click="col.sortable && $emit('sort', col.key)"
                 :class="[col.sortable ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700' : '', 'px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider transition-colors']">
@@ -14,15 +14,27 @@
             </th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="(row, index) in data" :key="row.id || index" 
-              class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-            <td v-for="col in columns" :key="col.key" class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
-              <slot :name="col.key" :value="row[col.key]" :row="row">
-                {{ row[col.key] }}
-              </slot>
-            </td>
-          </tr>
+        <tbody v-if="data?.length > 0 && !loading">
+          <template v-for="(row, index) in data" :key="row.id || index">
+            <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+              <td v-for="col in columns" :key="col.key" class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
+                <slot :name="col.key" :value="row[col.key]" :row="row" :toggleExpand="() => toggleExpand(row.id || index)" :isExpanded="expandedRows.includes(row.id || index)">
+                  {{ row[col.key] }}
+                </slot>
+              </td>
+            </tr>
+            <tr v-if="$slots['expanded-row'] && expandedRows.includes(row.id || index)" class="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-700/50">
+              <td :colspan="columns.length" class="p-0">
+                <transition name="expand">
+                  <div class="px-6 py-4">
+                    <slot name="expanded-row" :row="row"></slot>
+                  </div>
+                </transition>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+        <tbody v-else>
           <tr v-if="loading">
             <td :colspan="columns.length" class="px-6 py-12 text-center">
               <div class="flex flex-col items-center gap-2">
@@ -31,7 +43,7 @@
               </div>
             </td>
           </tr>
-          <tr v-else-if="data.length === 0">
+          <tr v-else-if="!data || data.length === 0">
             <td :colspan="columns.length" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400 italic font-medium">
               No records match your criteria.
             </td>
@@ -95,7 +107,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
   columns: { type: Array, required: true },
@@ -103,10 +115,28 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
   pagination: { type: Object, default: null },
   sortBy: { type: String, default: null },
-  sortDir: { type: String, default: 'asc' }
+  sortDir: {
+    type: String,
+    default: 'desc'
+  },
+  stickyTop: {
+    type: String,
+    default: '0px'
+  }
 });
 
 defineEmits(['sort', 'page-change']);
+
+const expandedRows = ref([]);
+
+const toggleExpand = (id) => {
+  const index = expandedRows.value.indexOf(id);
+  if (index === -1) {
+    expandedRows.value.push(id);
+  } else {
+    expandedRows.value.splice(index, 1);
+  }
+};
 
 const visiblePages = computed(() => {
   if (!props.pagination) return [];

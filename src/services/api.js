@@ -200,4 +200,12 @@ export const visaApplicationService = {
     delete: (id) => api.delete(`/visa-applications/${id}`)
 };
 
+export const companyVisaService = {
+    getAll: (params) => api.get('/company-visas', { params }),
+    getById: (id) => api.get(`/company-visas/${id}`),
+    create: (data) => api.post('/company-visas', data),
+    update: (id, data) => api.put(`/company-visas/${id}`, data),
+    delete: (id) => api.delete(`/company-visas/${id}`)
+};
+
 export default api;

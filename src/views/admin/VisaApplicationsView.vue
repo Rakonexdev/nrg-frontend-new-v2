@@ -12,7 +12,7 @@
     </div>
 
     <!-- Search and Filters -->
-    <div :class="[
+    <div ref="searchBarRef" :class="[
            'relative flex flex-col md:flex-row gap-4 items-center justify-between p-4 rounded-2xl border transition-all duration-300 shadow-sm',
            isScrolled 
              ? 'sticky top-[-32px] bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md z-30' 
@@ -70,6 +70,7 @@
       :columns="columns" 
       :data="applications"
       :pagination="pagination"
+      :stickyTop="tableStickyTop"
       @page-change="fetchApplications">
       
       <template #vp_info="{ row }">
@@ -173,12 +174,6 @@
                 </div>
 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Position <span class="text-red-500">*</span></label>
-                    <input v-model="form.position" type="text" required placeholder="Job position"
-                           class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold placeholder:font-normal">
-                </div>
-
-                <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nationality <span class="text-red-500">*</span></label>
                     <SearchableSelect 
                         v-model="form.nationality"
@@ -194,6 +189,26 @@
                         :options="companyOptions"
                         placeholder="Select Company"
                     />
+                </div>
+
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Profession <span class="text-red-500">*</span></label>
+                    <SearchableSelect 
+                        v-model="form.position"
+                        :options="companyProfessionOptions"
+                        placeholder="Select Profession"
+                    >
+                        <template #option="{ option }">
+                            <div class="flex items-center justify-between w-full pr-2">
+                                <span class="break-words whitespace-normal text-slate-700 dark:text-slate-300">{{ option.name }}</span>
+                                <span v-if="option.available !== undefined" 
+                                      class="ml-3 font-mono text-xs font-bold whitespace-nowrap"
+                                      :class="(option.available - option.used) <= 0 ? 'text-red-600 dark:text-red-400' : (option.available - option.used) <= 2 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-500'">
+                                    {{ option.used }} / {{ option.available }}
+                                </span>
+                            </div>
+                        </template>
+                    </SearchableSelect>
                 </div>
             </div>
         </div>
@@ -430,8 +445,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { visaApplicationService, companyService } from '@/services/api';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { visaApplicationService, companyService, companyVisaService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
@@ -469,8 +484,11 @@ const statusFilter = ref('');
 const visaStatusFilter = ref('');
 const perPage = ref(10);
 const headerRef = ref(null);
+const searchBarRef = ref(null);
+const tableStickyTop = ref('0px');
 const isScrolled = ref(false);
 let observer = null;
+let resizeObserver = null;
 const pagination = ref({
     current_page: 1,
     last_page: 1,
@@ -506,6 +524,9 @@ const companyOptions = computed(() => {
         name: `${c.name} - ${c.computer_card || 'N/A'}`
     }));
 });
+
+const companyProfessionOptions = ref([]);
+
 
 const countryOptions = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Côte d'Ivoire", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini (fmr. 'Swaziland')", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (formerly Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", "Other"
@@ -549,6 +570,45 @@ const form = ref({
     medical_appointment_page: null,
     visa_copy: null,
     is_active: true
+});
+
+const companyVisaRecords = ref([]);
+
+watch(() => form.value.company_id, async (newCompanyId) => {
+    if (!newCompanyId) {
+        companyProfessionOptions.value = [];
+        companyVisaRecords.value = [];
+        return;
+    }
+    
+    try {
+        const res = await companyVisaService.getAll({ company_id: newCompanyId });
+        companyVisaRecords.value = res.data;
+        
+        const professionMap = {};
+        res.data.forEach(v => {
+            if (!professionMap[v.profession]) {
+                professionMap[v.profession] = { used: 0, available: 0 };
+            }
+            professionMap[v.profession].used += (v.used_slots || 0);
+            professionMap[v.profession].available += (v.available_slots || 0);
+        });
+
+        companyProfessionOptions.value = Object.keys(professionMap).map(p => ({ 
+            id: p, 
+            name: p,
+            used: professionMap[p].used,
+            available: professionMap[p].available
+        }));
+        
+        if (form.value.position && !professionMap[form.value.position]) {
+            form.value.position = '';
+        }
+    } catch (error) {
+        console.error('Failed to fetch company professions', error);
+        companyProfessionOptions.value = [];
+        companyVisaRecords.value = [];
+    }
 });
 
 const calculateDue = () => {
@@ -774,11 +834,36 @@ onMounted(() => {
         });
         observer.observe(headerRef.value);
     }
+
+    resizeObserver = new ResizeObserver(() => {
+        if (isScrolled.value && searchBarRef.value) {
+            const height = searchBarRef.value.getBoundingClientRect().height;
+            tableStickyTop.value = `${height - 32}px`;
+        } else {
+            tableStickyTop.value = '0px';
+        }
+    });
+    
+    if (searchBarRef.value) {
+        resizeObserver.observe(searchBarRef.value);
+    }
+
+    watch(isScrolled, () => {
+        if (isScrolled.value && searchBarRef.value) {
+            const height = searchBarRef.value.getBoundingClientRect().height;
+            tableStickyTop.value = `${height - 32}px`;
+        } else {
+            tableStickyTop.value = '0px';
+        }
+    });
 });
 
 onUnmounted(() => {
     if (observer) {
         observer.disconnect();
+    }
+    if (resizeObserver) {
+        resizeObserver.disconnect();
     }
 });
 </script>
