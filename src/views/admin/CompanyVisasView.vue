@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Company Visas</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage company visa slots by profession</p>
       </div>
-      <button @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
+      <button v-if="authStore.hasPermission('company_visa_create') || authStore.isSuperAdmin" @click="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all transform hover:-translate-y-0.5 font-bold text-sm">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         Add Company Visa Slots
       </button>
@@ -28,7 +28,7 @@
             </div>
             
             <transition name="fade-slide-horizontal">
-              <button v-if="isScrolled" @click="openModal()" class="flex items-center gap-2 px-5 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs shrink-0 transform hover:-translate-y-0.5">
+              <button v-if="isScrolled && (authStore.hasPermission('company_visa_create') || authStore.isSuperAdmin)" @click="openModal()" class="flex items-center gap-2 px-5 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs shrink-0 transform hover:-translate-y-0.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 Add Slot
               </button>
@@ -97,11 +97,11 @@
                    {{ prof.used || 0 }} / {{ prof.available }}
                  </span>
                </div>
-               <div class="flex items-center gap-1.5 pl-2 border-l border-slate-100 dark:border-slate-700 ml-2">
-                 <button @click="openModal(prof)" class="p-1.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-lg transition-all" title="Edit Slots">
+               <div class="flex items-center gap-1.5 pl-2 border-l border-slate-100 dark:border-slate-700 ml-2" v-if="(authStore.hasPermission('company_visa_edit') || authStore.hasPermission('company_visa_delete') || authStore.isSuperAdmin)">
+                 <button v-if="authStore.hasPermission('company_visa_edit') || authStore.isSuperAdmin" @click="openModal(prof)" class="p-1.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-lg transition-all" title="Edit Slots">
                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                  </button>
-                 <button @click="deleteSlot(prof)" class="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-lg transition-all" title="Delete Slots">
+                 <button v-if="authStore.hasPermission('company_visa_delete') || authStore.isSuperAdmin" @click="deleteSlot(prof)" class="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-lg transition-all" title="Delete Slots">
                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                  </button>
                </div>
@@ -193,6 +193,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useNotificationStore } from '@/stores/notification';
+import { useAuthStore } from '@/stores/auth';
 import { companyService, companyVisaService } from '@/services/api';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
@@ -206,6 +207,7 @@ const columns = [
 ];
 
 const notificationStore = useNotificationStore();
+const authStore = useAuthStore();
 const visas = ref([]);
 const loading = ref(false);
 

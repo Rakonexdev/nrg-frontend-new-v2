@@ -197,7 +197,10 @@ export const visaApplicationService = {
         }
         return api.put(`/visa-applications/${id}`, data);
     },
-    delete: (id) => api.delete(`/visa-applications/${id}`)
+    delete: (id) => api.delete(`/visa-applications/${id}`),
+    addPayment: (id, data) => api.post(`/visa-applications/${id}/payments`, data),
+    updatePayment: (applicationId, paymentId, data) => api.put(`/visa-applications/${applicationId}/payments/${paymentId}`, data),
+    deletePayment: (applicationId, paymentId) => api.delete(`/visa-applications/${applicationId}/payments/${paymentId}`)
 };
 
 export const companyVisaService = {
