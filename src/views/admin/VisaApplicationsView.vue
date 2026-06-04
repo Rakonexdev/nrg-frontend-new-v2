@@ -147,10 +147,24 @@
 
       <template #payment_info="{ row }">
         <div class="flex flex-col gap-0.5">
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Paid: <span class="text-emerald-600 font-black">{{ row.total_pay || 0 }} QAR</span></span>
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Due: <span class="text-rose-600 font-black">{{ row.due_amount || 0 }} QAR</span></span>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Paid: <span class="text-emerald-600 font-black">{{ row.total_pay || 0 }}</span></span>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Due: <span class="text-rose-600 font-black">{{ row.due_amount || 0 }}</span></span>
           <span v-if="parseFloat(row.due_amount) <= 0" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Status: <span class="text-emerald-600 font-black">COMPLETED</span></span>
           <span v-else-if="row.next_due_date" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Next Due: <span class="text-amber-600 font-black">{{ formatDate(row.next_due_date) }}</span></span>
+        </div>
+      </template>
+
+      <template #documents="{ row }">
+        <div class="flex flex-col gap-1">
+          <a v-if="row.passport_photo" :href="getStorageUrl(row.passport_photo)" target="_blank" class="text-[10px] font-bold text-blue-500 hover:text-blue-600 inline-flex items-center gap-1 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md border border-blue-100 dark:border-blue-800/50 w-max">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            Passport
+          </a>
+          <a v-if="row.personal_photo" :href="getStorageUrl(row.personal_photo)" target="_blank" class="text-[10px] font-bold text-blue-500 hover:text-blue-600 inline-flex items-center gap-1 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md border border-blue-100 dark:border-blue-800/50 w-max mt-0.5">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            Person
+          </a>
+          <span v-if="!row.passport_photo && !row.personal_photo" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">N/A</span>
         </div>
       </template>
 
@@ -637,7 +651,8 @@ const columns = [
     { key: 'company_info', label: 'Company', sortable: false },
     { key: 'visa_status', label: 'Visa Status', sortable: false },
     { key: 'total_amount_info', label: 'Total Amount (QAR)', sortable: false },
-    { key: 'payment_info', label: 'Financials', sortable: false },
+    { key: 'payment_info', label: 'Financials (QAR)', sortable: false },
+    { key: 'documents', label: 'Documents', sortable: false },
     { key: 'is_active', label: 'Status', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
