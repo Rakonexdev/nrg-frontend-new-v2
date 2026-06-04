@@ -35,7 +35,14 @@ export const useDashboardStore = defineStore('dashboard', {
       debit_total: 0,
       total_balance: 0
     },
-    showBankMiniStats: false
+    showBankMiniStats: false,
+
+    visaStats: {
+      total_collected: 0,
+      total_pending: 0,
+      total_expired_vps: 0
+    },
+    showVisaMiniStats: false
   }),
   actions: {
     setStats(newStats) {
@@ -61,6 +68,12 @@ export const useDashboardStore = defineStore('dashboard', {
     },
     setShowBankMiniStats(val) {
       this.showBankMiniStats = val;
+    },
+    setVisaStats(newStats) {
+      this.visaStats = { ...this.visaStats, ...newStats };
+    },
+    setShowVisaMiniStats(val) {
+      this.showVisaMiniStats = val;
     }
   }
 });

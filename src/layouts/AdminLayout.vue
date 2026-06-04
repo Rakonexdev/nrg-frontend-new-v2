@@ -140,6 +140,18 @@
               </div>
             </div>
           </div>
+
+          <div v-else-if="$route.name === 'admin-immigration-visa-applications' && dashboardStore.showVisaMiniStats" 
+               class="flex-1 hidden lg:flex items-center justify-center gap-2 mx-6 overflow-x-auto no-scrollbar py-1" key="visa">
+            <div v-for="stat in activeVisaMiniStats" :key="stat.key" 
+                 class="flex items-center gap-2.5 px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-full shadow-sm hover:shadow-md transition-all hover:scale-105 duration-200 cursor-default">
+              <span class="w-2.5 h-2.5 rounded-full" :class="stat.color"></span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ stat.label }}</span>
+                <span class="text-base font-black text-slate-800 dark:text-slate-200">{{ stat.value }}</span>
+              </div>
+            </div>
+          </div>
         </transition>
 
         <div class="flex items-center gap-6">
@@ -343,6 +355,34 @@ const bankMiniStats = computed(() => [
 
 const activeBankMiniStats = computed(() => {
   return bankMiniStats.value.filter(stat => authStore.hasPermission(stat.permission) || authStore.isSuperAdmin);
+});
+
+const visaMiniStats = computed(() => [
+  {
+    key: 'total_collected',
+    label: 'Collection',
+    value: `QAR ${formatCurrency(dashboardStore.visaStats.total_collected)}`,
+    permission: 'view_visa_applications',
+    color: 'bg-[#29166e]',
+  },
+  {
+    key: 'total_pending',
+    label: 'Pending',
+    value: `QAR ${formatCurrency(dashboardStore.visaStats.total_pending)}`,
+    permission: 'view_visa_applications',
+    color: 'bg-rose-500',
+  },
+  {
+    key: 'total_expired_vps',
+    label: 'Expired VPs',
+    value: `${dashboardStore.visaStats.total_expired_vps} Records`,
+    permission: 'view_visa_applications',
+    color: 'bg-amber-500',
+  }
+]);
+
+const activeVisaMiniStats = computed(() => {
+  return visaMiniStats.value.filter(stat => authStore.hasPermission(stat.permission) || authStore.isSuperAdmin);
 });
 
 const router = useRouter();

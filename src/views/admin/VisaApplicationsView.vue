@@ -12,7 +12,7 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+    <div ref="statsContainerRef" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
       <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between transition-all hover:shadow-md">
         <div>
           <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Total Collection</p>
@@ -644,6 +644,7 @@ import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 import DateTimeInput from '@/components/shared/DateTimeInput.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useDashboardStore } from '@/stores/dashboard';
 
 const columns = [
     { key: 'vp_info', label: 'VP Record', sortable: false },
@@ -659,6 +660,7 @@ const columns = [
 
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
+const dashboardStore = useDashboardStore();
 const applications = ref([]);
 const companies = ref([]);
 const loading = ref(true);
@@ -682,6 +684,7 @@ const vpExpiredFilter = ref(false);
 const pendingFilter = ref(false);
 const perPage = ref(10);
 const headerRef = ref(null);
+const statsContainerRef = ref(null);
 const searchBarRef = ref(null);
 const tableStickyTop = ref('0px');
 const isScrolled = ref(false);
@@ -958,6 +961,12 @@ const fetchApplications = async (page = 1) => {
             totalCollectedAmount.value = resData.summary.total_collected || 0;
             totalPendingAmount.value = resData.summary.total_pending || 0;
             totalExpiredVps.value = resData.summary.total_expired_vps || 0;
+            
+            dashboardStore.setVisaStats({
+                total_collected: resData.summary.total_collected || 0,
+                total_pending: resData.summary.total_pending || 0,
+                total_expired_vps: resData.summary.total_expired_vps || 0
+            });
         }
     } catch (error) {
         console.error('Failed to fetch applications:', error);
@@ -1154,16 +1163,17 @@ onMounted(() => {
     fetchApplications();
     fetchCompanies();
     
-    if (headerRef.value) {
+    if (statsContainerRef.value) {
         observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 isScrolled.value = !entry.isIntersecting;
+                dashboardStore.setShowVisaMiniStats(!entry.isIntersecting);
             });
         }, {
             threshold: 0,
             rootMargin: '-80px 0px 0px 0px'
         });
-        observer.observe(headerRef.value);
+        observer.observe(statsContainerRef.value);
     }
 
     resizeObserver = new ResizeObserver(() => {
@@ -1196,6 +1206,7 @@ onUnmounted(() => {
     if (resizeObserver) {
         resizeObserver.disconnect();
     }
+    dashboardStore.setShowVisaMiniStats(false);
 });
 </script>
 
