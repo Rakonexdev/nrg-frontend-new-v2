@@ -254,6 +254,15 @@
                 </div>
 
                 <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nationality <span class="text-red-500">*</span></label>
+                    <SearchableSelect 
+                        v-model="form.nationality"
+                        :options="availableNationalities"
+                        placeholder="Select Nationality"
+                    />
+                </div>
+
+                <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">VP Number <span class="text-red-500">*</span></label>
                     <input v-model="form.vp_number" type="text" required readonly placeholder="Auto-filled"
                            class="w-full px-4 py-3.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none transition-all font-bold cursor-not-allowed text-slate-500">
@@ -264,15 +273,6 @@
                     <div class="pointer-events-none opacity-80 cursor-not-allowed">
                         <DateInput v-model="form.vp_expiry_date" required />
                     </div>
-                </div>
-                
-                <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nationality <span class="text-red-500">*</span></label>
-                    <SearchableSelect 
-                        v-model="form.nationality"
-                        :options="countryOptions"
-                        placeholder="Select Nationality"
-                    />
                 </div>
             </div>
         </div>
@@ -734,6 +734,17 @@ const countryOptions = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Côte d'Ivoire", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini (fmr. 'Swaziland')", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (formerly Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", "Other"
 ].map(c => ({ id: c, name: c }));
 
+const availableNationalities = computed(() => {
+    if (!form.value.position || !companyVisaRecords.value.length) return countryOptions;
+    
+    const matchingRecords = companyVisaRecords.value.filter(v => v.profession === form.value.position && v.nationality);
+    
+    if (matchingRecords.length === 0) return countryOptions;
+    
+    const uniqueNationalities = [...new Set(matchingRecords.map(v => v.nationality))];
+    return uniqueNationalities.map(n => ({ id: n, name: n }));
+});
+
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -826,7 +837,23 @@ watch(() => form.value.company_id, async (newCompanyId) => {
 
 watch(() => form.value.position, (newProfession) => {
     if (!editMode.value && newProfession && form.value.company_id && companyVisaRecords.value.length > 0) {
-        const match = companyVisaRecords.value.find(v => v.profession === newProfession);
+        // Clear nationality to force user to select if there are specific nationalities
+        form.value.nationality = '';
+        form.value.vp_number = '';
+        form.value.vp_expiry_date = '';
+        
+        // If there are no specific nationalities required for this profession, we might auto-fill VP if only 1 match
+        const matchingRecords = companyVisaRecords.value.filter(v => v.profession === newProfession);
+        if (matchingRecords.length === 1 && !matchingRecords[0].nationality) {
+            form.value.vp_number = matchingRecords[0].vp_number || '';
+            form.value.vp_expiry_date = matchingRecords[0].vp_expiry_date || '';
+        }
+    }
+});
+
+watch(() => form.value.nationality, (newNationality) => {
+    if (!editMode.value && newNationality && form.value.position && form.value.company_id && companyVisaRecords.value.length > 0) {
+        const match = companyVisaRecords.value.find(v => v.profession === form.value.position && (v.nationality === newNationality || !v.nationality));
         if (match) {
             form.value.vp_number = match.vp_number || '';
             form.value.vp_expiry_date = match.vp_expiry_date || '';

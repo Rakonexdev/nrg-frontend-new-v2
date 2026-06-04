@@ -84,9 +84,12 @@
           
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
              <div v-for="prof in row.professions" :key="prof.id" class="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 transition-colors shadow-sm group">
-               <div class="flex items-center justify-between flex-1 pr-3 border-r border-slate-100 dark:border-slate-700 overflow-hidden">
+                <div class="flex items-center justify-between flex-1 pr-3 border-r border-slate-100 dark:border-slate-700 overflow-hidden">
                  <div class="flex flex-col truncate pr-2">
-                   <span class="font-bold text-[15px] text-slate-700 dark:text-slate-200 truncate">{{ prof.profession }}</span>
+                    <div class="flex items-center gap-2 truncate">
+                      <span class="font-bold text-[15px] text-slate-700 dark:text-slate-200 truncate">{{ prof.profession }}</span>
+                      <span v-if="prof.nationality" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ prof.nationality }}</span>
+                    </div>
                    <span v-if="prof.vp_number" class="text-[11px] font-bold uppercase tracking-widest mt-1.5 truncate flex items-center gap-2">
                      <span class="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">VP: {{ prof.vp_number }}</span>
                      <span v-if="prof.vp_expiry_date" class="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-1.5 py-0.5 rounded">EXP: {{ formatDate(prof.vp_expiry_date) }}</span>
@@ -142,8 +145,8 @@
                 <h3 class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Available Visa Slots by Profession</h3>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-5 items-end">
-                <div class="md:col-span-3">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-5 items-end">
+                <div class="md:col-span-2">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Profession <span class="text-red-500">*</span></label>
                     <SearchableSelect 
                         v-model="form.profession" 
@@ -159,6 +162,17 @@
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Available <span class="text-red-500">*</span></label>
                     <input v-model.number="form.available" type="number" min="0" required placeholder="e.g. 0"
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold text-center">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nationality</label>
+                    <SearchableSelect 
+                        v-model="form.nationality" 
+                        :options="countryOptions" 
+                        placeholder="Select Nationality" 
+                        placement="top"
+                        class="w-full font-bold"
+                    />
                 </div>
             </div>
 
@@ -226,6 +240,10 @@ const companyOptions = computed(() => {
     }));
 });
 
+const countryOptions = [
+    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Côte d'Ivoire", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini (fmr. 'Swaziland')", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (formerly Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", "Other"
+].map(c => ({ id: c, name: c }));
+
 const fetchCompanies = async () => {
     try {
         const res = await companyService.getSimple();
@@ -284,6 +302,7 @@ const filteredVisas = computed(() => {
             profession: v.profession,
             available: v.available_slots,
             used: v.used_slots || 0,
+            nationality: v.nationality,
             company_id: v.company_id,
             company_name: companyName,
             computer_code: computerCode,
@@ -364,6 +383,7 @@ const openModal = (visa = null) => {
             company_name: visa.company_name,
             profession: visa.profession,
             available: visa.available,
+            nationality: visa.nationality || '',
             vp_number: visa.vp_number || '',
             vp_expiry_date: visa.vp_expiry_date || ''
         };
@@ -375,6 +395,7 @@ const openModal = (visa = null) => {
             company_name: '',
             profession: '',
             available: 0,
+            nationality: '',
             vp_number: '',
             vp_expiry_date: ''
         };
@@ -389,6 +410,7 @@ const saveVisaSlot = async () => {
             company_id: form.value.company_id,
             profession: form.value.profession,
             available_slots: form.value.available,
+            nationality: form.value.nationality,
             vp_number: form.value.vp_number,
             vp_expiry_date: form.value.vp_expiry_date
         };
