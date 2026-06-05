@@ -88,7 +88,7 @@ const router = createRouter({
         {
           path: 'immigration/sponsorship-change',
           name: 'admin-immigration-sponsorship-change',
-          component: () => import('../views/admin/ComingSoonView.vue'),
+          component: () => import('../views/admin/SponsorshipChangeView.vue'),
           meta: { title: 'Sponsorship Change' }
         },
         {
