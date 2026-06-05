@@ -658,6 +658,13 @@
                   <option value="Sponsorship Change Fee">Sponsorship Change Fee</option>
                   <option value="Health Card Fee">Health Card Fee</option>
                   <option value="Re-entry Permit">Re-entry Permit</option>
+                  <option value="LOST QID FEE">LOST QID FEE</option>
+                  <option value="LOST DRIVING LICENCE">LOST DRIVING LICENCE</option>
+                  <option value="QID PHOTO CHANGE FEE">QID PHOTO CHANGE FEE</option>
+                  <option value="NOC FEE">NOC FEE</option>
+                  <option value="VISA FEE">VISA FEE</option>
+                  <option value="RENEW ISTEMARA">RENEW ISTEMARA</option>
+                  <option value="LOST ISTEMARA">LOST ISTEMARA</option>
                   <option value="Others">Others</option>
                 </select>
               </div>
@@ -873,6 +880,13 @@
                 <option value="Health Card Fee">Health Card Fee</option>
                 <option value="Re-entry Permit">Re-entry Permit</option>
                 <option value="Settlement">Settlement</option>
+                <option value="LOST QID FEE">LOST QID FEE</option>
+                <option value="LOST DRIVING LICENCE">LOST DRIVING LICENCE</option>
+                <option value="QID PHOTO CHANGE FEE">QID PHOTO CHANGE FEE</option>
+                <option value="NOC FEE">NOC FEE</option>
+                <option value="VISA FEE">VISA FEE</option>
+                <option value="RENEW ISTEMARA">RENEW ISTEMARA</option>
+                <option value="LOST ISTEMARA">LOST ISTEMARA</option>
                 <option value="Others Fee">Others Fee</option>
               </select>
             </div>
