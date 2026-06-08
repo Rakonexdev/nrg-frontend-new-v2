@@ -130,19 +130,19 @@
       @page-change="fetchSponsorships">
       
       <template #identity="{ row }">
-        <div class="flex flex-col gap-1.5">
-          <div class="flex flex-col">
-            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">QID: {{ row.qid_number }}</span>
-            <span v-if="row.qid_expiry_date" class="text-[10px] font-bold text-rose-500 uppercase tracking-widest mt-0.5">Exp: {{ formatDate(row.qid_expiry_date) }}</span>
-          </div>
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">S.R: {{ row.sr_number }}</span>
+        <div class="flex flex-col gap-0.5">
+          <span class="font-bold text-slate-800 dark:text-slate-200">{{ row.full_name }}</span>
+          <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mt-1">QID: {{ row.qid_number }}</span>
+          <span v-if="row.qid_expiry_date" class="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Exp: {{ formatDate(row.qid_expiry_date) }}</span>
+          <span v-if="row.identity_phone" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Phone: +974 {{ row.identity_phone }}</span>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">S.R: {{ row.sr_number }}</span>
         </div>
       </template>
 
       <template #person_info="{ row }">
         <div class="flex flex-col gap-1">
-          <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.full_name }}</span>
-          <span v-if="row.identity_phone" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Tel: +974 {{ row.identity_phone }}</span>
+          <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.referral_contact_person || 'N/A' }}</span>
+          <span v-if="row.reference_contact_number" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Phone: +974 {{ row.reference_contact_number }}</span>
         </div>
       </template>
 
@@ -613,7 +613,7 @@ import { useAuthStore } from '@/stores/auth';
 const columns = computed(() => {
     const baseCols = [
         { key: 'identity', label: 'Identity', sortable: false },
-        { key: 'person_info', label: 'Person Details', sortable: false },
+        { key: 'person_info', label: 'Reference Contact', sortable: false },
         { key: 'company_info', label: 'Company Details', sortable: false },
         { key: 'status', label: 'Status', sortable: false }
     ];
