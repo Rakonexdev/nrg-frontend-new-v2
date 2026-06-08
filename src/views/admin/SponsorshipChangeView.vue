@@ -179,6 +179,13 @@
         <span class="font-bold text-slate-700 dark:text-slate-300">{{ formatCurrency(row.total_contract_amount) }}</span>
       </template>
 
+      <template #labour_contract="{ row }">
+        <span v-if="row.labour_contract" class="font-bold text-slate-700 dark:text-slate-300 text-sm">
+          {{ row.labour_contract }}
+        </span>
+        <span v-else class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">N/A</span>
+      </template>
+
       <template #payments="{ row }">
         <div class="flex flex-col gap-1">
           <span class="text-xs font-bold text-emerald-500">Paid: {{ formatCurrency(row.pay_amount) }}</span>
@@ -259,21 +266,61 @@
                     <DateInput v-model="form.submitted_date" placeholder="dd/mm/yyyy" />
                 </div>
 
-                <div class="col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">BEING HERE</label>
-                    <input v-model="form.being_here" type="text" placeholder="Location / note"
-                           class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
-                </div>
 
                 <div class="col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">PHONE</label>
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">PHONE <span class="text-red-500">*</span></label>
                     <div class="flex items-center w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#29166e]/20 transition-all">
                         <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 text-sm">
                             +974
                         </div>
-                        <input v-model="form.identity_phone" type="text" placeholder="Phone Number"
+                        <input v-model="form.identity_phone" type="text" placeholder="Phone Number" required
                                maxlength="8" pattern="[0-9]{8}" title="Phone number must be exactly 8 digits"
                                @input="form.identity_phone = $event.target.value.replace(/[^0-9]/g, '')"
+                               class="w-full px-4 py-3 bg-transparent text-sm outline-none font-bold">
+                    </div>
+                </div>
+
+                <div class="col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">ALTERNATIVE PHONE</label>
+                    <div class="flex items-center w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#29166e]/20 transition-all">
+                        <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 text-sm">
+                            +974
+                        </div>
+                        <input v-model="form.identity_alt_phone" type="text" placeholder="Alternative Phone Number"
+                               maxlength="8" pattern="[0-9]{8}" title="Phone number must be exactly 8 digits"
+                               @input="form.identity_alt_phone = $event.target.value.replace(/[^0-9]/g, '')"
+                               class="w-full px-4 py-3 bg-transparent text-sm outline-none font-bold">
+                    </div>
+                </div>
+
+                <div class="col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">REFERRAL CONTACT PERSON <span class="text-red-500">*</span></label>
+                    <input v-model="form.referral_contact_person" type="text" placeholder="Contact Person Name" required
+                           class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                </div>
+
+                <div class="col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">REFERENCE CONTACT NUMBER <span class="text-red-500">*</span></label>
+                    <div class="flex items-center w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#29166e]/20 transition-all">
+                        <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 text-sm">
+                            +974
+                        </div>
+                        <input v-model="form.reference_contact_number" type="text" placeholder="Reference Phone Number" required
+                               maxlength="8" pattern="[0-9]{8}" title="Phone number must be exactly 8 digits"
+                               @input="form.reference_contact_number = $event.target.value.replace(/[^0-9]/g, '')"
+                               class="w-full px-4 py-3 bg-transparent text-sm outline-none font-bold">
+                    </div>
+                </div>
+
+                <div class="col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">ALTERNATIVE NUMBER</label>
+                    <div class="flex items-center w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#29166e]/20 transition-all">
+                        <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 text-sm">
+                            +974
+                        </div>
+                        <input v-model="form.reference_alt_number" type="text" placeholder="Alternative Number"
+                               maxlength="8" pattern="[0-9]{8}" title="Phone number must be exactly 8 digits"
+                               @input="form.reference_alt_number = $event.target.value.replace(/[^0-9]/g, '')"
                                class="w-full px-4 py-3 bg-transparent text-sm outline-none font-bold">
                     </div>
                 </div>
@@ -307,31 +354,6 @@
                     />
                 </div>
 
-                <div class="col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">PHONE <span class="text-red-500">*</span></label>
-                    <div class="flex items-center w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#29166e]/20 transition-all">
-                        <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 text-sm">
-                            +974
-                        </div>
-                        <input v-model="form.phone" type="text" placeholder="Phone Number" required
-                               maxlength="8" pattern="[0-9]{8}" title="Phone number must be exactly 8 digits"
-                               @input="form.phone = $event.target.value.replace(/[^0-9]/g, '')"
-                               class="w-full px-4 py-3 bg-transparent text-sm outline-none font-bold">
-                    </div>
-                </div>
-
-                <div class="col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">ALTERNATIVE PHONE</label>
-                    <div class="flex items-center w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#29166e]/20 transition-all">
-                        <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 text-sm">
-                            +974
-                        </div>
-                        <input v-model="form.alt_phone" type="text" placeholder="Alternative Phone Number"
-                               maxlength="8" pattern="[0-9]{8}" title="Phone number must be exactly 8 digits"
-                               @input="form.alt_phone = $event.target.value.replace(/[^0-9]/g, '')"
-                               class="w-full px-4 py-3 bg-transparent text-sm outline-none font-bold">
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -355,8 +377,13 @@
 
                 <div class="col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">LABOUR CONTRACT</label>
-                    <input v-model="form.labour_contract" type="text"
-                           class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                    <select v-model="form.labour_contract" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+                        <option value="">Select Status</option>
+                        <option value="Labour Contract Submitted">Labour Contract Submitted</option>
+                        <option value="Labour Contract Pending">Labour Contract Pending</option>
+                        <option value="Labour Contract Reject">Labour Contract Reject</option>
+                        <option value="Labour Contract Complete">Labour Contract Complete</option>
+                    </select>
                 </div>
 
                 <div class="col-span-1">
@@ -389,8 +416,8 @@
                 </div>
 
                 <div class="col-span-1 md:col-span-2">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">DOCUMENT UPLOAD</label>
-                    <input type="file" @change="handleFileUpload" accept=".pdf,.jpg,.jpeg,.png"
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">DOCUMENT UPLOAD <span class="text-red-500">*</span></label>
+                    <input type="file" @change="handleFileUpload" accept=".pdf,.jpg,.jpeg,.png" :required="!form.document"
                            class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-[#29166e]/10 file:text-[#29166e] hover:file:bg-[#29166e]/20 cursor-pointer">
                     <div v-if="form.document && typeof form.document === 'string'" class="mt-2 text-sm text-blue-500 font-bold">
                          <a :href="getStorageUrl(form.document)" target="_blank" class="hover:underline flex items-center gap-1">
@@ -583,16 +610,27 @@ import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 import { useAuthStore } from '@/stores/auth';
 
-const columns = [
-    { key: 'identity', label: 'Identity', sortable: false },
-    { key: 'person_info', label: 'Person Details', sortable: false },
-    { key: 'company_info', label: 'Company Details', sortable: false },
-    { key: 'status', label: 'Status', sortable: false },
-    { key: 'total_amount', label: 'Total Amount (QAR)', sortable: false },
-    { key: 'payments', label: 'Payments (QAR)', sortable: false },
-    { key: 'document', label: 'Document', sortable: false },
-    { key: 'actions', label: 'Actions', sortable: false }
-];
+const columns = computed(() => {
+    const baseCols = [
+        { key: 'identity', label: 'Identity', sortable: false },
+        { key: 'person_info', label: 'Person Details', sortable: false },
+        { key: 'company_info', label: 'Company Details', sortable: false },
+        { key: 'status', label: 'Status', sortable: false }
+    ];
+    
+    if (activeTab.value === 'approved') {
+        baseCols.push({ key: 'labour_contract', label: 'Labour Contract Status', sortable: false });
+    }
+    
+    baseCols.push(
+        { key: 'total_amount', label: 'Total Amount (QAR)', sortable: false },
+        { key: 'payments', label: 'Payments (QAR)', sortable: false },
+        { key: 'document', label: 'Document', sortable: false },
+        { key: 'actions', label: 'Actions', sortable: false }
+    );
+    
+    return baseCols;
+});
 
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
@@ -811,7 +849,11 @@ const openModal = (item = null, isView = false) => {
             pay_amount: null,
             remark: '',
             identity_phone: '',
+            identity_alt_phone: '',
             alt_phone: '',
+            referral_contact_person: '',
+            reference_contact_number: '',
+            reference_alt_number: '',
             document: null
         };
     }
