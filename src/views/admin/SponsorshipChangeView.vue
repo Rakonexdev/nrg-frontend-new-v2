@@ -73,42 +73,23 @@
                    class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
           </div>
 
-          <transition name="fade-slide-horizontal">
-            <div v-if="isScrolled" class="flex items-center gap-2 overflow-x-auto hide-scrollbar flex-1 min-w-0 pb-1 -mb-1">
-                <button v-if="authStore.hasPermission('view_immigration') || authStore.isSuperAdmin" @click="openModal()" class="flex items-center gap-2 px-4 py-2 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs transform hover:-translate-y-0.5 shrink-0">
-                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                  Add Submission
-                </button>
-                
-                <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 shrink-0"></div>
-                
-                <button @click="activeTab = 'submissions'; debouncedSearch()" 
-                        :class="['px-3 py-2 rounded-lg font-bold text-xs transition-all whitespace-nowrap shrink-0', activeTab === 'submissions' ? 'bg-[#5b4eff] text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
-                    Submissions
-                </button>
-                <button @click="activeTab = 'approved'; debouncedSearch()" 
-                        :class="['px-3 py-2 rounded-lg font-bold text-xs transition-all whitespace-nowrap shrink-0', activeTab === 'approved' ? 'bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
-                    Approved
-                </button>
-                <button @click="activeTab = 'rejected'; debouncedSearch()" 
-                        :class="['px-3 py-2 rounded-lg font-bold text-xs transition-all whitespace-nowrap shrink-0', activeTab === 'rejected' ? 'bg-rose-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
-                    Rejected
-                </button>
-                <button @click="activeTab = 'completed'; debouncedSearch()" 
-                        :class="['px-3 py-2 rounded-lg font-bold text-xs transition-all whitespace-nowrap shrink-0', activeTab === 'completed' ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
-                    Completed
-                </button>
-            </div>
-          </transition>
+
         </div>
       </div>
 
-      <div class="flex items-center gap-3 w-full md:w-auto shrink-0">
-        <select v-model="pagination.per_page" @change="debouncedSearch" class="w-full md:w-auto px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all cursor-pointer">
-          <option :value="10">10 per page</option>
-          <option :value="25">25 per page</option>
-          <option :value="50">50 per page</option>
-        </select>
+      <div class="flex items-center gap-3 w-full md:w-auto shrink-0 flex-wrap">
+        <DateInput v-model="fromDate" @change="debouncedSearch" label="From Date" />
+        <DateInput v-model="toDate" @change="debouncedSearch" label="To Date" />
+        <button v-if="fromDate || toDate" @click="clearDates" class="px-3 py-2 mt-5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs transition-all border border-slate-200 dark:border-slate-700 shadow-sm">
+            Clear
+        </button>
+        <div class="mt-5">
+            <select v-model="pagination.per_page" @change="debouncedSearch" class="w-full md:w-auto px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all cursor-pointer">
+              <option :value="10">10 per page</option>
+              <option :value="25">25 per page</option>
+              <option :value="50">50 per page</option>
+            </select>
+        </div>
       </div>
     </div>
 
@@ -605,6 +586,8 @@ const editMode = ref(false);
 const viewMode = ref(false);
 const activeTab = ref('submissions');
 const searchQuery = ref('');
+const fromDate = ref('');
+const toDate = ref('');
 const searchBarRef = ref(null);
 const tableStickyTop = ref('0px');
 const isScrolled = ref(false);
@@ -629,6 +612,12 @@ const debouncedSearch = debounce(() => {
     pagination.value.current_page = 1;
     fetchSponsorships();
 }, 500);
+
+const clearDates = () => {
+    fromDate.value = '';
+    toDate.value = '';
+    debouncedSearch();
+};
 
 const form = ref({
     sr_number: '',
@@ -720,7 +709,9 @@ const fetchSponsorships = async (page = null) => {
             page: pagination.value.current_page,
             search: searchQuery.value,
             per_page: pagination.value.per_page,
-            tab: activeTab.value
+            tab: activeTab.value,
+            from_date: fromDate.value,
+            to_date: toDate.value
         });
         sponsorships.value = response.data.data || [];
         pagination.value = {
