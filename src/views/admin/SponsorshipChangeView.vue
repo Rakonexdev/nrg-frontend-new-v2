@@ -615,12 +615,9 @@ const columns = computed(() => {
         { key: 'identity', label: 'Identity', sortable: false },
         { key: 'person_info', label: 'Reference Contact', sortable: false },
         { key: 'company_info', label: 'Company Details', sortable: false },
-        { key: 'status', label: 'Status', sortable: false }
+        { key: 'status', label: 'Status', sortable: false },
+        { key: 'labour_contract', label: 'Labour Contract Status', sortable: false }
     ];
-    
-    if (activeTab.value === 'approved') {
-        baseCols.push({ key: 'labour_contract', label: 'Labour Contract Status', sortable: false });
-    }
     
     baseCols.push(
         { key: 'total_amount', label: 'Total Amount (QAR)', sortable: false },
