@@ -36,7 +36,7 @@
           <div :class="['w-5 h-5 rounded flex items-center justify-center', activeTab === 'approved' ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400']">
              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
           </div>
-          Approval
+          Approved
       </button>
       <button @click="activeTab = 'completed'; debouncedSearch()" 
               :class="['px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2', 
@@ -69,7 +69,7 @@
             <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </span>
-            <input v-model="searchQuery" @input="debouncedSearch" type="text" placeholder="Search by QID, phone, company, or name..." 
+            <input v-model="searchQuery" @input="debouncedSearch" type="text" placeholder="Search by QID, phone, company, EC, CC, or name..." 
                    class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
           </div>
 
@@ -88,7 +88,7 @@
                 </button>
                 <button @click="activeTab = 'approved'; debouncedSearch()" 
                         :class="['px-3 py-2 rounded-lg font-bold text-xs transition-all whitespace-nowrap shrink-0', activeTab === 'approved' ? 'bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
-                    Approval
+                    Approved
                 </button>
                 <button @click="activeTab = 'rejected'; debouncedSearch()" 
                         :class="['px-3 py-2 rounded-lg font-bold text-xs transition-all whitespace-nowrap shrink-0', activeTab === 'rejected' ? 'bg-rose-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
@@ -157,7 +157,7 @@
             row.final_status === 'stopped' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
             'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
           ]">
-            {{ row.final_status || 'submission' }}
+            {{ row.final_status === 'Approval' ? 'Approved' : (row.final_status || 'submission') }}
           </span>
           <div v-if="row.final_status === 'Approval' && (row.approval_date || row.approval_expiry)" class="flex flex-col gap-0.5 mt-0.5">
             <span v-if="row.approval_date" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date: {{ formatDate(row.approval_date) }}</span>
@@ -355,7 +355,7 @@
                     <select v-model="form.final_status" :disabled="!authStore.hasPermission('sponsorship_change_status') && !authStore.isSuperAdmin" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold disabled:opacity-60">
                         <option value="submission">submission</option>
                         <option value="Rejected">Rejected</option>
-                        <option value="Approval">Approval</option>
+                        <option value="Approval">Approved</option>
                         <option value="Completed">Completed</option>
                         <option value="stopped">stopped</option>
                     </select>
