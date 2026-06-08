@@ -22,14 +22,6 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
           Submissions
       </button>
-      <button @click="activeTab = 'approved'; debouncedSearch()" 
-              :class="['px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2', 
-                       activeTab === 'approved' ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-emerald-500 shadow-lg shadow-emerald-500/10' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700']">
-          <div :class="['w-5 h-5 rounded flex items-center justify-center', activeTab === 'approved' ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400']">
-             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-          </div>
-          Approved
-      </button>
       <button @click="activeTab = 'rejected'; debouncedSearch()" 
               :class="['px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2', 
                        activeTab === 'rejected' ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-rose-500 shadow-lg shadow-rose-500/10' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700']">
@@ -38,6 +30,14 @@
           </div>
           Rejected
       </button>
+      <button @click="activeTab = 'approved'; debouncedSearch()" 
+              :class="['px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2', 
+                       activeTab === 'approved' ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-emerald-500 shadow-lg shadow-emerald-500/10' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700']">
+          <div :class="['w-5 h-5 rounded flex items-center justify-center', activeTab === 'approved' ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400']">
+             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+          </div>
+          Approval
+      </button>
       <button @click="activeTab = 'completed'; debouncedSearch()" 
               :class="['px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2', 
                        activeTab === 'completed' ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-blue-500 shadow-lg shadow-blue-500/10' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700']">
@@ -45,6 +45,14 @@
              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
           </div>
           Completed
+      </button>
+      <button @click="activeTab = 'stopped'; debouncedSearch()" 
+              :class="['px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2', 
+                       activeTab === 'stopped' ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-amber-500 shadow-lg shadow-amber-500/10' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700']">
+          <div :class="['w-5 h-5 rounded flex items-center justify-center', activeTab === 'stopped' ? 'bg-amber-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400']">
+             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+          </div>
+          Stopped
       </button>
     </div>
 
@@ -80,7 +88,7 @@
                 </button>
                 <button @click="activeTab = 'approved'; debouncedSearch()" 
                         :class="['px-3 py-2 rounded-lg font-bold text-xs transition-all whitespace-nowrap shrink-0', activeTab === 'approved' ? 'bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
-                    Approved
+                    Approval
                 </button>
                 <button @click="activeTab = 'rejected'; debouncedSearch()" 
                         :class="['px-3 py-2 rounded-lg font-bold text-xs transition-all whitespace-nowrap shrink-0', activeTab === 'rejected' ? 'bg-rose-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
@@ -114,9 +122,18 @@
       
       <template #identity="{ row }">
         <div class="flex flex-col gap-1.5">
-          <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.full_name }}</span>
-          <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-0.5">QID: {{ row.qid_number }}</span>
+          <div class="flex flex-col">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">QID: {{ row.qid_number }}</span>
+            <span v-if="row.qid_expiry_date" class="text-[10px] font-bold text-rose-500 uppercase tracking-widest mt-0.5">Exp: {{ formatDate(row.qid_expiry_date) }}</span>
+          </div>
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">S.R: {{ row.sr_number }}</span>
+        </div>
+      </template>
+
+      <template #person_info="{ row }">
+        <div class="flex flex-col gap-1">
+          <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.full_name }}</span>
+          <span v-if="row.identity_phone" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Tel: +974 {{ row.identity_phone }}</span>
         </div>
       </template>
 
@@ -131,15 +148,22 @@
 
 
       <template #status="{ row }">
-        <span :class="[
-          'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest',
-          row.final_status === 'Approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 
-          row.final_status === 'Rejected' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' :
-          row.final_status === 'Completed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-          'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-        ]">
-          {{ row.final_status || 'Pending' }}
-        </span>
+        <div class="flex flex-col items-start gap-1.5">
+          <span :class="[
+            'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest',
+            row.final_status === 'Approval' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 
+            row.final_status === 'Rejected' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' :
+            row.final_status === 'Completed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+            row.final_status === 'stopped' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+            'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+          ]">
+            {{ row.final_status || 'submission' }}
+          </span>
+          <div v-if="row.final_status === 'Approval' && (row.approval_date || row.approval_expiry)" class="flex flex-col gap-0.5 mt-0.5">
+            <span v-if="row.approval_date" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date: {{ formatDate(row.approval_date) }}</span>
+            <span v-if="row.approval_expiry" class="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Exp: {{ formatDate(row.approval_expiry) }}</span>
+          </div>
+        </div>
       </template>
 
       <template #total_amount="{ row }">
@@ -152,9 +176,16 @@
           <span class="text-xs font-bold text-rose-500">Due: {{ formatCurrency(row.due_amount) }}</span>
         </div>
       </template>
-      
 
-
+      <template #document="{ row }">
+        <div class="flex flex-col gap-1">
+          <a v-if="row.document" :href="getStorageUrl(row.document)" target="_blank" class="text-[10px] font-bold text-blue-500 hover:text-blue-600 inline-flex items-center gap-1 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md border border-blue-100 dark:border-blue-800/50 w-max">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            View
+          </a>
+          <span v-else class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">N/A</span>
+        </div>
+      </template>
       <template #actions="{ row }">
         <div class="flex items-center gap-3">
           <button v-if="authStore.hasPermission('sponsorship_change_payment')" @click="openPayment(row)" class="p-1 text-slate-400 hover:text-emerald-500 transition-colors" title="Manage Payments">
@@ -224,6 +255,19 @@
                     <input v-model="form.being_here" type="text" placeholder="Location / note"
                            class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                 </div>
+
+                <div class="col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">PHONE</label>
+                    <div class="flex items-center w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#29166e]/20 transition-all">
+                        <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 text-sm">
+                            +974
+                        </div>
+                        <input v-model="form.identity_phone" type="text" placeholder="Phone Number"
+                               maxlength="8" pattern="[0-9]{8}" title="Phone number must be exactly 8 digits"
+                               @input="form.identity_phone = $event.target.value.replace(/[^0-9]/g, '')"
+                               class="w-full px-4 py-3 bg-transparent text-sm outline-none font-bold">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -266,6 +310,19 @@
                                class="w-full px-4 py-3 bg-transparent text-sm outline-none font-bold">
                     </div>
                 </div>
+
+                <div class="col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">ALTERNATIVE PHONE</label>
+                    <div class="flex items-center w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#29166e]/20 transition-all">
+                        <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 text-sm">
+                            +974
+                        </div>
+                        <input v-model="form.alt_phone" type="text" placeholder="Alternative Phone Number"
+                               maxlength="8" pattern="[0-9]{8}" title="Phone number must be exactly 8 digits"
+                               @input="form.alt_phone = $event.target.value.replace(/[^0-9]/g, '')"
+                               class="w-full px-4 py-3 bg-transparent text-sm outline-none font-bold">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -278,28 +335,29 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">APPROVAL DATE</label>
-                    <DateInput v-model="form.approval_date" placeholder="dd/mm/yyyy" />
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">APPROVAL DATE <span v-if="form.final_status === 'Approval'" class="text-red-500">*</span></label>
+                    <DateInput v-model="form.approval_date" placeholder="dd/mm/yyyy" :required="form.final_status === 'Approval'" />
                 </div>
 
                 <div class="col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">APPROVAL EXPIRY</label>
-                    <DateInput v-model="form.approval_expiry" placeholder="dd/mm/yyyy" />
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">APPROVAL EXPIRY <span v-if="form.final_status === 'Approval'" class="text-red-500">*</span></label>
+                    <DateInput v-model="form.approval_expiry" placeholder="dd/mm/yyyy" :required="form.final_status === 'Approval'" />
                 </div>
 
                 <div class="col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">LABOUR CONTRACT <span class="text-red-500">*</span></label>
-                    <input v-model="form.labour_contract" type="text" required
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">LABOUR CONTRACT</label>
+                    <input v-model="form.labour_contract" type="text"
                            class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
                 </div>
 
                 <div class="col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">FINAL STATUS</label>
                     <select v-model="form.final_status" :disabled="!authStore.hasPermission('sponsorship_change_status') && !authStore.isSuperAdmin" class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold disabled:opacity-60">
-                        <option value="Pending">Pending</option>
-                        <option value="Approved">Approved</option>
+                        <option value="submission">submission</option>
                         <option value="Rejected">Rejected</option>
+                        <option value="Approval">Approval</option>
                         <option value="Completed">Completed</option>
+                        <option value="stopped">stopped</option>
                     </select>
                 </div>
 
@@ -319,6 +377,18 @@
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">DUE AMOUNT (AUTO)</label>
                     <input :value="computedDueAmount" type="text" disabled placeholder="QAR"
                            class="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none transition-all font-bold text-slate-500 cursor-not-allowed">
+                </div>
+
+                <div class="col-span-1 md:col-span-2">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">DOCUMENT UPLOAD</label>
+                    <input type="file" @change="handleFileUpload" accept=".pdf,.jpg,.jpeg,.png"
+                           class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-[#29166e]/10 file:text-[#29166e] hover:file:bg-[#29166e]/20 cursor-pointer">
+                    <div v-if="form.document && typeof form.document === 'string'" class="mt-2 text-sm text-blue-500 font-bold">
+                         <a :href="getStorageUrl(form.document)" target="_blank" class="hover:underline flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            View Current Document
+                         </a>
+                    </div>
                 </div>
 
                 <div class="col-span-1 md:col-span-2">
@@ -506,10 +576,12 @@ import { useAuthStore } from '@/stores/auth';
 
 const columns = [
     { key: 'identity', label: 'Identity', sortable: false },
+    { key: 'person_info', label: 'Person Details', sortable: false },
     { key: 'company_info', label: 'Company Details', sortable: false },
     { key: 'status', label: 'Status', sortable: false },
     { key: 'total_amount', label: 'Total Amount (QAR)', sortable: false },
     { key: 'payments', label: 'Payments (QAR)', sortable: false },
+    { key: 'document', label: 'Document', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
 
@@ -547,6 +619,12 @@ const pagination = ref({
     to: 0
 });
 
+const getStorageUrl = (path) => {
+    if (!path) return '';
+    const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
+    return `${baseUrl}/storage/${path}`;
+};
+
 const debouncedSearch = debounce(() => {
     pagination.value.current_page = 1;
     fetchSponsorships();
@@ -566,11 +644,21 @@ const form = ref({
     approval_date: '',
     approval_expiry: '',
     labour_contract: '',
-    final_status: 'Pending',
+    final_status: 'submission',
     total_contract_amount: null,
     pay_amount: null,
-    remark: ''
+    remark: '',
+    identity_phone: '',
+    alt_phone: '',
+    document: null
 });
+
+const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        form.value.document = file;
+    }
+};
 
 const computedDueAmount = computed(() => {
     const total = parseFloat(form.value.total_contract_amount) || 0;
@@ -699,10 +787,13 @@ const openModal = (item = null, isView = false) => {
             approval_date: '',
             approval_expiry: '',
             labour_contract: '',
-            final_status: 'Pending',
+            final_status: 'submission',
             total_contract_amount: null,
             pay_amount: null,
-            remark: ''
+            remark: '',
+            identity_phone: '',
+            alt_phone: '',
+            document: null
         };
     }
     showModal.value = true;
@@ -711,7 +802,18 @@ const openModal = (item = null, isView = false) => {
 const saveSponsorship = async () => {
     saving.value = true;
     try {
-        const submitData = { ...form.value };
+        const submitData = new FormData();
+        Object.keys(form.value).forEach(key => {
+            if (form.value[key] !== null && form.value[key] !== undefined) {
+                if (key === 'document' && typeof form.value[key] === 'string') {
+                    // Do not append existing document string
+                } else if (key === 'document' && form.value[key] instanceof File) {
+                    submitData.append(key, form.value[key]);
+                } else if (key !== 'document') {
+                    submitData.append(key, form.value[key]);
+                }
+            }
+        });
 
         if (editMode.value) {
             await sponsorshipChangeService.update(form.value.id, submitData);

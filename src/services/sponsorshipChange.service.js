@@ -8,10 +8,22 @@ export default {
         return api.get(`/sponsorship-changes/${id}`)
     },
     create(data) {
-        return api.post('/sponsorship-changes', data)
+        return api.post('/sponsorship-changes', data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
     },
     update(id, data) {
-        return api.put(`/sponsorship-changes/${id}`, data)
+        if (data instanceof FormData) {
+            data.append('_method', 'PUT');
+            return api.post(`/sponsorship-changes/${id}`, data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+        }
+        return api.put(`/sponsorship-changes/${id}`, data);
     },
     delete(id) {
         return api.delete(`/sponsorship-changes/${id}`)
