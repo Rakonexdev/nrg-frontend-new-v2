@@ -11,38 +11,77 @@
       </button>
     </div>
 
-    <!-- Search and Filters -->
-    <div ref="searchBarRef" :class="[
-           'relative flex flex-col md:flex-row gap-4 items-center justify-between p-4 rounded-2xl border transition-all duration-300 shadow-sm',
-           isScrolled 
-             ? 'sticky top-[-32px] bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-md z-30' 
-             : 'bg-white dark:bg-slate-900/50 backdrop-blur-xl border-slate-200/50 dark:border-slate-800/50 z-20'
-         ]">
-        <div class="flex items-center gap-4 w-full md:w-auto flex-1">
-            <div class="relative w-full md:w-96">
-                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                </span>
-                <input v-model="searchQuery" type="text" placeholder="Search by company or profession..." 
-                       class="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
+    <!-- Sticky Wrapper for KPIs and Filters -->
+    <div ref="searchBarRef" class="sticky top-0 z-30 flex flex-col gap-4 pb-4 pt-4 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-sm -mx-4 px-4 sm:-mx-6 sm:px-6 mb-6">
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div @click="filterStatus = 'All'" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border shadow-sm flex flex-col justify-center cursor-pointer transition-all transform hover:-translate-y-0.5"
+                 :class="filterStatus === 'All' ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200 dark:border-slate-800 hover:border-blue-300'">
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Slots</span>
+                <span class="text-2xl font-black text-blue-600 dark:text-blue-400">{{ kpiTotalSlots }}</span>
+            </div>
+            <div @click="filterStatus = 'Used'" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border shadow-sm flex flex-col justify-center cursor-pointer transition-all transform hover:-translate-y-0.5"
+                 :class="filterStatus === 'Used' ? 'border-amber-500 ring-2 ring-amber-500/20' : 'border-slate-200 dark:border-slate-800 hover:border-amber-300'">
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Used Slots</span>
+                <span class="text-2xl font-black text-amber-500 dark:text-amber-400">{{ kpiUsedSlots }}</span>
+            </div>
+            <div @click="filterStatus = 'Available'" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border shadow-sm flex flex-col justify-center cursor-pointer transition-all transform hover:-translate-y-0.5"
+                 :class="filterStatus === 'Available' ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200 dark:border-slate-800 hover:border-emerald-300'">
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Available Slots</span>
+                <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ kpiAvailableSlots }}</span>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="relative flex flex-col gap-4 p-5 rounded-2xl border bg-white dark:bg-slate-900/50 border-slate-200/50 dark:border-slate-800/50 shadow-sm">
+         
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="xl:col-span-1">
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Company</label>
+                <SearchableSelect 
+                    v-model="filterCompany" 
+                    :options="uniqueCompanies" 
+                    placeholder="All Companies" 
+                    class="w-full text-sm"
+                />
             </div>
             
-            <transition name="fade-slide-horizontal">
-              <button v-if="isScrolled && (authStore.hasPermission('company_visa_create') || authStore.isSuperAdmin)" @click="openModal()" class="flex items-center gap-2 px-5 py-2.5 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/30 transition-all font-bold text-xs shrink-0 transform hover:-translate-y-0.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                Add Slot
-              </button>
-            </transition>
+            <div class="xl:col-span-1">
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Nationality</label>
+                <SearchableSelect 
+                    v-model="filterNationality" 
+                    :options="uniqueNationalities" 
+                    placeholder="All Nationalities" 
+                    class="w-full text-sm"
+                />
+            </div>
+            
+            <div class="xl:col-span-1">
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Profession</label>
+                <SearchableSelect 
+                    v-model="filterProfession" 
+                    :options="uniqueProfessions" 
+                    placeholder="All Professions" 
+                    class="w-full text-sm"
+                />
+            </div>
+
+
+            <div class="xl:col-span-1 flex items-end gap-2">
+                <div class="relative w-full">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </span>
+                    <input v-model="searchQuery" type="text" placeholder="Search..." 
+                           class="w-full pl-9 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium">
+                </div>
+                <button v-if="hasActiveFilters" @click="clearFilters" title="Clear Filters"
+                        class="p-3 bg-slate-50 dark:bg-slate-900/50 hover:bg-rose-50 dark:hover:bg-rose-900/30 text-slate-400 hover:text-rose-500 rounded-2xl transition-all border border-slate-200 dark:border-slate-700/50 hover:border-rose-200 dark:hover:border-rose-800 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
         </div>
-        
-        <div class="flex items-center gap-3 w-full md:w-auto">
-            <select v-model="perPage" @change="currentPage = 1" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none dark:text-white font-bold appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-sm">
-                <option :value="10">10 / pg</option>
-                <option :value="15">15 / pg</option>
-                <option :value="30">30 / pg</option>
-                <option :value="50">50 / pg</option>
-            </select>
-        </div>
+    </div>
     </div>
 
     <!-- Data Table -->
@@ -53,64 +92,55 @@
       :stickyTop="tableStickyTop"
       @page-change="page => currentPage = page">
       
-      <template #company_info="{ row }">
+      <template #company="{ row }">
         <div class="flex flex-col gap-0.5">
-          <span class="font-bold text-slate-800 dark:text-white">{{ row.company_name }}</span>
-          <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-0.5">CC: {{ row.computer_code }}</span>
+          <span class="font-bold text-slate-800 dark:text-white">{{ row.company?.name || 'Unknown' }}</span>
+          <span v-if="row.company?.computer_card" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">CC: {{ row.company.computer_card }}</span>
         </div>
       </template>
 
-      <template #total_slots="{ row, toggleExpand, isExpanded }">
-        <button @click="toggleExpand" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors">
-          <span class="text-xs font-black uppercase tracking-widest">{{ Math.max(0, row.total_slots - (row.total_used || 0)) }} AVAILABLE SLOTS</span>
-          <svg class="w-4 h-4 transition-transform duration-200" :class="isExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-        </button>
-      </template>
-
-      <template #actions="{ row, toggleExpand }">
-        <button @click="toggleExpand" class="px-4 py-2 text-xs font-bold text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors shadow-sm">
-          View Breakdown
-        </button>
-      </template>
-
-      <template #expanded-row="{ row }">
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700/50 p-5 shadow-inner">
-          <div class="flex items-center justify-between mb-4">
-            <h4 class="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              Allocated Professions
-            </h4>
-          </div>
-          
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-             <div v-for="prof in row.professions" :key="prof.id" class="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 transition-colors shadow-sm group">
-                <div class="flex items-center justify-between flex-1 pr-3 border-r border-slate-100 dark:border-slate-700 overflow-hidden">
-                 <div class="flex flex-col truncate pr-2">
-                    <div class="flex items-center gap-2 truncate">
-                      <span class="font-bold text-[15px] text-slate-700 dark:text-slate-200 truncate">{{ prof.profession }}</span>
-                      <span v-if="prof.nationality" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ prof.nationality }}</span>
-                    </div>
-                   <span v-if="prof.vp_number" class="text-[11px] font-bold uppercase tracking-widest mt-1.5 truncate flex items-center gap-2">
-                     <span class="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">VP: {{ prof.vp_number }}</span>
-                     <span v-if="prof.vp_expiry_date" class="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-1.5 py-0.5 rounded">EXP: {{ formatDate(prof.vp_expiry_date) }}</span>
-                   </span>
-                 </div>
-                 <span class="font-mono text-sm font-bold whitespace-nowrap ml-3"
-                       :class="(prof.available - (prof.used || 0)) <= 0 ? 'text-red-600 dark:text-red-400' : (prof.available - (prof.used || 0)) <= 2 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-500'">
-                   {{ prof.used || 0 }} / {{ prof.available }}
-                 </span>
-               </div>
-               <div class="flex items-center gap-1.5 pl-2 border-l border-slate-100 dark:border-slate-700 ml-2" v-if="(authStore.hasPermission('company_visa_edit') || authStore.hasPermission('company_visa_delete') || authStore.isSuperAdmin)">
-                 <button v-if="authStore.hasPermission('company_visa_edit') || authStore.isSuperAdmin" @click="openModal(prof)" class="p-1.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-lg transition-all" title="Edit Slots">
-                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                 </button>
-                 <button v-if="authStore.hasPermission('company_visa_delete') || authStore.isSuperAdmin" @click="deleteSlot(prof)" class="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-lg transition-all" title="Delete Slots">
-                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                 </button>
-               </div>
-             </div>
-          </div>
+      <template #profession="{ row }">
+        <div class="flex flex-col gap-0.5">
+          <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.profession }}</span>
+          <span v-if="row.vp_number" class="text-[10px] font-black text-blue-500 uppercase tracking-widest">VP: {{ row.vp_number }}</span>
         </div>
+      </template>
+
+      <template #nationality="{ row }">
+        <span v-if="row.nationality" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ row.nationality }}</span>
+        <span v-else class="text-xs text-slate-400">-</span>
+      </template>
+
+      <template #used="{ row }">
+        <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.used_slots || 0 }}</span>
+      </template>
+
+      <template #total="{ row }">
+        <span class="font-bold text-slate-700 dark:text-slate-300">{{ row.available_slots }}</span>
+      </template>
+
+      <template #available="{ row }">
+        <span class="font-bold px-2 py-1 rounded-lg text-xs" :class="(row.available_slots - (row.used_slots || 0)) <= 0 ? 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'">
+            {{ Math.max(0, row.available_slots - (row.used_slots || 0)) }}
+        </span>
+      </template>
+
+      <template #expiry="{ row }">
+        <span v-if="row.vp_expiry_date" class="text-[11px] font-bold px-2 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+            {{ formatDate(row.vp_expiry_date) }}
+        </span>
+        <span v-else class="text-xs text-slate-400">-</span>
+      </template>
+
+      <template #actions="{ row }">
+         <div class="flex items-center gap-1">
+            <button v-if="authStore.hasPermission('company_visa_edit') || authStore.isSuperAdmin" @click="openModal(row)" class="p-1.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-lg transition-all" title="Edit">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            </button>
+            <button v-if="authStore.hasPermission('company_visa_delete') || authStore.isSuperAdmin" @click="deleteSlot(row)" class="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-lg transition-all" title="Delete">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+         </div>
       </template>
     </DataTable>
 
@@ -159,8 +189,8 @@
                 </div>
                 
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Available <span class="text-red-500">*</span></label>
-                    <input v-model.number="form.available" type="number" min="0" required placeholder="e.g. 0"
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Total Slots <span class="text-red-500">*</span></label>
+                    <input v-model.number="form.available" type="number" min="0" required placeholder="e.g. 5"
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold text-center">
                 </div>
 
@@ -205,7 +235,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useNotificationStore } from '@/stores/notification';
 import { useAuthStore } from '@/stores/auth';
 import { companyService, companyVisaService } from '@/services/api';
@@ -215,22 +245,40 @@ import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 
 const columns = [
-    { key: 'company_info', label: 'Company Info', sortable: false },
-    { key: 'total_slots', label: 'Total Allocated Slots', sortable: false },
-    { key: 'actions', label: 'Breakdown', sortable: false }
+    { key: 'company', label: 'Company', sortable: false },
+    { key: 'nationality', label: 'Nationality', sortable: false },
+    { key: 'profession', label: 'Profession', sortable: false },
+    { key: 'used', label: 'Used', sortable: false },
+    { key: 'total', label: 'Total', sortable: false },
+    { key: 'available', label: 'Available', sortable: false },
+    { key: 'expiry', label: 'Expiry Date', sortable: false },
+    { key: 'actions', label: 'Actions', sortable: false }
 ];
+
+const filterCompany = ref('');
+const filterNationality = ref('');
+const filterProfession = ref('');
+const filterStatus = ref('All');
 
 const notificationStore = useNotificationStore();
 const authStore = useAuthStore();
 const visas = ref([]);
 const loading = ref(false);
 
-const professionOptions = ref([
-    { id: 'Software Engineer', name: 'Software Engineer' },
-    { id: 'Accountant', name: 'Accountant' },
-    { id: 'Driver', name: 'Driver' },
-    { id: 'Security Guard', name: 'Security Guard' }
-]);
+const defaultProfessions = [
+    'Software Engineer',
+    'Accountant',
+    'Driver',
+    'Security Guard'
+];
+
+const professionOptions = computed(() => {
+    const profs = new Set(defaultProfessions);
+    visas.value.forEach(v => {
+        if (v.profession) profs.add(v.profession);
+    });
+    return Array.from(profs).sort().map(p => ({ id: p, name: p }));
+});
 
 const companies = ref([]);
 const companyOptions = computed(() => {
@@ -266,55 +314,86 @@ let resizeObserver = null;
 const currentPage = ref(1);
 const perPage = ref(10);
 
-watch(searchQuery, () => {
+watch([searchQuery, filterCompany, filterNationality, filterProfession, filterStatus], () => {
     currentPage.value = 1;
 });
 
+const uniqueCompanies = computed(() => {
+    return [
+        { id: '', name: 'All Companies' },
+        ...companies.value.map(c => ({
+            id: c.id,
+            name: `${c.name} ${c.computer_card && c.computer_card !== 'No CC' ? ' - CC: ' + c.computer_card : ''}`
+        }))
+    ];
+});
+
+const uniqueNationalities = computed(() => {
+    return [
+        { id: '', name: 'All Nationalities' },
+        ...countryOptions
+    ];
+});
+
+const uniqueProfessions = computed(() => {
+    return [
+        { id: '', name: 'All Professions' },
+        ...professionOptions.value
+    ];
+});
+
+const filterStatusOptions = [
+    { id: 'All', name: 'All Statuses' },
+    { id: 'Available', name: 'Available' },
+    { id: 'Used', name: 'Has Used Slots' },
+    { id: 'Full', name: 'Full (No Slots)' }
+];
+
+const hasActiveFilters = computed(() => {
+    return filterCompany.value !== '' || 
+           filterNationality.value !== '' || 
+           filterProfession.value !== '' || 
+           filterStatus.value !== 'All' || 
+           searchQuery.value !== '';
+});
+
+const clearFilters = () => {
+    filterCompany.value = '';
+    filterNationality.value = '';
+    filterProfession.value = '';
+    filterStatus.value = 'All';
+    searchQuery.value = '';
+};
+
 const filteredVisas = computed(() => {
     let result = visas.value;
+    
+    if (filterCompany.value) result = result.filter(v => v.company_id === filterCompany.value);
+    if (filterNationality.value) result = result.filter(v => v.nationality === filterNationality.value);
+    if (filterProfession.value) result = result.filter(v => v.profession === filterProfession.value);
+    if (filterStatus.value !== 'All') {
+        if (filterStatus.value === 'Available') result = result.filter(v => (v.available_slots - (v.used_slots || 0)) > 0);
+        else if (filterStatus.value === 'Used') result = result.filter(v => (v.used_slots || 0) > 0);
+        else if (filterStatus.value === 'Full') result = result.filter(v => (v.available_slots - (v.used_slots || 0)) <= 0);
+    }
+
     if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase();
+        const q = searchQuery.value.toLowerCase();
         result = result.filter(v => 
-            (v.company?.name || '').toLowerCase().includes(query) || 
-            (v.profession || '').toLowerCase().includes(query) ||
-            (v.company?.computer_card || '').toLowerCase().includes(query)
+            (v.company?.name || '').toLowerCase().includes(q) ||
+            (v.profession || '').toLowerCase().includes(q) ||
+            (v.nationality || '').toLowerCase().includes(q) ||
+            (v.vp_number || '').toLowerCase().includes(q)
         );
     }
     
-    const map = {};
-    result.forEach(v => {
-        const companyName = v.company?.name || 'Unknown';
-        const computerCode = v.company?.computer_card || 'No CC';
-        const key = `${companyName}|${computerCode}`;
-        
-        if (!map[key]) {
-            map[key] = {
-                id: key,
-                company_name: companyName,
-                computer_code: computerCode,
-                professions: [],
-                total_slots: 0,
-                total_used: 0
-            };
-        }
-        map[key].professions.push({
-            id: v.id,
-            profession: v.profession,
-            available: v.available_slots,
-            used: v.used_slots || 0,
-            nationality: v.nationality,
-            company_id: v.company_id,
-            company_name: companyName,
-            computer_code: computerCode,
-            vp_number: v.vp_number,
-            vp_expiry_date: v.vp_expiry_date
-        });
-        map[key].total_slots += v.available_slots;
-        map[key].total_used += (v.used_slots || 0);
-    });
-    
-    return Object.values(map);
+    return result;
 });
+
+const kpiTotalCompanies = computed(() => new Set(filteredVisas.value.map(v => v.company_id)).size);
+const kpiTotalSlots = computed(() => filteredVisas.value.reduce((sum, v) => sum + (v.available_slots || 0), 0));
+const kpiUsedSlots = computed(() => filteredVisas.value.reduce((sum, v) => sum + (v.used_slots || 0), 0));
+const kpiAvailableSlots = computed(() => Math.max(0, kpiTotalSlots.value - kpiUsedSlots.value));
 
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -344,7 +423,9 @@ const computedPagination = computed(() => {
         current_page: currentPage.value,
         last_page: Math.ceil(filteredVisas.value.length / perPage.value) || 1,
         total: filteredVisas.value.length,
-        per_page: perPage.value
+        per_page: perPage.value,
+        from: filteredVisas.value.length === 0 ? 0 : (currentPage.value - 1) * perPage.value + 1,
+        to: Math.min(currentPage.value * perPage.value, filteredVisas.value.length)
     };
 });
 
@@ -382,7 +463,7 @@ const openModal = (visa = null) => {
             company_id: visa.company_id,
             company_name: visa.company_name,
             profession: visa.profession,
-            available: visa.available,
+            available: visa.available_slots,
             nationality: visa.nationality || '',
             vp_number: visa.vp_number || '',
             vp_expiry_date: visa.vp_expiry_date || ''
@@ -423,9 +504,7 @@ const saveVisaSlot = async () => {
             notificationStore.success('Visa slots added successfully');
         }
 
-        if (form.value.profession && !professionOptions.value.some(p => p.id === form.value.profession)) {
-            professionOptions.value.push({ id: form.value.profession, name: form.value.profession });
-        }
+        // The profession options will automatically update when fetchVisas() refreshes the visa list
 
         showModal.value = false;
         fetchVisas();
@@ -467,26 +546,15 @@ onMounted(() => {
     }
 
     resizeObserver = new ResizeObserver(() => {
-        if (isScrolled.value && searchBarRef.value) {
+        if (searchBarRef.value) {
             const height = searchBarRef.value.getBoundingClientRect().height;
-            tableStickyTop.value = `${height - 32}px`;
-        } else {
-            tableStickyTop.value = '0px';
+            tableStickyTop.value = `${height}px`;
         }
     });
     
     if (searchBarRef.value) {
         resizeObserver.observe(searchBarRef.value);
     }
-
-    watch(isScrolled, () => {
-        if (isScrolled.value && searchBarRef.value) {
-            const height = searchBarRef.value.getBoundingClientRect().height;
-            tableStickyTop.value = `${height - 32}px`;
-        } else {
-            tableStickyTop.value = '0px';
-        }
-    });
 });
 
 onUnmounted(() => {

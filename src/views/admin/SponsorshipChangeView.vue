@@ -68,7 +68,7 @@
           <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </span>
-          <input v-model="searchQuery" @input="debouncedSearch" type="text" placeholder="Search by QID, phone, company, EC, CC, or name..." 
+          <input v-model="searchQuery" @input="debouncedSearch" type="text" placeholder="Search by QID, phone, company, name, ref..." 
                  class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
         </div>
 
@@ -826,24 +826,6 @@ const fetchCompanies = async () => {
     }
 };
 
-const getNextSerialNumber = () => {
-    if (!sponsorships.value || sponsorships.value.length === 0) {
-        return '001';
-    }
-    
-    let maxSerial = 0;
-    for (const app of sponsorships.value) {
-        if (app.sr_number) {
-            const num = parseInt(app.sr_number, 10);
-            if (!isNaN(num) && num > maxSerial) {
-                maxSerial = num;
-            }
-        }
-    }
-    
-    return String(maxSerial + 1).padStart(3, '0');
-};
-
 const openModal = (item = null, isView = false) => {
     viewMode.value = isView;
     if (item) {
@@ -852,7 +834,7 @@ const openModal = (item = null, isView = false) => {
     } else {
         editMode.value = false;
         form.value = {
-            sr_number: getNextSerialNumber(),
+            sr_number: 'Auto-generated',
             qid_number: '',
             qid_expiry_date: '',
             full_name: '',
