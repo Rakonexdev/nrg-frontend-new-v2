@@ -103,6 +103,12 @@ const router = createRouter({
           component: () => import('../views/admin/CompanyVisasView.vue'),
           meta: { title: 'Company Visas' }
         },
+        {
+          path: 'immigration/official-format',
+          name: 'admin-immigration-official-format',
+          component: () => import('../views/admin/OfficialFormatView.vue'),
+          meta: { title: 'Official Format' }
+        },
         // Reports
         {
           path: 'reports/collections',

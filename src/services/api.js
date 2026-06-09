@@ -169,6 +169,18 @@ export const generalDocumentService = {
     download: (id) => api.get(`/general-documents/${id}/download`, { responseType: 'blob' })
 };
 
+export const officialFormatService = {
+    getAll: (params) => api.get('/official-formats', { params }),
+    upload: (data) => api.post('/official-formats', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    delete: (id) => api.delete(`/official-formats/${id}`),
+    update: (id, data) => api.post(`/official-formats/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    download: (id) => api.get(`/official-formats/${id}/download`, { responseType: 'blob' })
+};
+
 export const vehicleService = {
     getAll: (params) => api.get('/vehicles', { params }),
     getById: (id) => api.get(`/vehicles/${id}`),
