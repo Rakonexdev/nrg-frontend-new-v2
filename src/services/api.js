@@ -75,8 +75,23 @@ export const contractService = {
 export const expenseService = {
     getAll: (params) => api.get('/expenses', { params }),
     getById: (id) => api.get(`/expenses/${id}`),
-    create: (data) => api.post('/expenses', data),
-    update: (id, data) => api.put(`/expenses/${id}`, data),
+    create: (data) => {
+        if (data instanceof FormData) {
+            return api.post('/expenses', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+        return api.post('/expenses', data);
+    },
+    update: (id, data) => {
+        if (data instanceof FormData) {
+            data.append('_method', 'PUT');
+            return api.post(`/expenses/${id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+        return api.put(`/expenses/${id}`, data);
+    },
     delete: (id) => api.delete(`/expenses/${id}`),
     export: (params) => api.get('/expenses/export', { params, responseType: 'blob' })
 };

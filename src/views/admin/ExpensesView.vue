@@ -424,6 +424,31 @@
                       placeholder="Add any additional notes or remarks here..."></textarea>
             <p v-if="errors.notes" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.notes[0] }}</p>
           </div>
+
+          <!-- Receipt Document -->
+          <div class="md:col-span-2 animate-in fade-in slide-in-from-top-1">
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Receipt Document Upload</label>
+            <div v-if="viewMode && form.receipt_document" class="mt-2">
+                <a :href="`${baseUrl}/storage/${form.receipt_document}`" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs font-bold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    View Attached Receipt
+                </a>
+            </div>
+            <div v-else-if="!viewMode">
+                <div v-if="form.receipt_document && !form.receipt_document_file" class="mb-3">
+                    <a :href="`${baseUrl}/storage/${form.receipt_document}`" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-[#29166e]/10 text-[#29166e] dark:bg-[#29166e]/30 dark:text-[#29166e] rounded-xl hover:bg-[#29166e]/20 transition-colors text-xs font-bold">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        View Current Receipt
+                    </a>
+                </div>
+                <input type="file" @change="handleFileUpload" accept=".jpg,.jpeg,.png,.pdf" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.receipt_document}" class="w-full px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-[#29166e]/5 file:text-[#29166e] hover:file:bg-[#29166e]/10">
+                <p class="text-[9px] font-bold text-slate-400 mt-2 ml-1 uppercase tracking-widest">Allowed: JPG, PNG, PDF (Max 10MB)</p>
+                <p v-if="errors.receipt_document" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.receipt_document[0] }}</p>
+            </div>
+            <div v-else class="mt-2 text-xs font-bold text-slate-400 italic">
+                No receipt attached.
+            </div>
+          </div>
         </div>
       </form>
       <template #footer>
@@ -456,7 +481,8 @@ import Modal from '@/components/shared/Modal.vue';
 import ConfirmModal from '@/components/shared/ConfirmModal.vue';
 import SearchableSelect from '@/components/shared/SearchableSelect.vue';
 import DateInput from '@/components/shared/DateInput.vue';
-import { expenseService, expenseCategoryService, contractService } from '@/services/api';
+import { expenseService, expenseCategoryService, contractService, BASE_URL } from '@/services/api';
+const baseUrl = BASE_URL;
 import { useAuthStore } from '@/stores/auth';
 import { useNotificationStore } from '@/stores/notification';
 import { useDashboardStore } from '@/stores/dashboard';
@@ -510,7 +536,9 @@ const form = ref({
   notes: '',
   contract_id: null,
   staff_id: null,
-  company_id: null
+  company_id: null,
+  receipt_document: null,
+  receipt_document_file: null
 });
 
 const allCategories = ref([]);
@@ -628,6 +656,15 @@ watch(() => form.value.contract_id, (newVal) => {
         updateAutomaticDescription();
     }
 });
+
+const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        form.value.receipt_document_file = file;
+    } else {
+        form.value.receipt_document_file = null;
+    }
+};
 
 const fetchResources = async () => {
     try {
@@ -750,7 +787,9 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
         contract_id: expense.contract_id || null,
         is_recoverable: !!expense.is_recoverable,
         payment_method: expense.payment_method || 'Cash',
-        notes: expense.notes || ''
+        notes: expense.notes || '',
+        receipt_document: expense.receipt_document || null,
+        receipt_document_file: null
     };
   } else {
     editMode.value = false;
@@ -767,7 +806,9 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
         notes: '',
         contract_id: null,
         staff_id: null,
-        company_id: null
+        company_id: null,
+        receipt_document: null,
+        receipt_document_file: null
     };
   }
   showModal.value = true;
@@ -776,23 +817,40 @@ const openModal = async (expense = null, type = 'Company', isView = false) => {
 const saveExpense = async () => {
   saving.value = true;
   try {
-    const payload = { ...form.value };
+    const formData = new FormData();
     
-    // Sanitize payload: convert empty strings/values to null for backend validation
-    payload.amount = payload.amount === '' ? null : parseFloat(payload.amount);
-    payload.category_id = payload.category_id || null;
-    payload.subcategory_id = payload.subcategory_id || null;
-    payload.validation_date = payload.validation_date || null;
-    payload.contract_id = payload.contract_id || null;
-    payload.notes = payload.notes || null;
-    payload.staff_id = payload.staff_id || null;
-    payload.company_id = payload.company_id || null;
-    
+    // Add all form fields to formData
+    Object.keys(form.value).forEach(key => {
+        if (key === 'receipt_document_file') {
+            if (form.value[key]) {
+                formData.append('receipt_document', form.value[key]);
+            }
+        } else if (key !== 'receipt_document') {
+            let val = form.value[key];
+            if (key === 'amount' && val === '') val = null;
+            if (key === 'category_id' && !val) val = null;
+            if (key === 'subcategory_id' && !val) val = null;
+            if (key === 'contract_id' && !val) val = null;
+            if (key === 'validation_date' && !val) val = null;
+            if (key === 'staff_id' && !val) val = null;
+            if (key === 'company_id' && !val) val = null;
+            
+            if (val !== null && val !== undefined && val !== '') {
+                // If it's boolean, convert to 1 or 0
+                if (typeof val === 'boolean') {
+                    formData.append(key, val ? '1' : '0');
+                } else {
+                    formData.append(key, val);
+                }
+            }
+        }
+    });
+
     if (editMode.value) {
-      await expenseService.update(payload.id, payload);
+      await expenseService.update(form.value.id, formData);
       notificationStore.success('Expense record updated');
     } else {
-      await expenseService.create(payload);
+      await expenseService.create(formData);
       notificationStore.success('Expense recorded successfully');
     }
     showModal.value = false;
