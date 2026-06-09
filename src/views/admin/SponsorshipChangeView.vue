@@ -194,12 +194,16 @@
       </template>
 
       <template #document="{ row }">
-        <div class="flex flex-col gap-1">
-          <a v-if="row.document" :href="getStorageUrl(row.document)" target="_blank" class="text-[10px] font-bold text-blue-500 hover:text-blue-600 inline-flex items-center gap-1 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md border border-blue-100 dark:border-blue-800/50 w-max">
+        <div class="flex flex-col gap-1.5">
+          <a v-if="row.document" :href="getStorageUrl(row.document)" target="_blank" class="text-[9px] font-bold text-blue-500 hover:text-blue-600 inline-flex items-center gap-1 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md border border-blue-100 dark:border-blue-800/50 w-max">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-            View
+            Submitted File
           </a>
-          <span v-else class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">N/A</span>
+          <a v-if="row.approval_file" :href="getStorageUrl(row.approval_file)" target="_blank" class="text-[9px] font-bold text-emerald-500 hover:text-emerald-600 inline-flex items-center gap-1 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md border border-emerald-100 dark:border-emerald-800/50 w-max">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            Approval File
+          </a>
+          <span v-if="!row.document && !row.approval_file" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">N/A</span>
         </div>
       </template>
       <template #actions="{ row }">
@@ -415,14 +419,26 @@
                            class="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none transition-all font-bold text-slate-500 cursor-not-allowed">
                 </div>
 
-                <div class="col-span-1 md:col-span-2">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">DOCUMENT UPLOAD <span class="text-red-500">*</span></label>
+                <div class="col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">SUBMITTED FILE <span class="text-red-500">*</span></label>
                     <input type="file" @change="handleFileUpload" accept=".pdf,.jpg,.jpeg,.png" :required="!form.document"
                            class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-[#29166e]/10 file:text-[#29166e] hover:file:bg-[#29166e]/20 cursor-pointer">
                     <div v-if="form.document && typeof form.document === 'string'" class="mt-2 text-sm text-blue-500 font-bold">
                          <a :href="getStorageUrl(form.document)" target="_blank" class="hover:underline flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                            View Current Document
+                            View Submitted File
+                         </a>
+                    </div>
+                </div>
+
+                <div class="col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">APPROVAL FILE</label>
+                    <input type="file" @change="handleApprovalFileUpload" accept=".pdf,.jpg,.jpeg,.png"
+                           class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-[#29166e]/10 file:text-[#29166e] hover:file:bg-[#29166e]/20 cursor-pointer">
+                    <div v-if="form.approval_file && typeof form.approval_file === 'string'" class="mt-2 text-sm text-emerald-500 font-bold">
+                         <a :href="getStorageUrl(form.approval_file)" target="_blank" class="hover:underline flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            View Approval File
                          </a>
                     </div>
                 </div>
@@ -702,13 +718,21 @@ const form = ref({
     remark: '',
     identity_phone: '',
     alt_phone: '',
-    document: null
+    document: null,
+    approval_file: null
 });
 
 const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
         form.value.document = file;
+    }
+};
+
+const handleApprovalFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        form.value.approval_file = file;
     }
 };
 
@@ -851,7 +875,8 @@ const openModal = (item = null, isView = false) => {
             referral_contact_person: '',
             reference_contact_number: '',
             reference_alt_number: '',
-            document: null
+            document: null,
+            approval_file: null
         };
     }
     showModal.value = true;
@@ -863,11 +888,11 @@ const saveSponsorship = async () => {
         const submitData = new FormData();
         Object.keys(form.value).forEach(key => {
             if (form.value[key] !== null && form.value[key] !== undefined) {
-                if (key === 'document' && typeof form.value[key] === 'string') {
+                if ((key === 'document' || key === 'approval_file') && typeof form.value[key] === 'string') {
                     // Do not append existing document string
-                } else if (key === 'document' && form.value[key] instanceof File) {
+                } else if ((key === 'document' || key === 'approval_file') && form.value[key] instanceof File) {
                     submitData.append(key, form.value[key]);
-                } else if (key !== 'document') {
+                } else if (key !== 'document' && key !== 'approval_file') {
                     submitData.append(key, form.value[key]);
                 }
             }
