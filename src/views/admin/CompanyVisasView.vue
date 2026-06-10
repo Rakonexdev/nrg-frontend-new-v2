@@ -65,6 +65,15 @@
                     class="w-full text-sm"
                 />
             </div>
+            
+            <div class="xl:col-span-1">
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Gender</label>
+                <select v-model="filterGender" class="w-full pl-3 pr-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium appearance-none">
+                    <option value="">All Genders</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
 
 
             <div class="xl:col-span-1 flex items-end gap-2">
@@ -107,8 +116,11 @@
       </template>
 
       <template #nationality="{ row }">
-        <span v-if="row.nationality" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ row.nationality }}</span>
-        <span v-else class="text-xs text-slate-400">-</span>
+        <div class="flex flex-col gap-1 items-start">
+            <span v-if="row.nationality" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ row.nationality }}</span>
+            <span v-else class="text-xs text-slate-400">-</span>
+            <span v-if="row.gender" class="text-[10px] font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ row.gender }}</span>
+        </div>
       </template>
 
       <template #used="{ row }">
@@ -175,7 +187,7 @@
                 <h3 class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Available Visa Slots by Profession</h3>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-5 items-end">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
                 <div class="md:col-span-2">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Profession <span class="text-red-500">*</span></label>
                     <SearchableSelect 
@@ -200,6 +212,17 @@
                         v-model="form.nationality" 
                         :options="countryOptions" 
                         placeholder="Select Nationality" 
+                        placement="top"
+                        class="w-full font-bold"
+                    />
+                </div>
+
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Gender <span class="text-red-500">*</span></label>
+                    <SearchableSelect 
+                        v-model="form.gender" 
+                        :options="genderOptions" 
+                        placeholder="Choose Gender" 
                         placement="top"
                         class="w-full font-bold"
                     />
@@ -257,6 +280,7 @@ const columns = [
 
 const filterCompany = ref('');
 const filterNationality = ref('');
+const filterGender = ref('');
 const filterProfession = ref('');
 const filterStatus = ref('All');
 
@@ -292,6 +316,11 @@ const countryOptions = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Côte d'Ivoire", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini (fmr. 'Swaziland')", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (formerly Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", "Other"
 ].map(c => ({ id: c, name: c }));
 
+const genderOptions = [
+    { id: 'Male', name: 'Male' },
+    { id: 'Female', name: 'Female' }
+];
+
 const fetchCompanies = async () => {
     try {
         const res = await companyService.getSimple();
@@ -314,7 +343,7 @@ let resizeObserver = null;
 const currentPage = ref(1);
 const perPage = ref(10);
 
-watch([searchQuery, filterCompany, filterNationality, filterProfession, filterStatus], () => {
+watch([searchQuery, filterCompany, filterNationality, filterGender, filterProfession, filterStatus], () => {
     currentPage.value = 1;
 });
 
@@ -352,6 +381,7 @@ const filterStatusOptions = [
 const hasActiveFilters = computed(() => {
     return filterCompany.value !== '' || 
            filterNationality.value !== '' || 
+           filterGender.value !== '' || 
            filterProfession.value !== '' || 
            filterStatus.value !== 'All' || 
            searchQuery.value !== '';
@@ -360,6 +390,7 @@ const hasActiveFilters = computed(() => {
 const clearFilters = () => {
     filterCompany.value = '';
     filterNationality.value = '';
+    filterGender.value = '';
     filterProfession.value = '';
     filterStatus.value = 'All';
     searchQuery.value = '';
@@ -370,6 +401,7 @@ const filteredVisas = computed(() => {
     
     if (filterCompany.value) result = result.filter(v => v.company_id === filterCompany.value);
     if (filterNationality.value) result = result.filter(v => v.nationality === filterNationality.value);
+    if (filterGender.value) result = result.filter(v => v.gender === filterGender.value);
     if (filterProfession.value) result = result.filter(v => v.profession === filterProfession.value);
     if (filterStatus.value !== 'All') {
         if (filterStatus.value === 'Available') result = result.filter(v => (v.available_slots - (v.used_slots || 0)) > 0);
@@ -442,6 +474,7 @@ const form = ref({
     company_name: '',
     profession: '',
     available: 0,
+    gender: '',
     vp_number: '',
     vp_expiry_date: ''
 });
@@ -465,6 +498,7 @@ const openModal = (visa = null) => {
             profession: visa.profession,
             available: visa.available_slots,
             nationality: visa.nationality || '',
+            gender: visa.gender || '',
             vp_number: visa.vp_number || '',
             vp_expiry_date: visa.vp_expiry_date || ''
         };
@@ -477,6 +511,7 @@ const openModal = (visa = null) => {
             profession: '',
             available: 0,
             nationality: '',
+            gender: '',
             vp_number: '',
             vp_expiry_date: ''
         };
@@ -487,11 +522,18 @@ const openModal = (visa = null) => {
 const saveVisaSlot = async () => {
     saving.value = true;
     try {
+        if (!form.value.gender) {
+            notificationStore.error('Please select a gender.');
+            saving.value = false;
+            return;
+        }
+
         const payload = {
             company_id: form.value.company_id,
             profession: form.value.profession,
             available_slots: form.value.available,
             nationality: form.value.nationality,
+            gender: form.value.gender,
             vp_number: form.value.vp_number,
             vp_expiry_date: form.value.vp_expiry_date
         };

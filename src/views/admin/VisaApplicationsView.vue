@@ -292,6 +292,15 @@
                 </div>
                 
                 <div class="md:col-span-1">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Gender <span class="text-red-500">*</span></label>
+                    <select v-model="form.gender" required class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold appearance-none">
+                        <option value="" disabled>-- Select --</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+
+                <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Passport Number <span class="text-red-500">*</span></label>
                     <input v-model="form.passport_number" type="text" required
                            class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
@@ -765,6 +774,7 @@ const form = ref({
     nationality: '',
     company_id: '',
     full_name: '',
+    gender: '',
     passport_number: '',
     visa_number: '',
     visa_expiry_date: '',
@@ -851,12 +861,19 @@ watch(() => form.value.position, (newProfession) => {
     }
 });
 
-watch(() => form.value.nationality, (newNationality) => {
-    if (!editMode.value && newNationality && form.value.position && form.value.company_id && companyVisaRecords.value.length > 0) {
-        const match = companyVisaRecords.value.find(v => v.profession === form.value.position && (v.nationality === newNationality || !v.nationality));
-        if (match) {
-            form.value.vp_number = match.vp_number || '';
-            form.value.vp_expiry_date = match.vp_expiry_date || '';
+watch(() => [form.value.nationality, form.value.gender], ([newNationality, newGender]) => {
+    if (!editMode.value && form.value.position && form.value.company_id && companyVisaRecords.value.length > 0) {
+        // If we have either nationality or gender, we can try to match a slot
+        if (newNationality || newGender) {
+            const match = companyVisaRecords.value.find(v => 
+                v.profession === form.value.position && 
+                (v.nationality === newNationality || !v.nationality || v.nationality === 'Any') &&
+                (v.gender === newGender || !v.gender || v.gender === 'Any')
+            );
+            if (match) {
+                form.value.vp_number = match.vp_number || '';
+                form.value.vp_expiry_date = match.vp_expiry_date || '';
+            }
         }
     }
 });
@@ -1058,6 +1075,7 @@ const openModal = (application = null, isView = false) => {
             nationality: '',
             company_id: '',
             full_name: '',
+            gender: '',
             passport_number: '',
             visa_number: '',
             visa_expiry_date: '',
