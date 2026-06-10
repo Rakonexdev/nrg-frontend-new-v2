@@ -116,11 +116,13 @@
       </template>
 
       <template #nationality="{ row }">
-        <div class="flex flex-col gap-1 items-start">
-            <span v-if="row.nationality" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ row.nationality }}</span>
-            <span v-else class="text-xs text-slate-400">-</span>
-            <span v-if="row.gender" class="text-[10px] font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ row.gender }}</span>
-        </div>
+        <span v-if="row.nationality" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ row.nationality }}</span>
+        <span v-else class="text-xs text-slate-400">-</span>
+      </template>
+
+      <template #gender="{ row }">
+        <span v-if="row.gender" class="text-[10px] font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ row.gender }}</span>
+        <span v-else class="text-xs text-slate-400">-</span>
       </template>
 
       <template #used="{ row }">
@@ -270,6 +272,7 @@ import DateInput from '@/components/shared/DateInput.vue';
 const columns = [
     { key: 'company', label: 'Company', sortable: false },
     { key: 'nationality', label: 'Nationality', sortable: false },
+    { key: 'gender', label: 'Gender', sortable: false },
     { key: 'profession', label: 'Profession', sortable: false },
     { key: 'used', label: 'Used', sortable: false },
     { key: 'total', label: 'Total', sortable: false },
