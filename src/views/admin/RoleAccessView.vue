@@ -96,6 +96,7 @@
               <th class="px-6 py-4 font-black">Name</th>
               <th class="px-6 py-4 font-black">Email</th>
               <th class="px-6 py-4 font-black">Role</th>
+              <th class="px-6 py-4 font-black">Login Time</th>
               <th class="px-6 py-4 font-black">Status</th>
               <th class="px-6 py-4 font-black text-right">Actions</th>
             </tr>
@@ -113,6 +114,14 @@
               <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ user.email }}</td>
               <td class="px-6 py-4">
                 <span class="px-3 py-1 rounded-lg bg-[#29166e]/5 dark:bg-[#29166e]/20 text-[#29166e] dark:text-[#29166e]/80 text-[11px] font-bold capitalize">{{ (user.role || '').replace('_', ' ') }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div v-if="user.allowed_login_shifts && user.allowed_login_shifts.length > 0" class="flex flex-col gap-1">
+                  <span v-for="(shift, idx) in user.allowed_login_shifts" :key="idx" class="text-[11px] font-bold text-slate-600 dark:text-slate-400">
+                    {{ formatTime12Hour(shift.start) }} - {{ formatTime12Hour(shift.end) }}
+                  </span>
+                </div>
+                <span v-else class="text-[11px] italic text-slate-400">Unrestricted</span>
               </td>
               <td class="px-6 py-4">
                 <span :class="user.is_active ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400'" class="px-3 py-1 rounded-lg text-[11px] font-bold">
@@ -259,6 +268,27 @@
             <option v-for="role in roles" :key="role.id" :value="role.name">{{ role.name.replace('_', ' ') }}</option>
           </select>
         </div>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Allowed Login Shifts</label>
+            <button type="button" @click="addShift" class="text-[10px] font-black text-[#29166e] hover:text-[#1d0f4d] uppercase tracking-widest flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Add Shift
+            </button>
+          </div>
+          <div v-for="(shift, index) in userForm.allowed_login_shifts" :key="index" class="grid grid-cols-[1fr_1fr_auto] gap-4 items-end bg-slate-50/50 dark:bg-slate-800/30 p-3 border border-slate-200 dark:border-slate-700 rounded-xl relative group">
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Start Time</label>
+              <input v-model="shift.start" type="time" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all dark:text-white" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">End Time</label>
+              <input v-model="shift.end" type="time" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all dark:text-white" />
+            </div>
+            <button v-if="userForm.allowed_login_shifts.length > 1" type="button" @click="removeShift(index)" class="p-2.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors mb-0.5" title="Remove Shift">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </button>
+          </div>
+        </div>
         <div v-if="showEditUser" class="space-y-2">
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" v-model="userForm.is_active" class="w-4 h-4 rounded border-slate-300 text-[#29166e] focus:ring-[#29166e]" />
@@ -302,12 +332,30 @@ const editingUser = ref(null);
 const showPassword = ref(false);
 
 const roleForm = ref({ name: '', permissions: [] });
-const userForm = ref({ name: '', email: '', password: '', confirm_password: '', old_password: '', mobile: '', role: '', is_active: true });
+const userForm = ref({ name: '', email: '', password: '', confirm_password: '', old_password: '', mobile: '', role: '', allowed_login_shifts: [{ start: '', end: '' }], is_active: true });
+
+const addShift = () => {
+  userForm.value.allowed_login_shifts.push({ start: '', end: '' });
+};
+
+const removeShift = (index) => {
+  userForm.value.allowed_login_shifts.splice(index, 1);
+};
 
 const handleMobileInput = (e) => {
   let val = e.target.value.replace(/\D/g, '');
   if (val.length > 8) val = val.substring(0, 8);
   userForm.value.mobile = val;
+};
+
+const formatTime12Hour = (time) => {
+  if (!time) return '';
+  const [hourString, minute] = time.substring(0, 5).split(':');
+  const hour = parseInt(hourString, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const formattedHour = hour % 12 || 12;
+  const zeroPaddedHour = formattedHour < 10 ? `0${formattedHour}` : formattedHour;
+  return `${zeroPaddedHour}:${minute} ${ampm}`;
 };
 
 const fetchData = async () => {
@@ -437,7 +485,7 @@ const closeUserModal = () => {
   showCreateUser.value = false;
   showEditUser.value = false;
   editingUser.value = null;
-  userForm.value = { name: '', email: '', password: '', confirm_password: '', old_password: '', mobile: '', role: '', is_active: true };
+  userForm.value = { name: '', email: '', password: '', confirm_password: '', old_password: '', mobile: '', role: '', allowed_login_shifts: [{ start: '', end: '' }], is_active: true };
   showPassword.value = false;
 };
 
@@ -448,7 +496,10 @@ const editUser = (user) => {
     email: user.email,
     mobile: user.mobile || '',
     role: user.role || '',
-    is_active: user.is_active,
+    is_active: !!user.is_active,
+    allowed_login_shifts: user.allowed_login_shifts && user.allowed_login_shifts.length > 0 
+      ? user.allowed_login_shifts.map(s => ({ start: s.start ? s.start.substring(0, 5) : '', end: s.end ? s.end.substring(0, 5) : '' }))
+      : [{ start: '', end: '' }],
     password: '', // Password blank unless changing
     confirm_password: '', // Confirm password blank
     old_password: '' // Old password blank
@@ -483,6 +534,11 @@ const saveAdminUser = async () => {
 
       // For update, password is optional
       const updateData = { ...userForm.value };
+      updateData.is_active = updateData.is_active === true || updateData.is_active === 1;
+      
+      // Filter out empty shifts
+      updateData.allowed_login_shifts = updateData.allowed_login_shifts.filter(s => s.start && s.end);
+
       if (!updateData.password) {
         delete updateData.password;
         delete updateData.old_password;
@@ -492,7 +548,9 @@ const saveAdminUser = async () => {
       await adminUserService.update(editingUser.value.id, updateData);
       notify.success('Admin user updated successfully.');
     } else {
-      await adminUserService.create(userForm.value);
+      const createData = { ...userForm.value };
+      createData.allowed_login_shifts = createData.allowed_login_shifts.filter(s => s.start && s.end);
+      await adminUserService.create(createData);
       notify.success('Admin user created successfully.');
     }
     closeUserModal();

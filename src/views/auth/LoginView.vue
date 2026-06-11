@@ -94,9 +94,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
+const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const loaded = ref(false);
@@ -125,6 +126,9 @@ const handleLogin = async () => {
 
 onMounted(() => {
   setTimeout(() => loaded.value = true, 100);
+  if (route.query.expired) {
+    authStore.error = "Your shift time is completed. Please contact the Super Admin to extend your time.";
+  }
 });
 </script>
 
