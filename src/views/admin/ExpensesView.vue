@@ -427,7 +427,7 @@
 
           <!-- Receipt Document -->
           <div class="md:col-span-2 animate-in fade-in slide-in-from-top-1">
-            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Receipt Document Upload</label>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Receipt Document Upload <span v-if="currentType === 'Employee'" class="text-rose-500">*</span></label>
             <div v-if="viewMode && form.receipt_document" class="mt-2">
                 <a :href="`${baseUrl}/storage/${form.receipt_document}`" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs font-bold">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -441,7 +441,7 @@
                         View Current Receipt
                     </a>
                 </div>
-                <input type="file" @change="handleFileUpload" accept=".jpg,.jpeg,.png,.pdf" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.receipt_document}" class="w-full px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-[#29166e]/5 file:text-[#29166e] hover:file:bg-[#29166e]/10">
+                <input type="file" @change="handleFileUpload" :required="currentType === 'Employee' && !form.receipt_document" accept=".jpg,.jpeg,.png,.pdf" :class="{'border-rose-500 ring-4 ring-rose-500/10': errors.receipt_document}" class="w-full px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-[#29166e]/5 file:text-[#29166e] hover:file:bg-[#29166e]/10">
                 <p class="text-[9px] font-bold text-slate-400 mt-2 ml-1 uppercase tracking-widest">Allowed: JPG, PNG, PDF (Max 10MB)</p>
                 <p v-if="errors.receipt_document" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.receipt_document[0] }}</p>
             </div>

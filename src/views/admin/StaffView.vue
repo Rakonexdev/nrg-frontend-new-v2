@@ -171,7 +171,7 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
 
-          <button v-if="authStore.hasPermission('staff_status')" @click="toggleStatus(row)" class="p-1 transition-colors" :class="row.status === 'active' ? 'text-green-500 hover:text-red-500' : 'text-slate-400 hover:text-green-500'" :title="row.status === 'active' ? 'Deactivate Staff' : 'Activate Staff'">
+          <button v-if="authStore.hasPermission('staff_status')" @click="toggleStatus(row)" class="p-1 transition-colors" :class="row.status === 'active' ? 'text-green-500 hover:text-red-500' : 'text-red-500 hover:text-green-500'" :title="row.status === 'active' ? 'Deactivate Staff' : 'Activate Staff'">
             <svg v-if="row.status === 'active'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>

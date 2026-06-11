@@ -104,11 +104,9 @@
           
           <!-- Separate Toggle Action -->
           <template v-if="authStore.hasPermission('company_edit')">
-            <button v-if="row.is_active" @click="toggleStatus(row)" class="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Deactivate Company">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            </button>
-            <button v-else @click="toggleStatus(row)" class="p-1 text-green-500 hover:text-green-600 transition-colors" title="Activate Company">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <button @click="toggleStatus(row)" class="p-1 transition-colors" :class="row.is_active ? 'text-green-500 hover:text-red-500' : 'text-red-500 hover:text-green-500'" :title="row.is_active ? 'Deactivate Company' : 'Activate Company'">
+              <svg v-if="row.is_active" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </button>
           </template>
           

@@ -209,7 +209,7 @@
                 </div>
 
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nationality</label>
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nationality <span class="text-red-500">*</span></label>
                     <SearchableSelect 
                         v-model="form.nationality" 
                         :options="countryOptions" 
@@ -525,6 +525,12 @@ const openModal = (visa = null) => {
 const saveVisaSlot = async () => {
     saving.value = true;
     try {
+        if (!form.value.nationality) {
+            notificationStore.error('Please select a nationality.');
+            saving.value = false;
+            return;
+        }
+
         if (!form.value.gender) {
             notificationStore.error('Please select a gender.');
             saving.value = false;

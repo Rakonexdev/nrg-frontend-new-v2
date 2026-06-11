@@ -54,7 +54,7 @@
                 <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </span>
-                <input v-model="searchQuery" @input="fetchApplications(1)" type="text" placeholder="Search VP, names, passport, visa, rep name, phone..." 
+                <input v-model="searchQuery" @input="fetchApplications(1)" type="text" placeholder="Search VP, names, passport, visa, company, cc..." 
                        class="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold">
             </div>
             
@@ -191,9 +191,9 @@
           <button v-if="authStore.hasPermission('visa_application_edit') || authStore.isSuperAdmin" @click="openModal(row)" class="p-1 text-slate-400 hover:text-[#29166e] transition-colors" title="Edit Application">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </button>
-          <button v-if="authStore.hasPermission('visa_application_status') || authStore.isSuperAdmin" @click="confirmStatusToggle(row)" class="p-1 transition-colors" :class="row.is_active ? 'text-green-500 hover:text-green-600' : 'text-slate-400 hover:text-slate-500'" :title="row.is_active ? 'Deactivate' : 'Activate'">
+          <button v-if="authStore.hasPermission('visa_application_status') || authStore.isSuperAdmin" @click="confirmStatusToggle(row)" class="p-1 transition-colors" :class="row.is_active ? 'text-green-500 hover:text-red-500' : 'text-red-500 hover:text-green-500'" :title="row.is_active ? 'Deactivate' : 'Activate'">
             <svg v-if="row.is_active" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
           </button>
           <button v-if="authStore.hasPermission('visa_application_payment') || authStore.isSuperAdmin" @click="openPaymentModal(row)" class="p-1 text-slate-400 hover:text-amber-500 transition-colors" title="Payment & History">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -421,6 +421,7 @@
                         <option value="OUTSIDE PROCESS">OUTSIDE PROCESS</option>
                         <option value="INSIDE COUNTRY">INSIDE COUNTRY</option>
                         <option value="READY TO PRINT">READY TO PRINT</option>
+                        <option value="NEED TO CANCEL">NEED TO CANCEL</option>
                     </select>
                 </div>
 
@@ -724,7 +725,8 @@ const visaStatusOptions = [
     { id: 'UNDER PROCESS', name: 'UNDER PROCESS' },
     { id: 'OUTSIDE PROCESS', name: 'OUTSIDE PROCESS' },
     { id: 'INSIDE COUNTRY', name: 'INSIDE COUNTRY' },
-    { id: 'READY TO PRINT', name: 'READY TO PRINT' }
+    { id: 'READY TO PRINT', name: 'READY TO PRINT' },
+    { id: 'NEED TO CANCEL', name: 'NEED TO CANCEL' }
 ];
 
 const filePreviews = ref({});
