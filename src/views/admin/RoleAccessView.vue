@@ -419,6 +419,12 @@ const formatPermissionLabel = (perm) => {
     const card = perm.replace('contract_card_', '').replace(/_/g, ' ');
     return 'Show Card: ' + card.replace(/\b\w/g, l => l.toUpperCase());
   }
+
+  // Income Report group overrides
+  if (perm.startsWith('income_card_')) {
+    const card = perm.replace('income_card_', '').replace(/_/g, ' ');
+    return 'Show Card: ' + card.replace(/\b\w/g, l => l.toUpperCase());
+  }
   
   // Staff group overrides
   if (perm === 'staff_status') return 'Update Staff Status';

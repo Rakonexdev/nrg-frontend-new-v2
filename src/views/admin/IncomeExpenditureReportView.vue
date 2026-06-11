@@ -38,17 +38,17 @@
 
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+      <div v-if="authStore.hasPermission('income_card_total_income')" class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
         <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
         <p class="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-2">Total Income</p>
         <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400">QAR {{ formatCurrency(summary.total_income) }}</p>
       </div>
-      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+      <div v-if="authStore.hasPermission('income_card_total_expenditure')" class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
         <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-all"></div>
         <p class="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] mb-2">Total Expenditure</p>
         <p class="text-2xl font-black text-rose-600 dark:text-rose-400">QAR {{ formatCurrency(summary.total_expenditure) }}</p>
       </div>
-      <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+      <div v-if="authStore.hasPermission('income_card_net_balance')" class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
         <div class="absolute -right-4 -top-4 w-24 h-24 bg-slate-500/10 rounded-full blur-2xl group-hover:bg-slate-500/20 transition-all"></div>
         <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Net Balance</p>
         <p class="text-2xl font-black text-slate-900 dark:text-white">QAR {{ formatCurrency(summary.net_balance) }}</p>
@@ -151,6 +151,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { reportService } from '@/services/api';
 import { useNotificationStore } from '@/stores/notification';
+import { useAuthStore } from '@/stores/auth';
 import DataTable from '@/components/shared/DataTable.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 import debounce from 'lodash/debounce';
@@ -158,6 +159,7 @@ import debounce from 'lodash/debounce';
 const loading = ref(false);
 const downloading = ref(false);
 const notificationStore = useNotificationStore();
+const authStore = useAuthStore();
 const records = ref([]);
 const pagination = ref({});
 const summary = ref({ total_income: 0, total_expenditure: 0, net_balance: 0 });
@@ -267,5 +269,8 @@ const resetFilters = () => {
   fetchReport();
 };
 
-onMounted(() => fetchReport());
+onMounted(() => {
+  authStore.refreshUser();
+  fetchReport();
+});
 </script>
