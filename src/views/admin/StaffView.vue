@@ -112,6 +112,7 @@
       :pagination="pagination"
       :sort-by="sortBy"
       :sort-dir="sortDir"
+      :rowClass="getRowClass"
       @sort="handleSort"
       @page-change="fetchStaff">
       
@@ -638,6 +639,10 @@ const form = ref({
 });
 
 const loadingBranches = ref(false);
+
+const getRowClass = (row) => {
+  return row.status === 'inactive' ? 'bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20' : '';
+};
 
 const columns = [
   { key: 'name', label: 'Name & Contact', sortable: true },

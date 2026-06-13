@@ -102,7 +102,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
-            <tr v-for="user in adminUsers" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+            <tr v-for="user in adminUsers" :key="user.id" :class="[user.is_active === 0 || user.is_active === false ? 'bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-700/30', 'transition-colors']">
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <div class="w-8 h-8 rounded-full bg-[#29166e]/10 dark:bg-[#29166e]/30 flex items-center justify-center text-[#29166e] dark:text-[#29166e]/80 text-xs font-bold">

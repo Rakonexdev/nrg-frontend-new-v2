@@ -64,6 +64,7 @@
       :data="vehicles"
       :pagination="pagination"
       :stickyTop="tableStickyTop"
+      :rowClass="getRowClass"
       @page-change="fetchVehicles">
       
       <template #vehicle_info="{ row }">
@@ -369,6 +370,10 @@ const columns = [
     { key: 'document', label: 'Document', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
+
+const getRowClass = (row) => {
+  return (row.is_active === 0 || row.is_active === false) ? 'bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20' : '';
+};
 
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';

@@ -16,7 +16,10 @@
         </thead>
         <tbody v-if="data?.length > 0 && !loading">
           <template v-for="(row, index) in data" :key="row.id || index">
-            <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+            <tr :class="[
+              'border-b border-slate-100 dark:border-slate-700/50 transition-colors',
+              rowClass && rowClass(row) ? rowClass(row) : 'hover:bg-slate-50 dark:hover:bg-slate-700/30'
+            ]">
               <td v-for="col in columns" :key="col.key" class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
                 <slot :name="col.key" :value="row[col.key]" :row="row" :toggleExpand="() => toggleExpand(row.id || index)" :isExpanded="expandedRows.includes(row.id || index)">
                   {{ row[col.key] }}
@@ -122,6 +125,10 @@ const props = defineProps({
   stickyTop: {
     type: String,
     default: '0px'
+  },
+  rowClass: {
+    type: Function,
+    default: null
   }
 });
 

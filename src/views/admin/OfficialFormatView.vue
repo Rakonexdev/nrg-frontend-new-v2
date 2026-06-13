@@ -23,7 +23,7 @@
           <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </span>
-          <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search documents by name..." 
+          <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search by name or department..." 
                  class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
         </div>
         <transition name="fade-slide-horizontal">

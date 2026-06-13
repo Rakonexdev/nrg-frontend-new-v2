@@ -102,6 +102,7 @@
       :data="applications"
       :pagination="pagination"
       :stickyTop="tableStickyTop"
+      :rowClass="getRowClass"
       @page-change="fetchApplications">
       
       <template #vp_info="{ row }">
@@ -422,6 +423,7 @@
                         <option value="INSIDE COUNTRY">INSIDE COUNTRY</option>
                         <option value="READY TO PRINT">READY TO PRINT</option>
                         <option value="NEED TO CANCEL">NEED TO CANCEL</option>
+                        <option value="COMPLETE">COMPLETE</option>
                     </select>
                 </div>
 
@@ -668,6 +670,10 @@ const columns = [
     { key: 'actions', label: 'Actions', sortable: false }
 ];
 
+const getRowClass = (row) => {
+  return (row.is_active === 0 || row.is_active === false) ? 'bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20' : '';
+};
+
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 const dashboardStore = useDashboardStore();
@@ -726,7 +732,8 @@ const visaStatusOptions = [
     { id: 'OUTSIDE PROCESS', name: 'OUTSIDE PROCESS' },
     { id: 'INSIDE COUNTRY', name: 'INSIDE COUNTRY' },
     { id: 'READY TO PRINT', name: 'READY TO PRINT' },
-    { id: 'NEED TO CANCEL', name: 'NEED TO CANCEL' }
+    { id: 'NEED TO CANCEL', name: 'NEED TO CANCEL' },
+    { id: 'COMPLETE', name: 'COMPLETE' }
 ];
 
 const filePreviews = ref({});

@@ -63,6 +63,7 @@
       :columns="columns" 
       :data="companies"
       :pagination="pagination"
+      :rowClass="getRowClass"
       @page-change="fetchCompanies">
       
       <template #name="{ row }">
@@ -350,6 +351,10 @@ const columns = [
     { key: 'is_active', label: 'Status', sortable: true },
     { key: 'actions', label: 'Actions', sortable: false }
 ];
+
+const getRowClass = (row) => {
+  return (row.is_active === 0 || row.is_active === false) ? 'bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20' : '';
+};
 
 // Remove dayjs import and use native Date formatting for consistency
 const formatDate = (date) => {
