@@ -209,6 +209,30 @@
     <!-- Add/Edit Modal -->
     <Modal :show="showModal" :title="viewMode ? 'View Visa Application' : editMode ? 'Edit Visa Application' : 'New Visa Application'" @close="showModal = false" maxWidth="5xl">
       <form @submit.prevent="saveApplication" class="space-y-6">
+        <div v-if="!editMode && !viewMode && selectedCompanyStatus === 'company_full'" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div>
+                <h4 class="text-sm font-bold text-red-800 dark:text-red-400">All Slots Completed</h4>
+                <p class="text-xs text-red-600 dark:text-red-300 mt-1">All the visa slots are completed for the chosen company <strong>{{ companyOptions.find(c => c.id === form.company_id)?.name }}</strong>. You cannot submit a new application.</p>
+            </div>
+        </div>
+        
+        <div v-if="!editMode && !viewMode && selectedCompanyStatus === 'profession_full'" class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div>
+                <h4 class="text-sm font-bold text-amber-800 dark:text-amber-400">Profession Slots Completed</h4>
+                <p class="text-xs text-amber-600 dark:text-amber-300 mt-1">All the visa slots for the chosen profession are completed. You cannot submit a new application for this profession.</p>
+            </div>
+        </div>
+
+        <div v-if="!editMode && !viewMode && selectedCompanyStatus === 'vp_full'" class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div>
+                <h4 class="text-sm font-bold text-amber-800 dark:text-amber-400">VP Number Slots Completed</h4>
+                <p class="text-xs text-amber-600 dark:text-amber-300 mt-1">All the visa slots for the specifically chosen VP Number are completed. Please select a different VP Number if available.</p>
+            </div>
+        </div>
+
         <fieldset :disabled="viewMode" class="space-y-6">
         
         <!-- VP RECORD -->
@@ -265,7 +289,12 @@
 
                 <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">VP Number <span class="text-red-500">*</span></label>
-                    <input v-model="form.vp_number" type="text" required readonly placeholder="Auto-filled"
+                    <SearchableSelect v-if="!viewMode && vpNumberOptions.length > 1"
+                        v-model="form.vp_number"
+                        :options="vpNumberOptions"
+                        placeholder="Select VP Number"
+                    />
+                    <input v-else v-model="form.vp_number" type="text" required readonly placeholder="Auto-filled"
                            class="w-full px-4 py-3.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none transition-all font-bold cursor-not-allowed text-slate-500">
                 </div>
                 
@@ -461,7 +490,7 @@
         </fieldset>
         <div class="flex justify-end gap-4 mt-8 border-t border-slate-200 dark:border-slate-700 pt-6">
           <button type="button" @click="showModal = false" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white rounded-xl font-bold text-sm transition-colors shadow-sm">{{ viewMode ? 'Close' : 'Cancel' }}</button>
-          <button v-if="!viewMode" type="submit" class="px-8 py-3 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" :disabled="saving">
+          <button v-if="!viewMode" type="submit" class="px-8 py-3 bg-[#29166e] hover:bg-[#1d0f4d] text-white rounded-xl shadow-lg shadow-[#29166e]/25 transition-all font-black text-sm transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#29166e] disabled:transform-none" :disabled="saving || (!editMode && selectedCompanyStatus !== null)">
             <svg v-if="!saving" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
             <svg v-else class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             {{ saving ? 'Saving...' : 'Save Application' }}
@@ -806,6 +835,72 @@ const editingPaymentId = ref(null);
 
 const companyVisaRecords = ref([]);
 
+const matchingVpRecords = computed(() => {
+    if (!form.value.position || !companyVisaRecords.value.length) return [];
+    
+    return companyVisaRecords.value.filter(v => {
+        const matchProfession = v.profession === form.value.position;
+        const matchNationality = !form.value.nationality || !v.nationality || v.nationality === 'Any' || v.nationality === form.value.nationality;
+        const matchGender = !form.value.gender || !v.gender || v.gender === 'Any' || v.gender === form.value.gender;
+        return matchProfession && matchNationality && matchGender;
+    });
+});
+
+const vpNumberOptions = computed(() => {
+    const uniqueVps = [];
+    const seen = new Set();
+    for (const v of matchingVpRecords.value) {
+        if (!seen.has(v.vp_number)) {
+            seen.add(v.vp_number);
+            uniqueVps.push({
+                id: v.vp_number,
+                name: v.vp_number
+            });
+        }
+    }
+    return uniqueVps;
+});
+
+const selectedCompanyStatus = computed(() => {
+    if (!form.value.company_id || !companyVisaRecords.value.length) return null;
+    
+    if (form.value.vp_number) {
+        const vpRecord = companyVisaRecords.value.find(v => v.vp_number === form.value.vp_number);
+        if (vpRecord) {
+            if ((vpRecord.used_slots || 0) >= (vpRecord.available_slots || 0)) {
+                return 'vp_full';
+            }
+            return null;
+        }
+    }
+    
+    if (form.value.position) {
+        const profRecords = companyVisaRecords.value.filter(v => v.profession === form.value.position);
+        if (profRecords.length > 0) {
+            const hasAvailableSlot = profRecords.some(v => (v.used_slots || 0) < (v.available_slots || 0));
+            if (!hasAvailableSlot) {
+                return 'profession_full';
+            }
+        }
+    }
+    
+    const hasAnyAvailableSlot = companyVisaRecords.value.some(v => (v.used_slots || 0) < (v.available_slots || 0));
+    if (!hasAnyAvailableSlot && companyVisaRecords.value.length > 0) {
+        return 'company_full';
+    }
+    
+    return null;
+});
+
+watch(() => form.value.vp_number, (newVpNumber) => {
+    if (newVpNumber && !editMode.value) {
+        const match = companyVisaRecords.value.find(v => v.vp_number === newVpNumber);
+        if (match) {
+            form.value.vp_expiry_date = match.vp_expiry_date || '';
+        }
+    }
+});
+
 watch(() => form.value.company_id, async (newCompanyId) => {
     if (!newCompanyId) {
         companyProfessionOptions.value = [];
@@ -863,14 +958,18 @@ watch(() => [form.value.nationality, form.value.gender], ([newNationality, newGe
     if (!editMode.value && form.value.position && form.value.company_id && companyVisaRecords.value.length > 0) {
         // If we have either nationality or gender, we can try to match a slot
         if (newNationality || newGender) {
-            const match = companyVisaRecords.value.find(v => 
-                v.profession === form.value.position && 
-                (v.nationality === newNationality || !v.nationality || v.nationality === 'Any') &&
-                (v.gender === newGender || !v.gender || v.gender === 'Any')
-            );
-            if (match) {
-                form.value.vp_number = match.vp_number || '';
-                form.value.vp_expiry_date = match.vp_expiry_date || '';
+            const matches = matchingVpRecords.value;
+            if (matches.length === 1) {
+                form.value.vp_number = matches[0].vp_number || '';
+                form.value.vp_expiry_date = matches[0].vp_expiry_date || '';
+            } else if (matches.length > 1) {
+                if (!matches.find(m => m.vp_number === form.value.vp_number)) {
+                    form.value.vp_number = '';
+                    form.value.vp_expiry_date = '';
+                }
+            } else {
+                form.value.vp_number = '';
+                form.value.vp_expiry_date = '';
             }
         }
     }
