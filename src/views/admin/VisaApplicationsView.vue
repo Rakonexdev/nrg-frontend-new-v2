@@ -409,22 +409,12 @@
                 
                 <div class="md:col-span-1">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Report and Visa Status <span class="text-red-500">*</span></label>
-                    <select v-model="form.medical_report" required class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#29166e]/20 outline-none transition-all font-bold appearance-none cursor-pointer">
-                        <option value="" disabled>-- Select --</option>
-                        <option value="FIT">FIT</option>
-                        <option value="UNFIT">UNFIT</option>
-                        <option value="PENDING">PENDING</option>
-                        <option value="DEFERRED / FURTHER EXAM REQUIRED">DEFERRED / FURTHER EXAM REQUIRED</option>
-                        <option value="FIT WITH CONDITIONS">FIT WITH CONDITIONS</option>
-                        <option value="INCOMPLETE DOCUMENTS">INCOMPLETE DOCUMENTS</option>
-                        <option value="RE VISIT">RE VISIT</option>
-                        <option value="UNDER PROCESS">UNDER PROCESS</option>
-                        <option value="OUTSIDE PROCESS">OUTSIDE PROCESS</option>
-                        <option value="INSIDE COUNTRY">INSIDE COUNTRY</option>
-                        <option value="READY TO PRINT">READY TO PRINT</option>
-                        <option value="NEED TO CANCEL">NEED TO CANCEL</option>
-                        <option value="COMPLETE">COMPLETE</option>
-                    </select>
+                    <SearchableSelect 
+                        v-model="form.medical_report"
+                        :options="medicalReportOptions"
+                        :allowCustom="true"
+                        placeholder="-- Select --"
+                    />
                 </div>
 
                 <div class="md:col-span-1">
@@ -719,22 +709,21 @@ const statusOptions = [
     { id: 'inactive', name: 'Inactive' }
 ];
 
-const visaStatusOptions = [
-    { id: '', name: 'All Visa Status' },
-    { id: 'FIT', name: 'FIT' },
-    { id: 'UNFIT', name: 'UNFIT' },
-    { id: 'PENDING', name: 'PENDING' },
-    { id: 'DEFERRED / FURTHER EXAM REQUIRED', name: 'DEFERRED / FURTHER EXAM REQUIRED' },
-    { id: 'FIT WITH CONDITIONS', name: 'FIT WITH CONDITIONS' },
-    { id: 'INCOMPLETE DOCUMENTS', name: 'INCOMPLETE DOCUMENTS' },
-    { id: 'RE VISIT', name: 'RE VISIT' },
-    { id: 'UNDER PROCESS', name: 'UNDER PROCESS' },
-    { id: 'OUTSIDE PROCESS', name: 'OUTSIDE PROCESS' },
-    { id: 'INSIDE COUNTRY', name: 'INSIDE COUNTRY' },
-    { id: 'READY TO PRINT', name: 'READY TO PRINT' },
-    { id: 'NEED TO CANCEL', name: 'NEED TO CANCEL' },
-    { id: 'COMPLETE', name: 'COMPLETE' }
+const baseVisaStatuses = [
+    'FIT', 'UNFIT', 'PENDING', 'DEFERRED / FURTHER EXAM REQUIRED', 
+    'FIT WITH CONDITIONS', 'INCOMPLETE DOCUMENTS', 'RE VISIT', 
+    'UNDER PROCESS', 'OUTSIDE PROCESS', 'INSIDE COUNTRY', 
+    'READY TO PRINT', 'NEED TO CANCEL', 'COMPLETE'
 ];
+
+const visaStatusOptions = ref([
+    { id: '', name: 'All Visa Status' },
+    ...baseVisaStatuses.map(s => ({ id: s, name: s }))
+]);
+
+const medicalReportOptions = ref([
+    ...baseVisaStatuses.map(s => ({ id: s, name: s }))
+]);
 
 const filePreviews = ref({});
 
@@ -1014,6 +1003,17 @@ const fetchApplications = async (page = 1) => {
             totalCollectedAmount.value = resData.summary.total_collected || 0;
             totalPendingAmount.value = resData.summary.total_pending || 0;
             totalExpiredVps.value = resData.summary.total_expired_vps || 0;
+            
+            if (resData.summary.unique_statuses) {
+                resData.summary.unique_statuses.forEach(status => {
+                    if (!medicalReportOptions.value.find(o => o.id === status)) {
+                        medicalReportOptions.value.push({ id: status, name: status });
+                    }
+                    if (!visaStatusOptions.value.find(o => o.id === status)) {
+                        visaStatusOptions.value.push({ id: status, name: status });
+                    }
+                });
+            }
             
             dashboardStore.setVisaStats({
                 total_collected: resData.summary.total_collected || 0,
