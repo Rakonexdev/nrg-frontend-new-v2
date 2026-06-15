@@ -54,6 +54,14 @@
           </div>
           Stopped
       </button>
+      <button @click="activeTab = 'canceled'; debouncedSearch()" 
+              :class="['px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2', 
+                       activeTab === 'canceled' ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-500 shadow-lg shadow-slate-500/10' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700']">
+          <div :class="['w-5 h-5 rounded flex items-center justify-center', activeTab === 'canceled' ? 'bg-slate-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400']">
+             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          Canceled
+      </button>
     </div>
 
     <!-- Search & Filters -->
@@ -117,6 +125,10 @@
                     :class="['px-4 py-2 rounded-lg font-bold text-xs transition-all whitespace-nowrap shrink-0', activeTab === 'stopped' ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
                 Stopped
             </button>
+            <button @click="activeTab = 'canceled'; debouncedSearch()" 
+                    :class="['px-4 py-2 rounded-lg font-bold text-xs transition-all whitespace-nowrap shrink-0', activeTab === 'canceled' ? 'bg-slate-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
+                Canceled
+            </button>
         </div>
       </transition>
     </div>
@@ -163,7 +175,7 @@
             row.final_status === 'Approval' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 
             row.final_status === 'Rejected' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' :
             row.final_status === 'Completed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-            row.final_status === 'stopped' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+            (row.final_status === 'stopped' || row.final_status === 'Canceled') ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
             'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
           ]">
             {{ row.final_status === 'Approval' ? 'Approved' : (row.final_status || 'submission') }}
@@ -399,6 +411,7 @@
                         <option value="Labour Contract Pending">Labour Contract Pending</option>
                         <option value="Labour Contract Reject">Labour Contract Reject</option>
                         <option value="Labour Contract Complete">Labour Contract Complete</option>
+                        <option value="Labour Contract Cancelled">Labour Contract Cancelled</option>
                     </select>
                 </div>
 
@@ -410,6 +423,7 @@
                         <option value="Approval">Approved</option>
                         <option value="Completed">Completed</option>
                         <option value="stopped">stopped</option>
+                        <option value="Canceled">Canceled</option>
                     </select>
                 </div>
 
