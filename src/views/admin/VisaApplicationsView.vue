@@ -865,7 +865,14 @@ const selectedCompanyStatus = computed(() => {
     if (!form.value.company_id || !companyVisaRecords.value.length) return null;
     
     if (form.value.vp_number) {
-        const vpRecord = companyVisaRecords.value.find(v => v.vp_number === form.value.vp_number);
+        // Find the specific VP record that matches the selected VP number AND current form selections (profession, nationality, etc)
+        // If position is selected, we must match it. If not, just find the first matching VP number.
+        const candidateRecords = form.value.position 
+            ? matchingVpRecords.value 
+            : companyVisaRecords.value;
+            
+        const vpRecord = candidateRecords.find(v => v.vp_number === form.value.vp_number);
+        
         if (vpRecord) {
             if ((vpRecord.used_slots || 0) >= (vpRecord.available_slots || 0)) {
                 return 'vp_full';
