@@ -914,11 +914,23 @@ const selectedCompanyStatus = computed(() => {
     return null;
 });
 
+const isFormStateOriginal = () => {
+    if (!editMode.value || !selectedApplication.value) return false;
+    return form.value.company_id === selectedApplication.value.company_id &&
+           form.value.position === selectedApplication.value.position &&
+           form.value.nationality === selectedApplication.value.nationality &&
+           form.value.gender === selectedApplication.value.gender &&
+           form.value.vp_number === selectedApplication.value.vp_number;
+};
+
 watch(() => form.value.vp_number, (newVpNumber) => {
-    if (newVpNumber && !editMode.value) {
-        const match = companyVisaRecords.value.find(v => v.vp_number === newVpNumber);
-        if (match) {
-            form.value.vp_expiry_date = match.vp_expiry_date || '';
+    if (newVpNumber) {
+        // Update expiry date when VP number changes, but don't overwrite if it's the exact initial load of edit mode
+        if (!editMode.value || newVpNumber !== selectedApplication.value?.vp_number || !isFormStateOriginal()) {
+            const match = companyVisaRecords.value.find(v => v.vp_number === newVpNumber);
+            if (match) {
+                form.value.vp_expiry_date = match.vp_expiry_date || '';
+            }
         }
     }
 });
@@ -950,8 +962,14 @@ watch(() => form.value.company_id, async (newCompanyId) => {
             available: professionMap[p].available
         }));
         
-        if (form.value.position && !professionMap[form.value.position]) {
-            form.value.position = '';
+        // If the user changed the company (not initial load)
+        if (!editMode.value || newCompanyId !== selectedApplication.value?.company_id) {
+            if (form.value.position && !professionMap[form.value.position]) {
+                form.value.position = '';
+            }
+            form.value.vp_number = '';
+            form.value.vp_expiry_date = '';
+            form.value.nationality = '';
         }
     } catch (error) {
         console.error('Failed to fetch company professions', error);
@@ -961,31 +979,38 @@ watch(() => form.value.company_id, async (newCompanyId) => {
 });
 
 watch(() => form.value.position, (newProfession) => {
-    if (!editMode.value && newProfession && form.value.company_id && companyVisaRecords.value.length > 0) {
-        // Clear nationality to force user to select if there are specific nationalities
+    // If the user changed the profession (not initial load)
+    if (!editMode.value || newProfession !== selectedApplication.value?.position || form.value.company_id !== selectedApplication.value?.company_id) {
         form.value.nationality = '';
         form.value.vp_number = '';
         form.value.vp_expiry_date = '';
         
-        // If there are no specific nationalities required for this profession, we might auto-fill VP if only 1 match
-        const matchingRecords = companyVisaRecords.value.filter(v => v.profession === newProfession);
-        if (matchingRecords.length === 1 && !matchingRecords[0].nationality) {
-            form.value.vp_number = matchingRecords[0].vp_number || '';
-            form.value.vp_expiry_date = matchingRecords[0].vp_expiry_date || '';
+        if (newProfession && form.value.company_id && companyVisaRecords.value.length > 0) {
+            const matchingRecords = companyVisaRecords.value.filter(v => v.profession === newProfession);
+            // If there's only 1 matching record and it doesn't require a specific nationality, we can auto-fill
+            if (matchingRecords.length === 1 && (!matchingRecords[0].nationality || matchingRecords[0].nationality === 'Any')) {
+                form.value.vp_number = matchingRecords[0].vp_number || '';
+                form.value.vp_expiry_date = matchingRecords[0].vp_expiry_date || '';
+            }
         }
     }
 });
 
-watch(() => [form.value.nationality, form.value.gender], ([newNationality, newGender]) => {
-    if (!editMode.value && form.value.position && form.value.company_id && companyVisaRecords.value.length > 0) {
-        // If we have either nationality or gender, we can try to match a slot
-        if (newNationality || newGender) {
-            const matches = matchingVpRecords.value;
-            if (matches.length === 1) {
-                form.value.vp_number = matches[0].vp_number || '';
-                form.value.vp_expiry_date = matches[0].vp_expiry_date || '';
-            } else if (matches.length > 1) {
-                if (!matches.find(m => m.vp_number === form.value.vp_number)) {
+watch(() => [form.value.nationality, form.value.gender], ([newNat, newGen]) => {
+    // If the form has deviated from the initial load state, we should apply logic
+    if (!editMode.value || !isFormStateOriginal()) {
+        if (form.value.position && form.value.company_id && companyVisaRecords.value.length > 0) {
+            if (newNat || newGen) {
+                const matches = matchingVpRecords.value;
+                if (matches.length === 1) {
+                    form.value.vp_number = matches[0].vp_number || '';
+                    form.value.vp_expiry_date = matches[0].vp_expiry_date || '';
+                } else if (matches.length > 1) {
+                    if (!matches.find(m => m.vp_number === form.value.vp_number)) {
+                        form.value.vp_number = '';
+                        form.value.vp_expiry_date = '';
+                    }
+                } else {
                     form.value.vp_number = '';
                     form.value.vp_expiry_date = '';
                 }
@@ -996,6 +1021,19 @@ watch(() => [form.value.nationality, form.value.gender], ([newNationality, newGe
         }
     }
 });
+
+watch(() => vpNumberOptions.value, (newOptions) => {
+    if (!editMode.value || !isFormStateOriginal()) {
+        if (newOptions.length === 1) {
+            // Auto-fill if there is exactly 1 option
+            const match = companyVisaRecords.value.find(v => v.vp_number === newOptions[0].id);
+            if (match) {
+                form.value.vp_number = match.vp_number || '';
+                form.value.vp_expiry_date = match.vp_expiry_date || '';
+            }
+        }
+    }
+}, { deep: true });
 
 const calculateDue = () => {
     const total = parseFloat(form.value.total_amount) || 0;
