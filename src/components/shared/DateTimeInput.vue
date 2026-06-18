@@ -16,6 +16,7 @@
         @input="onTextInput"
         :placeholder="placeholder || 'DD/MM/YYYY hh:mm AM'"
         :disabled="disabled"
+        :required="required"
         class="w-full pl-4 pr-12 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-[#29166e]/20 transition-all dark:text-white font-bold disabled:opacity-75 disabled:cursor-not-allowed text-sm uppercase"
         :class="{ 'border-red-500 ring-4 ring-red-500/10': error }"
       />
@@ -27,6 +28,7 @@
           :value="normalizedDateTime"
           @input="onNativeInput"
           :disabled="disabled"
+          :required="required"
           class="absolute inset-0 opacity-0 cursor-pointer z-20 w-full h-full"
           style="color-scheme: light dark;"
         />
@@ -51,7 +53,8 @@ const props = defineProps({
   label: String,
   placeholder: String,
   error: String,
-  disabled: Boolean
+  disabled: Boolean,
+  required: Boolean
 });
 
 const emit = defineEmits(['update:modelValue']);

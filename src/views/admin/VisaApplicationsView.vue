@@ -179,6 +179,9 @@
       <template #visa_status="{ row }">
         <div class="flex flex-col">
           <span class="font-bold text-slate-700 dark:text-slate-300 text-xs">{{ row.medical_report || 'N/A' }}</span>
+          <span v-if="row.medical_report?.toLowerCase() === 'medical' && row.appointment_date" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+            Appt: {{ formatDateTime(row.appointment_date) }}
+          </span>
         </div>
       </template>
 
@@ -424,8 +427,8 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="md:col-span-1">
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Appointment Date & Time</label>
-                    <DateTimeInput v-model="form.appointment_date" />
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Medical Appointment Date & Time <span v-if="form.medical_report?.toLowerCase() === 'medical'" class="text-red-500">*</span></label>
+                    <DateTimeInput v-model="form.appointment_date" :required="form.medical_report?.toLowerCase() === 'medical'" />
                 </div>
 
                 <div class="md:col-span-1">
@@ -804,6 +807,36 @@ const formatDate = (dateString) => {
     const month = date.toLocaleString('default', { month: 'short' });
     const year = date.getFullYear();
     return `${day}-${month.toLowerCase()}-${year}`;
+};
+
+const formatDateTime = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    const strTime = hours + ':' + minutes + ' ' + ampm;
+    return `${day}-${month.toLowerCase()}-${year} ${strTime}`;
+};
+
+const convertUtcToLocalISO = (utcString) => {
+    if (!utcString) return '';
+    const date = new Date(utcString);
+    if (isNaN(date.getTime())) return utcString;
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
 const selectedApplication = ref(null);
@@ -1231,7 +1264,14 @@ const openModal = (application = null, isView = false) => {
     if (application) {
         editMode.value = !isView;
         selectedApplication.value = application;
-        form.value = { ...application };
+        const appCopy = { ...application };
+        if (appCopy.appointment_date) {
+            appCopy.appointment_date = convertUtcToLocalISO(appCopy.appointment_date);
+        }
+        if (appCopy.payment_date) {
+            appCopy.payment_date = convertUtcToLocalISO(appCopy.payment_date);
+        }
+        form.value = appCopy;
     } else {
         editMode.value = false;
         viewMode.value = false;

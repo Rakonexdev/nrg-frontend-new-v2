@@ -385,6 +385,20 @@ const formatDate = (dateString) => {
     return `${day}-${month.toUpperCase()}-${year}`;
 };
 
+const convertUtcToLocalISO = (utcString) => {
+    if (!utcString) return '';
+    const date = new Date(utcString);
+    if (isNaN(date.getTime())) return utcString;
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 const vehicles = ref([]);
@@ -512,8 +526,8 @@ const openModal = (vehicle = null, isView = false) => {
         selectedVehicle.value = vehicle;
         form.value = { ...vehicle };
         // Format dates for inputs if needed
-        if (form.value.handover_datetime) form.value.handover_datetime = form.value.handover_datetime.substring(0, 16);
-        if (form.value.return_datetime) form.value.return_datetime = form.value.return_datetime.substring(0, 16);
+        if (form.value.handover_datetime) form.value.handover_datetime = convertUtcToLocalISO(form.value.handover_datetime);
+        if (form.value.return_datetime) form.value.return_datetime = convertUtcToLocalISO(form.value.return_datetime);
     } else {
         editMode.value = false;
         viewMode.value = false;
