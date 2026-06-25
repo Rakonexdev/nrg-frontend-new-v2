@@ -670,7 +670,7 @@ const fetchResources = async () => {
     try {
         const [catsRes, contractsRes] = await Promise.all([
             expenseCategoryService.getAll(),
-            contractService.getAll({ per_page: 1000 })
+            contractService.getAll({ per_page: 1000, minimal: true })
         ]);
         allCategories.value = catsRes.data;
         rawContracts.value = contractsRes.data.data;
