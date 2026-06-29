@@ -169,7 +169,7 @@
                           <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ staff.name }}</p>
                           <p class="text-xs" :class="staff.status === 'critical' ? 'text-red-500 font-bold' : (staff.status === 'warning' ? 'text-amber-500 font-medium' : 'text-slate-500')">
                             <template v-if="staff.days < 0">
-                              {{ staff.type }} expired {{ Math.abs(staff.days) }} days ago
+                              {{ staff.type }} expired {{ formatTimeAgo(staff.days) }}
                             </template>
                             <template v-else-if="staff.days === 0">
                               {{ staff.type }} expires today
@@ -377,6 +377,26 @@ const getStatusClass = (status) => {
     case 'info': return 'bg-[#29166e]/10 text-[#29166e] dark:bg-[#29166e]/20 dark:text-[#29166e]';
     default: return 'bg-slate-100 text-slate-500';
   }
+};
+
+const formatTimeAgo = (days) => {
+  const absDays = Math.abs(days);
+  if (absDays < 7) {
+    return `${absDays} day${absDays !== 1 ? 's' : ''} ago`;
+  }
+  if (absDays < 30) {
+    const weeks = Math.floor(absDays / 7);
+    return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
+  }
+  if (absDays === 30) {
+    return `30 days ago`;
+  }
+  if (absDays < 365) {
+    const months = Math.floor(absDays / 30);
+    return `${months} month${months !== 1 ? 's' : ''} ago`;
+  }
+  const years = Math.floor(absDays / 365);
+  return `${years} year${years !== 1 ? 's' : ''} ago`;
 };
 
 const fetchDashboardData = async () => {
