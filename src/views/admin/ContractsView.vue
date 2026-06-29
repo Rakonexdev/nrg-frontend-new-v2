@@ -58,7 +58,7 @@
             <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#29166e] transition-colors">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </span>
-            <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search staff, QID or company..." 
+            <input v-model="search" @input="debouncedSearch" type="text" placeholder="Search staff, QID, mobile, or company..." 
                    class="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] outline-none transition-all dark:text-white font-medium">
           </div>
           <transition name="fade-slide-horizontal">
@@ -360,6 +360,7 @@
                     <span class="font-black text-slate-800 dark:text-white tracking-tight">{{ row.staff?.name || 'N/A' }}</span>
                     <span v-if="row.staff?.qid_number" class="text-xs font-bold text-slate-500 mt-0.5">QID: {{ row.staff.qid_number }}</span>
                     <span v-if="row.staff?.mobile" class="text-xs font-bold text-slate-500 mt-0.5">Mobile: {{ row.staff.mobile }}</span>
+                    <span v-if="row.staff?.alternative_mobile" class="text-[10px] font-bold text-slate-500 mt-0.5">Alt: {{ row.staff.alternative_mobile }}</span>
                 </div>
             </template>
 

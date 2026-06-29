@@ -25,7 +25,7 @@
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </span>
-            <input v-model="search" @input="fetchStaff(1)" type="text" placeholder="Search by name, QID, profession..." 
+            <input v-model="search" @input="fetchStaff(1)" type="text" placeholder="Search by name, QID, phone, company, card..." 
                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#29166e]/20 outline-none dark:text-white font-medium">
           </div>
           
@@ -120,6 +120,7 @@
         <div class="flex flex-col">
           <span class="text-sm font-black text-slate-800 dark:text-white leading-tight uppercase">{{ row.name }}</span>
           <span class="text-[11px] font-black text-slate-700 dark:text-slate-300 tracking-wider mt-1">{{ formatMobile(row.mobile) }}</span>
+          <span v-if="row.alternative_mobile" class="text-[10px] font-bold text-slate-500 tracking-wider mt-0.5">Alt: {{ formatMobile(row.alternative_mobile) }}</span>
         </div>
       </template>
 
