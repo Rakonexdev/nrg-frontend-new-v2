@@ -81,8 +81,8 @@
         </div>
 
         <div class="flex items-center gap-3 w-full md:w-auto shrink-0 flex-wrap justify-end">
-          <DateInput v-model="fromDate" @change="debouncedSearch" label="From Date" class="w-36" />
-          <DateInput v-model="toDate" @change="debouncedSearch" label="To Date" class="w-36" />
+          <DateInput v-model="fromDate" @change="debouncedSearch" label="From Date" class="w-44" />
+          <DateInput v-model="toDate" @change="debouncedSearch" label="To Date" class="w-44" />
           <button v-if="fromDate || toDate" @click="clearDates" class="px-3 py-2 mt-5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs transition-all border border-slate-200 dark:border-slate-700 shadow-sm">
               Clear
           </button>
