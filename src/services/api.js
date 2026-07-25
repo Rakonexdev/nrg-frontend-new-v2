@@ -203,7 +203,7 @@ export const roleService = {
     getAll: () => api.get('/roles'),
     getPermissions: () => api.get('/roles/permissions'),
     create: (data) => api.post('/roles', data),
-    update: (id, data) => api.put(`/roles/${id}`, data),
+    update: (id, data) => api.post(`/roles/${id}`, data),
     delete: (id) => api.post(`/roles/${id}/delete`)
 };
 
