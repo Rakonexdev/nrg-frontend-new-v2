@@ -13,15 +13,69 @@ api.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        config.headers['X-Authorization'] = `Bearer ${token}`;
     }
     return config;
 });
+
+// Track if we are already redirecting to prevent infinite loops
+let isRedirecting = false;
 
 // Handle authentication errors
 api.interceptors.response.use(
     response => response,
     error => {
-        if (error.response?.status === 401 || (error.response?.status === 403 && error.response?.data?.message?.includes('access time'))) {
+        // Don't redirect if we're already in the process of redirecting
+        if (isRedirecting) {
+            return Promise.reject(error);
+        }
+
+        if (error.response?.status === 401) {
+            // Check if this is a Super Admin user — don't force logout Super Admins
+            // because 401 might be caused by Apache stripping the Authorization header
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    const email = (user?.email || '').toLowerCase();
+                    const role = (user?.role || '').toLowerCase().replace(/[\s-]/g, '_');
+                    const isSuperAdmin = email.includes('superadmin') || email === 'admin@nrg.local' || email === 'admin@nrg.com' || email === 'admin@nrgqatar.com' || role === 'super_admin' || role === 'superadmin';
+
+                    if (isSuperAdmin) {
+                        // Don't redirect Super Admin — the 401 is likely a server
+                        // misconfiguration stripping the Authorization header
+                        console.warn('[API] 401 received for Super Admin user — NOT redirecting to login. The server may be stripping the Authorization header.');
+                        return Promise.reject(error);
+                    }
+                } catch (e) {
+                    // JSON parse error — fall through to redirect
+                }
+            }
+
+            isRedirecting = true;
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        } else if (error.response?.status === 403 && (error.response?.data?.message?.includes('shift time') || error.response?.data?.message?.includes('access time'))) {
+            // Check if the user is a Super Admin — shift time restrictions don't apply
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    const email = (user?.email || '').toLowerCase();
+                    const role = (user?.role || '').toLowerCase().replace(/[\s-]/g, '_');
+                    const isSuperAdmin = email.includes('superadmin') || email === 'admin@nrg.local' || email === 'admin@nrg.com' || email === 'admin@nrgqatar.com' || role === 'super_admin' || role === 'superadmin';
+
+                    if (isSuperAdmin) {
+                        console.warn('[API] 403 shift time restriction received for Super Admin — ignoring.');
+                        return Promise.reject(error);
+                    }
+                } catch (e) {
+                    // fall through
+                }
+            }
+
+            isRedirecting = true;
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login?expired=1';

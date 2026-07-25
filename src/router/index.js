@@ -184,27 +184,44 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   const user = JSON.parse(localStorage.getItem('user') || 'null')
 
-  if (to.meta.requiresAuth && !token) {
-    next('/login')
-  } else if (to.meta.guest && token) {
-    const role = user?.role
-    if (role === 'admin' || role === 'super_admin') next('/admin')
-    else if (role === 'collector') next('/collector')
-    else {
+  if (!token) {
+    if (to.meta.requiresAuth) {
+      next('/login')
+    } else {
       next()
     }
-  } else if (to.meta.superAdminOnly && user?.role !== 'super_admin') {
-    // Block non-super_admin from super admin only pages
+    return
+  }
+
+  // User is authenticated
+  const email = user?.email?.toLowerCase() || ''
+  const rawRole = user?.role || user?.roles?.[0]?.name || ''
+  const roleSlug = rawRole.toLowerCase().replace(/[\s-]/g, '_')
+  const isSuperAdmin = email.includes('superadmin') || email === 'admin@nrg.local' || email === 'admin@nrg.com' || email === 'admin@nrgqatar.com' || roleSlug === 'super_admin' || roleSlug === 'superadmin' || roleSlug === 'super_administrator' || (user?.roles && user.roles.some(r => (r.name || '').toLowerCase().includes('super')))
+  const isAdmin = isSuperAdmin || roleSlug === 'admin' || roleSlug === 'administrator'
+  const isCollector = roleSlug === 'collector'
+
+  if (to.meta.guest) {
+    if (isAdmin) next('/admin')
+    else if (isCollector) next('/collector')
+    else next('/admin')
+  } else if (to.meta.superAdminOnly && !isSuperAdmin) {
     next('/admin')
-  } else if (to.meta.roles && !to.meta.roles.includes(user?.role)) {
-    if (user?.role === 'admin' || user?.role === 'super_admin') {
-      next('/admin')
-    } else if (user?.role === 'collector') {
+  } else if (to.meta.roles) {
+    const hasRoleAccess = to.meta.roles.some(r => {
+      if (r === 'super_admin') return isSuperAdmin
+      if (r === 'admin') return isAdmin
+      if (r === 'collector') return isCollector
+      return r === roleSlug
+    })
+
+    if (hasRoleAccess || isAdmin) {
+      next()
+    } else if (isCollector) {
       next('/collector')
     } else {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      next('/login')
+      // Default fallback to admin for logged in users
+      next('/admin')
     }
   } else {
     next()

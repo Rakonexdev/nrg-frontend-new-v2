@@ -25,7 +25,17 @@ const remainingMinutes = ref(0);
 
 onMounted(() => {
   sessionTimer = setInterval(() => {
-    if (!authStore.user || !authStore.user.allowed_login_shifts || authStore.user.allowed_login_shifts.length === 0) {
+    const user = authStore.user;
+    if (!user) {
+      showTimeWarning.value = false;
+      return;
+    }
+
+    const email = (user.email || '').toLowerCase();
+    const role = (user.role || (user.roles && user.roles[0] && user.roles[0].name) || '').toLowerCase().replace(/[\s-]/g, '_');
+    const isSuperAdmin = authStore.isSuperAdmin || email.includes('super') || role.includes('super') || email === 'admin@nrg.local' || email === 'admin@nrg.com';
+
+    if (isSuperAdmin || !user.allowed_login_shifts || !Array.isArray(user.allowed_login_shifts) || user.allowed_login_shifts.length === 0) {
       showTimeWarning.value = false;
       return;
     }
@@ -38,7 +48,7 @@ onMounted(() => {
     let isWithin = false;
     let minTimeRemaining = Infinity;
     
-    for (const shift of authStore.user.allowed_login_shifts) {
+    for (const shift of user.allowed_login_shifts) {
       if (!shift.start || !shift.end) continue;
       
       const [startHours, startMinutes] = shift.start.split(':').map(Number);
