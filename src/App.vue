@@ -33,7 +33,7 @@ onMounted(() => {
 
     const email = (user.email || '').toLowerCase();
     const role = (user.role || (user.roles && user.roles[0] && user.roles[0].name) || '').toLowerCase().replace(/[\s-]/g, '_');
-    const isSuperAdmin = authStore.isSuperAdmin || email.includes('super') || role.includes('super') || email === 'admin@nrg.local' || email === 'admin@nrg.com';
+    const isSuperAdmin = authStore.isSuperAdmin || email.includes('super') || role.includes('super') || email === 'superadmin@nrg.local';
 
     if (isSuperAdmin || !user.allowed_login_shifts || !Array.isArray(user.allowed_login_shifts) || user.allowed_login_shifts.length === 0) {
       showTimeWarning.value = false;

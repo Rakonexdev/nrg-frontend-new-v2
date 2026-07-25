@@ -197,7 +197,7 @@ router.beforeEach((to, from, next) => {
   const email = user?.email?.toLowerCase() || ''
   const rawRole = user?.role || user?.roles?.[0]?.name || ''
   const roleSlug = rawRole.toLowerCase().replace(/[\s-]/g, '_')
-  const isSuperAdmin = email.includes('superadmin') || email === 'admin@nrg.local' || email === 'admin@nrg.com' || email === 'admin@nrgqatar.com' || roleSlug === 'super_admin' || roleSlug === 'superadmin' || roleSlug === 'super_administrator' || (user?.roles && user.roles.some(r => (r.name || '').toLowerCase().includes('super')))
+  const isSuperAdmin = email.includes('superadmin') || email === 'superadmin@nrg.local' || roleSlug === 'super_admin' || roleSlug === 'superadmin' || roleSlug === 'super_administrator' || (user?.roles && user.roles.some(r => (r.name || '').toLowerCase().includes('super')))
   const isAdmin = isSuperAdmin || roleSlug === 'admin' || roleSlug === 'administrator'
   const isCollector = roleSlug === 'collector'
 

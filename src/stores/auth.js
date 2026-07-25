@@ -13,7 +13,7 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: (state) => !!state.token,
     userRole: (state) => {
       const email = (state.user?.email || '').toLowerCase();
-      if (email.includes('superadmin') || email === 'admin@nrg.local' || email === 'admin@nrg.com' || email === 'admin@nrgqatar.com') {
+      if (email.includes('superadmin') || email === 'superadmin@nrg.local') {
         return 'super_admin';
       }
       return state.user?.role || 'user';
@@ -21,8 +21,8 @@ export const useAuthStore = defineStore('auth', {
     isSuperAdmin: (state) => {
       if (!state.user) return false;
       const email = (state.user.email || '').toLowerCase();
-      if (email.includes('superadmin') || email === 'admin@nrg.local' || email === 'admin@nrg.com' || email === 'admin@nrgqatar.com') return true;
-      const role = (state.user.role || '').toLowerCase().replace(/[\s-]/g, '_');
+      if (email.includes('superadmin') || email === 'superadmin@nrg.local') return true;
+      const role = (state.user.role || (state.user.roles && state.user.roles[0] && state.user.roles[0].name) || '').toLowerCase().replace(/[\s-]/g, '_');
       if (role === 'super_admin' || role === 'superadmin' || role === 'super_administrator') return true;
       if (state.user.roles && state.user.roles.some(r => {
         const rName = (r.name || '').toLowerCase().replace(/[\s-]/g, '_');
@@ -34,12 +34,12 @@ export const useAuthStore = defineStore('auth', {
     hasPermission: (state) => (permission) => {
       if (!state.user) return false;
       const email = (state.user.email || '').toLowerCase();
-      const role = (state.user.role || '').toLowerCase().replace(/[\s-]/g, '_');
+      const role = (state.user.role || (state.user.roles && state.user.roles[0] && state.user.roles[0].name) || '').toLowerCase().replace(/[\s-]/g, '_');
       const hasSuperRole = state.user.roles && state.user.roles.some(r => {
         const rName = (r.name || '').toLowerCase().replace(/[\s-]/g, '_');
         return rName === 'super_admin' || rName === 'superadmin' || rName === 'super_administrator';
       });
-      const checkSuper = email.includes('superadmin') || email === 'admin@nrg.local' || email === 'admin@nrg.com' || email === 'admin@nrgqatar.com' || role === 'super_admin' || role === 'superadmin' || role === 'super_administrator' || hasSuperRole;
+      const checkSuper = email.includes('superadmin') || email === 'superadmin@nrg.local' || role === 'super_admin' || role === 'superadmin' || role === 'super_administrator' || hasSuperRole;
 
       if (checkSuper) return true;
       return (state.user.permissions || []).includes(permission);
