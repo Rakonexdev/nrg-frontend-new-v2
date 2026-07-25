@@ -26,7 +26,7 @@ export default {
         return api.put(`/sponsorship-changes/${id}`, data);
     },
     delete(id) {
-        return api.delete(`/sponsorship-changes/${id}`)
+        return api.post(`/sponsorship-changes/${id}/delete`)
     },
     
     // Payment methods

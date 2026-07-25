@@ -14,6 +14,9 @@ instance.interceptors.request.use(config => {
     config.headers.Authorization = `Bearer ${token}`;
     config.headers['X-Authorization'] = `Bearer ${token}`;
   }
+  if (config.method?.toLowerCase() === 'delete') {
+    config.headers['X-HTTP-Method-Override'] = 'DELETE';
+  }
   return config;
 });
 

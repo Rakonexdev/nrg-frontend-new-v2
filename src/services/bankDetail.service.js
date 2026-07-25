@@ -29,6 +29,6 @@ export default {
     },
 
     delete(id) {
-        return api.delete(`/bank-details/${id}`);
+        return api.post(`/bank-details/${id}/delete`);
     }
 };

@@ -15,6 +15,9 @@ api.interceptors.request.use(config => {
         config.headers.Authorization = `Bearer ${token}`;
         config.headers['X-Authorization'] = `Bearer ${token}`;
     }
+    if (config.method?.toLowerCase() === 'delete') {
+        config.headers['X-HTTP-Method-Override'] = 'DELETE';
+    }
     return config;
 });
 
@@ -103,7 +106,7 @@ export const staffService = {
         }
         return api.put(`/staff/${id}`, data);
     },
-    delete: (id) => api.delete(`/staff/${id}`),
+    delete: (id) => api.post(`/staff/${id}/delete`),
     getDocuments: (id) => api.get(`/staff/${id}/documents`),
     uploadDocuments: (id, data) => api.post(`/staff/${id}/documents`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -116,11 +119,11 @@ export const contractService = {
     getById: (id) => api.get(`/contracts/${id}`),
     create: (data) => api.post('/contracts', data),
     update: (id, data) => api.put(`/contracts/${id}`, data),
-    delete: (id) => api.delete(`/contracts/${id}`),
+    delete: (id) => api.post(`/contracts/${id}/delete`),
     getPayments: (id) => api.get(`/contracts/${id}/payments`),
     addPayment: (id, data) => api.post(`/contracts/${id}/payments`, data),
     updatePayment: (contractId, paymentId, data) => api.put(`/contracts/${contractId}/payments/${paymentId}`, data),
-    deletePayment: (contractId, paymentId) => api.delete(`/contracts/${contractId}/payments/${paymentId}`),
+    deletePayment: (contractId, paymentId) => api.post(`/contracts/${contractId}/payments/${paymentId}/delete`),
     addAdjustment: (id, data) => api.post(`/contracts/${id}/adjustments`, data),
     updateAdjustment: (contractId, adjustmentId, data) => api.put(`/contracts/${contractId}/adjustments/${adjustmentId}`, data),
     updateNextDueDate: (id, data) => api.put(`/contracts/${id}/next-due-date`, data)
@@ -146,15 +149,15 @@ export const expenseService = {
         }
         return api.put(`/expenses/${id}`, data);
     },
-    delete: (id) => api.delete(`/expenses/${id}`),
+    delete: (id) => api.post(`/expenses/${id}/delete`),
     export: (params) => api.get('/expenses/export', { params, responseType: 'blob' })
 };
 
 export const expenseCategoryService = {
     getAll: () => api.get('/expense-categories'),
     create: (data) => api.post('/expense-categories', data),
-    update: (id, data) => api.put(`/expense-categories/${id}`, data),
-    delete: (id) => api.delete(`/expense-categories/${id}`)
+    update: (id, data) => api.put('/expense-categories/${id}', data),
+    delete: (id) => api.post(`/expense-categories/${id}/delete`)
 };
 
 export const companyService = {
@@ -163,7 +166,7 @@ export const companyService = {
     getById: (id) => api.get(`/companies/${id}`),
     create: (data) => api.post('/companies', data),
     update: (id, data) => api.put(`/companies/${id}`, data),
-    delete: (id) => api.delete(`/companies/${id}`),
+    delete: (id) => api.post(`/companies/${id}/delete`),
     getPendingCollections: (id) => api.get(`/companies/${id}/pending-collections`)
 };
 
@@ -177,7 +180,7 @@ export const collectorService = {
     getById: (id) => api.get(`/collectors/${id}`),
     create: (data) => api.post('/collectors', data),
     update: (id, data) => api.put(`/collectors/${id}`, data),
-    delete: (id) => api.delete(`/collectors/${id}`)
+    delete: (id) => api.post(`/collectors/${id}/delete`)
 };
 
 export const reportService = {
@@ -193,7 +196,7 @@ export const branchService = {
     getAll: (companyId) => api.get(`/companies/${companyId}/branches`),
     create: (companyId, data) => api.post(`/companies/${companyId}/branches`, data),
     update: (branchId, data) => api.put(`/branches/${branchId}`, data),
-    delete: (branchId) => api.delete(`/branches/${branchId}`)
+    delete: (branchId) => api.post(`/branches/${branchId}/delete`)
 };
 
 export const roleService = {
@@ -201,14 +204,14 @@ export const roleService = {
     getPermissions: () => api.get('/roles/permissions'),
     create: (data) => api.post('/roles', data),
     update: (id, data) => api.put(`/roles/${id}`, data),
-    delete: (id) => api.delete(`/roles/${id}`)
+    delete: (id) => api.post(`/roles/${id}/delete`)
 };
 
 export const adminUserService = {
     getAll: () => api.get('/admin-users'),
     create: (data) => api.post('/admin-users', data),
     update: (id, data) => api.put(`/admin-users/${id}`, data),
-    delete: (id) => api.delete(`/admin-users/${id}`)
+    delete: (id) => api.post(`/admin-users/${id}/delete`)
 };
 
 export const generalDocumentService = {
@@ -216,7 +219,7 @@ export const generalDocumentService = {
     upload: (data) => api.post('/general-documents', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
-    delete: (id) => api.delete(`/general-documents/${id}`),
+    delete: (id) => api.post(`/general-documents/${id}/delete`),
     update: (id, data) => api.post(`/general-documents/${id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
@@ -228,7 +231,7 @@ export const officialFormatService = {
     upload: (data) => api.post('/official-formats', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
-    delete: (id) => api.delete(`/official-formats/${id}`),
+    delete: (id) => api.post(`/official-formats/${id}/delete`),
     update: (id, data) => api.post(`/official-formats/${id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
@@ -255,7 +258,7 @@ export const vehicleService = {
         }
         return api.put(`/vehicles/${id}`, data);
     },
-    delete: (id) => api.delete(`/vehicles/${id}`)
+    delete: (id) => api.post(`/vehicles/${id}/delete`)
 };
 
 export const visaApplicationService = {
@@ -278,10 +281,10 @@ export const visaApplicationService = {
         }
         return api.put(`/visa-applications/${id}`, data);
     },
-    delete: (id) => api.delete(`/visa-applications/${id}`),
+    delete: (id) => api.post(`/visa-applications/${id}/delete`),
     addPayment: (id, data) => api.post(`/visa-applications/${id}/payments`, data),
     updatePayment: (applicationId, paymentId, data) => api.put(`/visa-applications/${applicationId}/payments/${paymentId}`, data),
-    deletePayment: (applicationId, paymentId) => api.delete(`/visa-applications/${applicationId}/payments/${paymentId}`)
+    deletePayment: (contractId, paymentId) => api.post(`/visa-applications/${contractId}/payments/${paymentId}/delete`)
 };
 
 export const companyVisaService = {
@@ -289,7 +292,7 @@ export const companyVisaService = {
     getById: (id) => api.get(`/company-visas/${id}`),
     create: (data) => api.post('/company-visas', data),
     update: (id, data) => api.put(`/company-visas/${id}`, data),
-    delete: (id) => api.delete(`/company-visas/${id}`)
+    delete: (id) => api.post(`/company-visas/${id}/delete`)
 };
 
 export default api;
