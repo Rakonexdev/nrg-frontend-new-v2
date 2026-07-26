@@ -131,7 +131,7 @@ export const contractService = {
     getPayments: (id) => api.get(`/contracts/${id}/payments`),
     addPayment: (id, data) => api.post(`/contracts/${id}/payments`, data),
     updatePayment: (contractId, paymentId, data) => api.post(`/contracts/${contractId}/payments/${paymentId}?_method=PUT`, data, { headers: { 'X-HTTP-Method-Override': 'PUT' } }),
-    deletePayment: (contractId, paymentId) => api.post(`/contracts/${contractId}/payments/${paymentId}/delete`),
+    deletePayment: (contractId, paymentId) => api.post(`/contracts/${contractId}/payments/${paymentId}?_method=DELETE`, {}, { headers: { 'X-HTTP-Method-Override': 'DELETE' } }),
     addAdjustment: (id, data) => api.post(`/contracts/${id}/adjustments`, data),
     updateAdjustment: (contractId, adjustmentId, data) => api.put(`/contracts/${contractId}/adjustments/${adjustmentId}`, data),
     updateNextDueDate: (id, data) => api.put(`/contracts/${id}/next-due-date`, data)
@@ -300,7 +300,7 @@ export const visaApplicationService = {
     delete: (id) => api.post(`/visa-applications/${id}/delete`),
     addPayment: (id, data) => api.post(`/visa-applications/${id}/payments`, data),
     updatePayment: (applicationId, paymentId, data) => api.post(`/visa-applications/${applicationId}/payments/${paymentId}?_method=PUT`, data, { headers: { 'X-HTTP-Method-Override': 'PUT' } }),
-    deletePayment: (contractId, paymentId) => api.post(`/visa-applications/${contractId}/payments/${paymentId}/delete`)
+    deletePayment: (contractId, paymentId) => api.post(`/visa-applications/${contractId}/payments/${paymentId}?_method=DELETE`, {}, { headers: { 'X-HTTP-Method-Override': 'DELETE' } })
 };
 
 export const companyVisaService = {
