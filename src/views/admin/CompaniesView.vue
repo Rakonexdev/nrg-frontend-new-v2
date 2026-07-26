@@ -497,11 +497,23 @@ const saveCompany = async () => {
 
     saving.value = true;
     try {
+        const payload = { ...form.value };
+        if (payload.alternative_phone_number === '') {
+            payload.alternative_phone_number = null;
+        }
+        if (payload.branch_name === '') {
+            payload.branch_name = null;
+        }
+        delete payload.branches;
+        delete payload.branches_count;
+        delete payload.created_at;
+        delete payload.updated_at;
+
         if (editMode.value) {
-            await companyService.update(selectedCompany.value.id, form.value);
+            await companyService.update(selectedCompany.value.id, payload);
             notificationStore.addNotification('Company updated successfully', 'success');
         } else {
-            await companyService.create(form.value);
+            await companyService.create(payload);
             notificationStore.addNotification('Company created successfully', 'success');
         }
         showModal.value = false;

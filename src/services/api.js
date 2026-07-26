@@ -118,7 +118,25 @@ export const contractService = {
     getSummary: () => api.get('/contracts/summary'),
     getById: (id) => api.get(`/contracts/${id}`),
     create: (data) => api.post('/contracts', data),
-    update: (id, data) => api.put(`/contracts/${id}`, data),
+    update: (id, data) => {
+        let formData;
+        if (data instanceof FormData) {
+            formData = data;
+        } else {
+            formData = new FormData();
+            for (const key in data) {
+                if (data[key] !== null && data[key] !== undefined) {
+                    formData.append(key, data[key]);
+                }
+            }
+        }
+        if (!formData.has('_method')) {
+            formData.append('_method', 'PUT');
+        }
+        return api.post(`/contracts/${id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    },
     delete: (id) => api.post(`/contracts/${id}/delete`),
     getPayments: (id) => api.get(`/contracts/${id}/payments`),
     addPayment: (id, data) => api.post(`/contracts/${id}/payments`, data),
@@ -156,7 +174,7 @@ export const expenseService = {
 export const expenseCategoryService = {
     getAll: () => api.get('/expense-categories'),
     create: (data) => api.post('/expense-categories', data),
-    update: (id, data) => api.put('/expense-categories/${id}', data),
+    update: (id, data) => api.put(`/expense-categories/${id}`, data),
     delete: (id) => api.post(`/expense-categories/${id}/delete`)
 };
 
@@ -165,7 +183,25 @@ export const companyService = {
     getSimple: () => api.get('/companies', { params: { mode: 'simple' } }),
     getById: (id) => api.get(`/companies/${id}`),
     create: (data) => api.post('/companies', data),
-    update: (id, data) => api.put(`/companies/${id}`, data),
+    update: (id, data) => {
+        let formData;
+        if (data instanceof FormData) {
+            formData = data;
+        } else {
+            formData = new FormData();
+            for (const key in data) {
+                if (data[key] !== null && data[key] !== undefined) {
+                    formData.append(key, data[key]);
+                }
+            }
+        }
+        if (!formData.has('_method')) {
+            formData.append('_method', 'PUT');
+        }
+        return api.post(`/companies/${id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    },
     delete: (id) => api.post(`/companies/${id}/delete`),
     getPendingCollections: (id) => api.get(`/companies/${id}/pending-collections`)
 };

@@ -19,13 +19,23 @@ export default {
     },
 
     update(id, data) {
+        let formData;
         if (data instanceof FormData) {
-            data.append('_method', 'PUT');
-            return api.post(`/bank-details/${id}`, data, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            formData = data;
+        } else {
+            formData = new FormData();
+            for (const key in data) {
+                if (data[key] !== null && data[key] !== undefined) {
+                    formData.append(key, data[key]);
+                }
+            }
         }
-        return api.put(`/bank-details/${id}`, data);
+        if (!formData.has('_method')) {
+            formData.append('_method', 'PUT');
+        }
+        return api.post(`/bank-details/${id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
     },
 
     delete(id) {
