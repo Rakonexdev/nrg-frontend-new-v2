@@ -34,7 +34,7 @@ export default {
         return api.post(`/sponsorship-changes/${id}/payments`, paymentData)
     },
     updatePayment(sponsorshipId, paymentId, paymentData) {
-        return api.put(`/sponsorship-changes/${sponsorshipId}/payments/${paymentId}`, paymentData)
+        return api.post(`/sponsorship-changes/${sponsorshipId}/payments/${paymentId}?_method=PUT`, paymentData, { headers: { 'X-HTTP-Method-Override': 'PUT' } })
     },
     deletePayment(sponsorshipId, paymentId) {
         return api.delete(`/sponsorship-changes/${sponsorshipId}/payments/${paymentId}`)

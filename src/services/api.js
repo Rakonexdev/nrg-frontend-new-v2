@@ -130,7 +130,7 @@ export const contractService = {
     delete: (id) => api.post(`/contracts/${id}/delete`),
     getPayments: (id) => api.get(`/contracts/${id}/payments`),
     addPayment: (id, data) => api.post(`/contracts/${id}/payments`, data),
-    updatePayment: (contractId, paymentId, data) => api.put(`/contracts/${contractId}/payments/${paymentId}`, data),
+    updatePayment: (contractId, paymentId, data) => api.post(`/contracts/${contractId}/payments/${paymentId}?_method=PUT`, data, { headers: { 'X-HTTP-Method-Override': 'PUT' } }),
     deletePayment: (contractId, paymentId) => api.post(`/contracts/${contractId}/payments/${paymentId}/delete`),
     addAdjustment: (id, data) => api.post(`/contracts/${id}/adjustments`, data),
     updateAdjustment: (contractId, adjustmentId, data) => api.put(`/contracts/${contractId}/adjustments/${adjustmentId}`, data),
@@ -202,7 +202,7 @@ export const collectorService = {
 export const reportService = {
     getCollections: (params) => api.get('/reports/collections', { params }),
     exportCollections: (params) => api.get('/reports/collections/export', { params, responseType: 'blob' }),
-    updateCollectionStatus: (id, status) => api.post(`/collections/${id}/status`, { status }),
+    updateCollectionStatus: (id, status) => api.post(`/collections/${id}/status?_method=PUT`, { status }, { headers: { 'X-HTTP-Method-Override': 'PUT' } }),
     getIncomeExpenditure: (params) => api.get('/reports/income-expenditure', { params }),
     exportIncomeExpenditure: (params) => api.get('/reports/income-expenditure/export', { params, responseType: 'blob' }),
     getDocumentationStatus: (params) => api.get('/reports/documentation-status', { params })
@@ -299,7 +299,7 @@ export const visaApplicationService = {
     },
     delete: (id) => api.post(`/visa-applications/${id}/delete`),
     addPayment: (id, data) => api.post(`/visa-applications/${id}/payments`, data),
-    updatePayment: (applicationId, paymentId, data) => api.put(`/visa-applications/${applicationId}/payments/${paymentId}`, data),
+    updatePayment: (applicationId, paymentId, data) => api.post(`/visa-applications/${applicationId}/payments/${paymentId}?_method=PUT`, data, { headers: { 'X-HTTP-Method-Override': 'PUT' } }),
     deletePayment: (contractId, paymentId) => api.post(`/visa-applications/${contractId}/payments/${paymentId}/delete`)
 };
 
