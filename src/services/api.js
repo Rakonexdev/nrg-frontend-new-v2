@@ -119,23 +119,13 @@ export const contractService = {
     getById: (id) => api.get(`/contracts/${id}`),
     create: (data) => api.post('/contracts', data),
     update: (id, data) => {
-        let formData;
         if (data instanceof FormData) {
-            formData = data;
-        } else {
-            formData = new FormData();
-            for (const key in data) {
-                if (data[key] !== null && data[key] !== undefined) {
-                    formData.append(key, data[key]);
-                }
-            }
+            if (!data.has('_method')) data.append('_method', 'PUT');
+            return api.post(`/contracts/${id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
         }
-        if (!formData.has('_method')) {
-            formData.append('_method', 'PUT');
-        }
-        return api.post(`/contracts/${id}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        return api.post(`/contracts/${id}`, data);
     },
     delete: (id) => api.post(`/contracts/${id}/delete`),
     getPayments: (id) => api.get(`/contracts/${id}/payments`),
@@ -184,23 +174,13 @@ export const companyService = {
     getById: (id) => api.get(`/companies/${id}`),
     create: (data) => api.post('/companies', data),
     update: (id, data) => {
-        let formData;
         if (data instanceof FormData) {
-            formData = data;
-        } else {
-            formData = new FormData();
-            for (const key in data) {
-                if (data[key] !== null && data[key] !== undefined) {
-                    formData.append(key, data[key]);
-                }
-            }
+            if (!data.has('_method')) data.append('_method', 'PUT');
+            return api.post(`/companies/${id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
         }
-        if (!formData.has('_method')) {
-            formData.append('_method', 'PUT');
-        }
-        return api.post(`/companies/${id}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        return api.post(`/companies/${id}`, data);
     },
     delete: (id) => api.post(`/companies/${id}/delete`),
     getPendingCollections: (id) => api.get(`/companies/${id}/pending-collections`)
