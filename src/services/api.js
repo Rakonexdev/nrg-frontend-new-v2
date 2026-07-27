@@ -226,7 +226,7 @@ export const roleService = {
 export const adminUserService = {
     getAll: () => api.get('/admin-users'),
     create: (data) => api.post('/admin-users', data),
-    update: (id, data) => api.put(`/admin-users/${id}`, data),
+    update: (id, data) => api.post(`/admin-users/${id}`, data),
     delete: (id) => api.post(`/admin-users/${id}/delete`)
 };
 
