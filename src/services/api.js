@@ -133,8 +133,8 @@ export const contractService = {
     updatePayment: (contractId, paymentId, data) => api.post(`/contracts/${contractId}/payments/${paymentId}?_method=PUT`, data, { headers: { 'X-HTTP-Method-Override': 'PUT' } }),
     deletePayment: (contractId, paymentId) => api.post(`/contracts/${contractId}/payments/${paymentId}?_method=DELETE`, {}, { headers: { 'X-HTTP-Method-Override': 'DELETE' } }),
     addAdjustment: (id, data) => api.post(`/contracts/${id}/adjustments`, data),
-    updateAdjustment: (contractId, adjustmentId, data) => api.put(`/contracts/${contractId}/adjustments/${adjustmentId}`, data),
-    updateNextDueDate: (id, data) => api.put(`/contracts/${id}/next-due-date`, data)
+    updateAdjustment: (contractId, adjustmentId, data) => api.post(`/contracts/${contractId}/adjustments/${adjustmentId}`, data),
+    updateNextDueDate: (id, data) => api.post(`/contracts/${id}/next-due-date`, data)
 };
 
 export const expenseService = {
