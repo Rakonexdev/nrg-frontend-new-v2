@@ -1074,13 +1074,21 @@ const calculateDue = () => {
     form.value.due_amount = (total - pay).toFixed(2);
 };
 
+const formatDateForInput = (dateStr) => {
+    if (!dateStr) return '';
+    let formatted = String(dateStr);
+    if (formatted.includes('T')) formatted = formatted.split('T')[0];
+    if (formatted.includes(' ')) formatted = formatted.split(' ')[0];
+    return formatted;
+};
+
 const openPaymentModal = (application) => {
     applicationToPay.value = application;
     editingPaymentId.value = null;
     paymentForm.value = {
         amount: '',
         payment_date: new Date().toISOString().split('T')[0],
-        next_due_date: '',
+        next_due_date: formatDateForInput(application.next_due_date),
         method: 'Cash',
         notes: ''
     };
@@ -1091,8 +1099,8 @@ const editPayment = (pay) => {
     editingPaymentId.value = pay.id;
     paymentForm.value = {
         amount: pay.amount,
-        payment_date: pay.payment_date,
-        next_due_date: applicationToPay.value.next_due_date || '',
+        payment_date: formatDateForInput(pay.payment_date) || new Date().toISOString().split('T')[0],
+        next_due_date: formatDateForInput(applicationToPay.value?.next_due_date),
         method: pay.method || 'Cash',
         notes: pay.notes || ''
     };
@@ -1154,7 +1162,7 @@ const savePayment = async () => {
         paymentForm.value = {
             amount: '',
             payment_date: new Date().toISOString().split('T')[0],
-            next_due_date: applicationToPay.value.next_due_date || '',
+            next_due_date: formatDateForInput(applicationToPay.value?.next_due_date),
             method: 'Cash',
             notes: ''
         };
