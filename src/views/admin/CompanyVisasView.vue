@@ -443,7 +443,7 @@ const formatDate = (dateString) => {
 const fetchVisas = async () => {
     loading.value = true;
     try {
-        const res = await companyVisaService.getAll();
+        const res = await companyVisaService.getAll({ _t: Date.now() });
         visas.value = res.data;
     } catch (error) {
         console.error('Failed to fetch visas:', error);

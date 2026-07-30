@@ -18,6 +18,11 @@ api.interceptors.request.use(config => {
     if (config.method?.toLowerCase() === 'delete') {
         config.headers['X-HTTP-Method-Override'] = 'DELETE';
     }
+    // Prevent server/browser caching of GET requests on production
+    if (config.method?.toLowerCase() === 'get') {
+        config.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+        config.headers['Pragma'] = 'no-cache';
+    }
     return config;
 });
 
