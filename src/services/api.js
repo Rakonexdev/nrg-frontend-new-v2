@@ -272,6 +272,19 @@ export const employeeListMoiService = {
     download: (id) => api.get(`/employee-list-moi/${id}/download`, { responseType: 'blob' })
 };
 
+export const salarySheetService = {
+    getAll: (params) => api.get('/salary-sheets', { params }),
+    getById: (id) => api.get(`/salary-sheets/${id}`),
+    upload: (data) => api.post('/salary-sheets', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    update: (id, data) => api.post(`/salary-sheets/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    delete: (id) => api.post(`/salary-sheets/${id}/delete`),
+    download: (id) => api.get(`/salary-sheets/${id}/download`, { responseType: 'blob' })
+};
+
 export const vehicleService = {
     getAll: (params) => api.get('/vehicles', { params }),
     getById: (id) => api.get(`/vehicles/${id}`),

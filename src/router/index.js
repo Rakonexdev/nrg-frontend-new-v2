@@ -115,6 +115,12 @@ const router = createRouter({
           component: () => import('../views/admin/EmployeeListMoiView.vue'),
           meta: { title: 'Employee List MOI' }
         },
+        {
+          path: 'immigration/salary-sheet',
+          name: 'admin-immigration-salary-sheet',
+          component: () => import('../views/admin/SalarySheetView.vue'),
+          meta: { title: 'Salary Sheet' }
+        },
         // Reports
         {
           path: 'reports/collections',

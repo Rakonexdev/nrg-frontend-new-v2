@@ -421,6 +421,13 @@ const formatPermissionLabel = (perm) => {
   if (perm === 'employee_list_moi_delete') return 'Delete Document';
   if (perm === 'employee_list_moi_download') return 'Download Document';
 
+  // Salary Sheet group overrides
+  if (perm === 'view_salary_sheet') return 'View Salary Sheet';
+  if (perm === 'salary_sheet_create') return 'Upload Document';
+  if (perm === 'salary_sheet_edit') return 'Edit Document';
+  if (perm === 'salary_sheet_delete') return 'Delete Document';
+  if (perm === 'salary_sheet_download') return 'Download Document';
+
   // Contracts group overrides
   if (perm.startsWith('contract_card_')) {
     const card = perm.replace('contract_card_', '').replace(/_/g, ' ');
