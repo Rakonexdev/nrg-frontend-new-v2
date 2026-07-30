@@ -414,6 +414,13 @@ const formatPermissionLabel = (perm) => {
     return action.charAt(0).toUpperCase() + action.slice(1) + ' Documentation';
   }
 
+  // Employee List MOI group overrides
+  if (perm === 'view_employee_list_moi') return 'View Employee List MOI';
+  if (perm === 'employee_list_moi_create') return 'Upload Document';
+  if (perm === 'employee_list_moi_edit') return 'Edit Document';
+  if (perm === 'employee_list_moi_delete') return 'Delete Document';
+  if (perm === 'employee_list_moi_download') return 'Download Document';
+
   // Contracts group overrides
   if (perm.startsWith('contract_card_')) {
     const card = perm.replace('contract_card_', '').replace(/_/g, ' ');

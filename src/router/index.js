@@ -109,6 +109,12 @@ const router = createRouter({
           component: () => import('../views/admin/OfficialFormatView.vue'),
           meta: { title: 'Official Format' }
         },
+        {
+          path: 'immigration/employee-list-moi',
+          name: 'admin-immigration-employee-list-moi',
+          component: () => import('../views/admin/EmployeeListMoiView.vue'),
+          meta: { title: 'Employee List MOI' }
+        },
         // Reports
         {
           path: 'reports/collections',

@@ -259,6 +259,19 @@ export const officialFormatService = {
     download: (id) => api.get(`/official-formats/${id}/download`, { responseType: 'blob' })
 };
 
+export const employeeListMoiService = {
+    getAll: (params) => api.get('/employee-list-moi', { params }),
+    getById: (id) => api.get(`/employee-list-moi/${id}`),
+    upload: (data) => api.post('/employee-list-moi', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    update: (id, data) => api.post(`/employee-list-moi/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    delete: (id) => api.post(`/employee-list-moi/${id}/delete`),
+    download: (id) => api.get(`/employee-list-moi/${id}/download`, { responseType: 'blob' })
+};
+
 export const vehicleService = {
     getAll: (params) => api.get('/vehicles', { params }),
     getById: (id) => api.get(`/vehicles/${id}`),
