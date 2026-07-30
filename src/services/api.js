@@ -104,12 +104,12 @@ export const staffService = {
     }),
     update: (id, data) => {
         if (data instanceof FormData) {
-            data.append('_method', 'PUT');
+            if (!data.has('_method')) data.append('_method', 'PUT');
             return api.post(`/staff/${id}`, data, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
         }
-        return api.put(`/staff/${id}`, data);
+        return api.post(`/staff/${id}`, data);
     },
     delete: (id) => api.post(`/staff/${id}/delete`),
     getDocuments: (id) => api.get(`/staff/${id}/documents`),
