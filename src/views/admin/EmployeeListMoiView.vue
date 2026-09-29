@@ -40,6 +40,17 @@
           />
         </div>
 
+        <!-- Filter by Status -->
+        <div class="w-full md:w-44">
+          <select v-model="filterStatus" @change="fetchDocuments(1)" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-medium cursor-pointer h-[46px]">
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Submit">Submit</option>
+            <option value="Completed">Completed</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+
         <transition name="fade-slide-horizontal">
             <div v-if="isScrolled" class="flex gap-2 shrink-0">
                 <button v-if="authStore.hasPermission('employee_list_moi_create') || authStore.isSuperAdmin" 
@@ -103,6 +114,12 @@
         <span class="text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-lg">
             <span v-if="value">{{ formatSalaryMonth(value) }}</span>
             <span v-else class="text-slate-400 font-medium text-xs">N/A</span>
+        </span>
+      </template>
+
+      <template #status="{ value }">
+        <span :class="getStatusBadgeClass(value)">
+            {{ value || 'Pending' }}
         </span>
       </template>
 
@@ -174,8 +191,8 @@
           </div>
         </div>
 
-        <!-- 4. Upload Date & 5. Salary Month -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- 4. Upload Date & 5. Salary Month & Status -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Upload Date <span class="text-rose-500">*</span></label>
             <input v-model="form.upload_date" type="date" required class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold text-sm">
@@ -186,6 +203,17 @@
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Salary Month <span class="text-rose-500">*</span></label>
             <input v-model="form.salary_month" type="month" required class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold text-sm">
             <p v-if="errors.salary_month" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.salary_month[0] }}</p>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Status <span class="text-rose-500">*</span></label>
+            <select v-model="form.status" required class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-4 focus:ring-[#29166e]/10 focus:border-[#29166e] transition-all dark:text-white font-bold text-sm cursor-pointer">
+              <option value="Pending">Pending</option>
+              <option value="Submit">Submit</option>
+              <option value="Completed">Completed</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+            <p v-if="errors.status" class="text-rose-500 text-[10px] mt-1 ml-1 font-bold uppercase tracking-widest">{{ errors.status[0] }}</p>
           </div>
         </div>
 
@@ -255,6 +283,7 @@ const isEditing = ref(false);
 const editingItem = ref(null);
 const search = ref('');
 const filterCompany = ref('');
+const filterStatus = ref('');
 const perPage = ref(10);
 const pagination = ref({});
 const showModal = ref(false);
@@ -270,7 +299,8 @@ const form = ref({
     company_name: '',
     company_id: '',
     upload_date: new Date().toISOString().substring(0, 10),
-    salary_month: new Date().toISOString().substring(0, 7)
+    salary_month: new Date().toISOString().substring(0, 7),
+    status: 'Pending'
 });
 
 const columns = [
@@ -279,6 +309,7 @@ const columns = [
   { key: 'company_name', label: 'Company Name', sortable: true },
   { key: 'upload_date', label: 'Upload Date', sortable: true },
   { key: 'salary_month', label: 'Salary Month', sortable: true },
+  { key: 'status', label: 'Status', sortable: true },
   { key: 'uploader', label: 'Uploaded By', sortable: false },
   { key: 'actions', label: 'Actions', sortable: false }
 ];
@@ -346,7 +377,8 @@ const fetchDocuments = async (page = 1) => {
       page,
       per_page: perPage.value,
       search: search.value,
-      company_name: filterCompany.value
+      company_name: filterCompany.value,
+      status: filterStatus.value
     });
     documents.value = res.data.data;
     pagination.value = res.data;
@@ -376,7 +408,8 @@ const openUploadModal = () => {
         company_name: '', 
         company_id: '',
         upload_date: new Date().toISOString().substring(0, 10),
-        salary_month: new Date().toISOString().substring(0, 7)
+        salary_month: new Date().toISOString().substring(0, 7),
+        status: 'Pending'
     };
     selectedFile.value = null;
     errors.value = {};
@@ -392,7 +425,8 @@ const openEditModal = (item) => {
         company_name: item.company_name || '', 
         company_id: item.company_id || '',
         upload_date: item.upload_date ? item.upload_date.substring(0, 10) : new Date().toISOString().substring(0, 10),
-        salary_month: item.salary_month || ''
+        salary_month: item.salary_month || '',
+        status: item.status || 'Pending'
     };
     selectedFile.value = null;
     errors.value = {};
@@ -448,6 +482,7 @@ const handleUpload = async () => {
         if (form.value.company_id) formData.append('company_id', form.value.company_id);
         if (form.value.upload_date) formData.append('upload_date', form.value.upload_date);
         if (form.value.salary_month) formData.append('salary_month', form.value.salary_month);
+        if (form.value.status) formData.append('status', form.value.status);
         formData.append('file', selectedFile.value);
 
         await employeeListMoiService.upload(formData);
@@ -501,6 +536,7 @@ const handleUpdate = async () => {
         if (form.value.company_id) formData.append('company_id', form.value.company_id);
         if (form.value.upload_date) formData.append('upload_date', form.value.upload_date);
         if (form.value.salary_month) formData.append('salary_month', form.value.salary_month);
+        if (form.value.status) formData.append('status', form.value.status);
 
         if (selectedFile.value) {
             formData.append('file', selectedFile.value);
@@ -598,6 +634,22 @@ const formatSalaryMonth = (val) => {
     }
   }
   return val;
+};
+
+const getStatusBadgeClass = (status) => {
+  const s = (status || 'Pending').toLowerCase();
+  switch (s) {
+    case 'completed':
+      return 'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800';
+    case 'submit':
+    case 'submitted':
+      return 'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800';
+    case 'rejected':
+      return 'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-200 dark:border-rose-800';
+    case 'pending':
+    default:
+      return 'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800';
+  }
 };
 
 onMounted(() => {
